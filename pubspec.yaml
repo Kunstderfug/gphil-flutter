@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_sanity: ^1.1.0
   flutter_sanity_image_url: ^0.1.0
+  flutter_cors: ^1.5.0
 
 dev_dependencies:
   flutter_test:
