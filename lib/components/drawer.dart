@@ -1,3 +1,7 @@
+import 'package:gphil/components/dark_mode.dart';
+import 'package:gphil/layout/desktop.dart';
+import 'package:gphil/layout/responsive.dart';
+import 'package:gphil/layout/tablet.dart';
 import 'package:gphil/screens/settings_page.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +11,7 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      width: 400,
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Column(children: [
         //logo
@@ -26,6 +31,13 @@ class MyDrawer extends StatelessWidget {
             leading: const Icon(Icons.home),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ResponsiveLayout(
+                        tabletLayout: TabletLayout(),
+                        desktopLayout: DesktopLayout()),
+                  ));
             },
           ),
         ),
@@ -44,7 +56,11 @@ class MyDrawer extends StatelessWidget {
                   ));
             },
           ),
-        )
+        ),
+        const Padding(
+          padding: EdgeInsets.all(25.0),
+          child: DarkModeSlider(),
+        ),
       ]),
     );
   }

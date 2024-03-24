@@ -66,7 +66,7 @@ class PlaylistProvider extends ChangeNotifier {
     ),
   ];
 
-  int? _currentSongIndex;
+  int? _currentSongIndex = 0;
 // init not playing
   bool _isPlaying = false;
 
@@ -97,11 +97,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   set currentSongIndex(int? index) {
     _currentSongIndex = index;
-    log('playing: $_currentSongIndex');
-
-    if (_currentSongIndex != null) {
-      playSong();
-    }
+    _audioPlayer.setSourceUrl(playlist[_currentSongIndex!].audioPath);
     notifyListeners();
   }
 
@@ -120,12 +116,12 @@ class PlaylistProvider extends ChangeNotifier {
     final String path = playlist[_currentSongIndex!].audioPath;
     if (!_isPlaying) {
       log('playing: $path');
-      await _audioPlayer.play(UrlSource(path));
+      await _audioPlayer.resume();
       isPlaying = true;
     } else {
       await _audioPlayer.stop();
       isPlaying = false;
-      await _audioPlayer.play(UrlSource(path));
+      await _audioPlayer.resume();
       isPlaying = true;
     }
     notifyListeners();
@@ -142,9 +138,14 @@ class PlaylistProvider extends ChangeNotifier {
 // resume playing
   void resumeSong() async {
     log('resuming');
-    await _audioPlayer.resume();
-    isPlaying = true;
-    notifyListeners();
+    if (_currentPosition.inSeconds > 0) {
+      await _audioPlayer.resume();
+      isPlaying = true;
+      notifyListeners();
+      return;
+    } else {
+      playSong();
+    }
   }
 
 // pause or resume

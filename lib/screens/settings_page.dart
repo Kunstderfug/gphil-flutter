@@ -9,36 +9,37 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('S E T T I N G S'),
-          toolbarHeight: 64,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: const BorderRadius.all(Radius.circular(16)),
-            ),
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                //dark mode text
-                const Text(
-                  'Dark Mode',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                CupertinoSwitch(
-                    value: Provider.of<ThemeProvider>(context, listen: false)
-                        .isDarkMode,
-                    onChanged: (value) =>
-                        Provider.of<ThemeProvider>(context, listen: false)
-                            .toggleTheme()),
-              ],
-            ),
+      appBar: AppBar(
+        title: const Text('S E T T I N G S'),
+        toolbarHeight: 64,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
           ),
-        ));
+          padding: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              //dark mode text
+              const Text(
+                'Dark Mode',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              CupertinoSwitch(
+                  value: Provider.of<ThemeProvider>(context, listen: false)
+                      .isDarkMode,
+                  onChanged: (value) =>
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .toggleTheme()),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
