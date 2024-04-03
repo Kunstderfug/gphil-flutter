@@ -35,7 +35,7 @@ class PlaylistControl extends StatelessWidget {
 
             //end time
             Text(
-              convertDuration(provider.totalDuration),
+              convertDuration(provider.currentPlayer.duration!),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),

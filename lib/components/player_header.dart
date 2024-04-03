@@ -9,9 +9,9 @@ class PlayerHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PlaylistProvider>(builder: (context, provider, child) {
       final String songName =
-          provider.playlist[provider.currentSongIndex!].songName;
+          provider.playlist[provider.currentSongIndex].songName;
       final String artistName =
-          provider.playlist[provider.currentSongIndex!].artistName;
+          provider.playlist[provider.currentSongIndex].artistName;
 
       return SafeArea(
         child:

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/models/song.dart';
-import 'package:gphil/screens/song_screen.dart';
 import 'package:provider/provider.dart';
 
 class PlaylistTile extends StatelessWidget {
@@ -48,8 +47,7 @@ class PlaylistTile extends StatelessWidget {
         contentPadding: const EdgeInsets.all(16),
         onTap: () {
           provider.currentSongIndex = songIndex;
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const SongScreen()));
+          Navigator.pushNamed(context, '/song');
         });
   }
 }

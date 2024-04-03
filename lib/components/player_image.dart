@@ -15,7 +15,7 @@ class PlayerImage extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(
-              provider.playlist[provider.currentSongIndex!].albumArtImagePath,
+              provider.playlist[provider.currentSongIndex].albumArtImagePath,
               isAntiAlias: true,
               filterQuality: FilterQuality.high,
               fit: BoxFit.cover,
