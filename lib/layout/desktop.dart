@@ -1,37 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/constants.dart';
+import 'package:gphil/components/score/score_links.dart';
 import 'package:gphil/layout/drawer.dart';
 import 'package:gphil/providers/navigation_provider.dart';
-import 'package:gphil/screens/home_screen.dart';
-import 'package:gphil/screens/library_screen.dart';
-import 'package:gphil/screens/score_screen.dart';
-import 'package:gphil/screens/song_screen.dart';
-// import 'package:gphil/screens/song_screen.dart';
+import 'package:gphil/providers/score_provider.dart';
 import 'package:provider/provider.dart';
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
 
-  final List<Widget> screens = const [
-    LibraryScreen(),
-    HomeScreen(),
-    SongScreen(),
-    ScoreScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
-    final navigation = Provider.of<NavigationProvider>(context);
+    final NavigationProvider navigation =
+        Provider.of<NavigationProvider>(context);
+    final ScoreProvider score = Provider.of<ScoreProvider>(context);
+    bool isScoreScreen = navigation.currentIndex == 3;
+
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
-        appBar: appBar,
+        appBar: !isScoreScreen
+            ? AppBar(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                title: Text(
+                    navigation.navigationScreens[navigation.currentIndex]
+                        ['title'] as String,
+                    style: Theme.of(context).textTheme.titleLarge),
+                toolbarHeight: 64,
+              )
+            : AppBar(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                title: Padding(
+                  padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(score.currentScore!.composer,
+                          style: Theme.of(context).textTheme.titleLarge),
+                      const ScoreLinks(),
+                      Text(score.currentScore!.shortTitle,
+                          style: Theme.of(context).textTheme.titleLarge),
+                    ],
+                  ),
+                ),
+                toolbarHeight: 64,
+              ),
         body: Row(
           children: [
             const MyDrawer(),
             Expanded(
                 child: Padding(
               padding: const EdgeInsets.all(48.0),
-              child: screens[navigation.currentIndex],
+              child: navigation.navigationScreens[navigation.currentIndex]
+                  ['screen'] as Widget,
             )),
           ],
         ));

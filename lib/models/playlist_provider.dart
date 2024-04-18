@@ -167,6 +167,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     isLoading = false;
     log(_sessionPlayers.toString());
+
     notifyListeners();
   }
 

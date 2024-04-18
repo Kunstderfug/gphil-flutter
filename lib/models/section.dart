@@ -12,6 +12,7 @@ class Section {
   int? beatLength;
   Duration? autoContinueMarker;
   int defaultTempo;
+  int? userTempo;
 
   Section({
     this.metronomeAvailable,
@@ -27,6 +28,7 @@ class Section {
     this.beatLength,
     this.autoContinueMarker,
     required this.defaultTempo,
+    this.userTempo,
   });
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
@@ -49,6 +51,7 @@ class Section {
                 milliseconds:
                     convertToDuration(json["autoContinueMarker"].toDouble())),
         defaultTempo: json["defaultTempo"],
+        userTempo: json["userTempo"] ?? json["defaultTempo"],
       );
 }
 
@@ -96,6 +99,7 @@ class SetupSection extends Section {
     required super.step,
     required super.defaultTempo,
     super.sectionImage,
+    super.userTempo,
     required this.tempoRange,
     required this.fileList,
   });

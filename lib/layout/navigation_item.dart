@@ -22,7 +22,6 @@ class NavigationItem extends StatelessWidget {
         title: Text(title),
         leading: Icon(icon),
         onTap: () {
-          // Navigator.pop(context);
           navigation.setNavigationIndex(index);
         },
       ),

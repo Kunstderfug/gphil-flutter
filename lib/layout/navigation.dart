@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/dark_mode.dart';
+import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/theme/dark_mode.dart';
 import 'package:gphil/layout/navigation_item.dart';
+import 'package:provider/provider.dart';
 
 class Navigation extends StatelessWidget {
   const Navigation({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final navigationProvider = Provider.of<NavigationProvider>(context);
+    final navigationScreens = navigationProvider.navigationScreens;
     return Column(children: [
       //logo
       DrawerHeader(
@@ -18,17 +22,12 @@ class Navigation extends StatelessWidget {
         ),
       )),
 
-      //Home
-      const NavigationItem(
-          title: 'L I B R A R Y', icon: Icons.library_books_rounded, index: 0),
-
-      //Playlist
-      const NavigationItem(
-          title: 'P L A Y L I S T', icon: Icons.playlist_play, index: 1),
-
-//song
-      const NavigationItem(
-          title: 'P E R F O R M A N C E', icon: Icons.piano, index: 2),
+      //NAVIGATION
+      ...navigationScreens.getRange(0, 3).map((screen) => NavigationItem(
+            title: screen['title'] as String,
+            icon: screen['icon'] as IconData,
+            index: navigationScreens.indexOf(screen),
+          )),
 
       //DARK MODE
       const Padding(

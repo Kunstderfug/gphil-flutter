@@ -8,7 +8,7 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/screens/home_screen.dart';
 import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/song_screen.dart';
-import 'package:gphil/theme/theme_provider.dart';
+import 'package:gphil/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +24,7 @@ void main() async {
       ChangeNotifierProvider(create: (_) => LibraryProvider()),
       ChangeNotifierProvider(create: (_) => ScoreProvider()),
       ChangeNotifierProvider(create: (_) => NavigationProvider()),
+      // ChangeNotifierProvider(create: (_) => PersistentDataProvider()),
     ], child: const MyApp()),
   );
 }
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
       },
       theme: provider.themeData,
       themeAnimationStyle: AnimationStyle(
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.decelerate,
         reverseCurve: Curves.easeInOutCubic,
         reverseDuration: const Duration(milliseconds: 200),

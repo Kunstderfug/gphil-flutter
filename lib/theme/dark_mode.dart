@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gphil/theme/theme_provider.dart';
+import 'package:gphil/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class DarkModeSlider extends StatelessWidget {

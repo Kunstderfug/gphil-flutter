@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
-import 'package:gphil/components/playlist_tile.dart';
+import 'package:gphil/components/player/playlist_tile.dart';
 import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/models/song.dart';
 import 'package:provider/provider.dart';

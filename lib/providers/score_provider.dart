@@ -1,23 +1,28 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
+import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/services/sanity_service.dart';
 import 'package:gphil/services/supabase_service.dart';
 
 final String supabaseUrl = SupabaseService().supabaseUrl;
 const String format = 'mp3';
+final persistentController = PersistentDataController();
 
 class ScoreProvider extends ChangeNotifier {
   late String _scoreId;
   int _movementIndex = 0;
   int _sectionIndex = 0;
+  int _currentTempo = 0;
+  late int? _userTempo;
   SetupScore? _currentScore;
-  SetupMovement? _currentMovement;
-  List<SetupSection>? _currentSections;
-  SetupSection? _currentSection;
+  late SetupMovement _currentMovement;
+  late List<SetupSection> _currentSections;
+  late SetupSection _currentSection;
   bool isLoading = false;
   String error = '';
   String? _sectionImageUrl;
@@ -26,11 +31,13 @@ class ScoreProvider extends ChangeNotifier {
   String get scoreId => _scoreId;
   int get movementIndex => _movementIndex;
   int get sectionIndex => _sectionIndex;
+  int get currentTempo => _currentTempo;
+  int? get userTempo => _userTempo;
   SetupScore? get currentScore => _currentScore;
-  List<SetupMovement>? get currentMovements => _currentScore?.setupMovements;
-  List<SetupSection>? get currentSections => _currentSections;
-  SetupSection? get currentSection => _currentSection;
-  SetupMovement? get currentMovement => _currentMovement;
+  List<SetupMovement> get currentMovements => _currentScore!.setupMovements;
+  List<SetupSection> get currentSections => _currentSections;
+  SetupSection get currentSection => _currentSection;
+  SetupMovement get currentMovement => _currentMovement;
 
 // SETTERS
   set scoreId(String value) {
@@ -43,17 +50,17 @@ class ScoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  set currentMovement(SetupMovement? value) {
+  set currentMovement(SetupMovement value) {
     _currentMovement = value;
     notifyListeners();
   }
 
-  set currentSections(List<SetupSection>? value) {
+  set currentSections(List<SetupSection> value) {
     _currentSections = value;
     notifyListeners();
   }
 
-  set currentSection(SetupSection? value) {
+  set currentSection(SetupSection value) {
     _currentSection = value;
     notifyListeners();
   }
@@ -74,6 +81,16 @@ class ScoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  set currentTempo(int value) {
+    _currentTempo = value;
+    notifyListeners();
+  }
+
+  set userTempo(int? value) {
+    _userTempo = value;
+    notifyListeners();
+  }
+
   //METHODS
   void setMovementIndex(int index) {
     movementIndex = index;
@@ -83,16 +100,63 @@ class ScoreProvider extends ChangeNotifier {
   }
 
   void setCurrentMovement(int index) {
-    currentMovement = _currentScore?.setupMovements[index];
+    currentMovement = _currentScore!.setupMovements[index];
   }
 
   void setCurrentSections() {
-    currentSections = _currentMovement?.setupSections;
+    currentSections = _currentMovement.setupSections;
   }
 
-  void setCurrentSection(int index) {
+  void setCurrentSection(int index) async {
     sectionIndex = index;
-    currentSection = _currentSections?[index];
+    currentSection = _currentSections[index];
+    currentTempo = currentSection.defaultTempo;
+
+    //read from persistent storage
+    final data = await persistentController.readJsonFile(
+        currentScore!.id, currentSection.key);
+
+    final currentPrefs = data != null ? SectionPrefs.fromJson(data) : null;
+
+    if (currentPrefs != null) {
+      currentSection.userTempo = currentPrefs.userTempo;
+      userTempo = currentPrefs.userTempo;
+    }
+
+    //write to persistent storage
+    final sectionPrefs = SectionPrefs(
+        sectionKey: currentSection.key,
+        defaultTempo: currentTempo,
+        userTempo: currentSection.userTempo);
+
+    try {
+      await persistentController.writeJsonFile(
+          currentScore!.id, currentSection.key, sectionPrefs);
+    } catch (e) {
+      error = e.toString();
+    }
+  }
+
+  void setCurrentTempo(int tempo) async {
+    currentSection.userTempo = tempo;
+    currentTempo = tempo;
+    userTempo = tempo;
+
+    //update sections array with new data
+    _currentSections[sectionIndex] = currentSection;
+    currentSections = _currentSections;
+
+    final sectionPrefs = SectionPrefs(
+        sectionKey: currentSection.key,
+        defaultTempo: currentSection.defaultTempo,
+        userTempo: tempo);
+
+    try {
+      await persistentController.writeJsonFile(
+          currentScore!.id, currentSection.key, sectionPrefs);
+    } catch (e) {
+      error = e.toString();
+    }
   }
 
   Future<void> getScore() async {

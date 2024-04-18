@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
-import 'package:gphil/components/player_control.dart';
-import 'package:gphil/components/player_header.dart';
-import 'package:gphil/components/player_image.dart';
-import 'package:gphil/components/playlist_control.dart';
-import 'package:gphil/components/progress_bar.dart';
+import 'package:gphil/components/player/player_control.dart';
+import 'package:gphil/components/player/player_header.dart';
+import 'package:gphil/components/player/player_image.dart';
+import 'package:gphil/components/player/playlist_control.dart';
+import 'package:gphil/components/player/progress_bar.dart';
 import 'package:gphil/models/playlist_provider.dart';
 import 'package:provider/provider.dart';
 // import 'package:gphil/models/song.dart';
