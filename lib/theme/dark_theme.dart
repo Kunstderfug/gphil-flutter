@@ -15,4 +15,5 @@ ThemeData darkMode = ThemeData(
   ),
   hoverColor: Colors.purple.shade900,
   highlightColor: Colors.purple.shade800,
+  fontFamily: 'Roboto',
 );

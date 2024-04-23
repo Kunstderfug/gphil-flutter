@@ -5,6 +5,7 @@ import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/providers/session_provider.dart';
 import 'package:gphil/screens/home_screen.dart';
 import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/song_screen.dart';
@@ -24,7 +25,7 @@ void main() async {
       ChangeNotifierProvider(create: (_) => LibraryProvider()),
       ChangeNotifierProvider(create: (_) => ScoreProvider()),
       ChangeNotifierProvider(create: (_) => NavigationProvider()),
-      // ChangeNotifierProvider(create: (_) => PersistentDataProvider()),
+      ChangeNotifierProvider(create: (_) => SessionProvider()),
     ], child: const MyApp()),
   );
 }

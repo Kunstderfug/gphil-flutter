@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/theme/constants.dart';
 
 class ScoreSection extends StatelessWidget {
   final String name;
@@ -13,17 +14,17 @@ class ScoreSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRad().bRadiusXl,
       onTap: onTap,
       child: Ink(
         decoration: BoxDecoration(
-          // borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRad().bRadiusXl,
           color: isSelected
               ? Theme.of(context).highlightColor
               : Colors.transparent,
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isTablet = constraints.maxWidth < 600;

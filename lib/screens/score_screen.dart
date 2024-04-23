@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/score/score_image.dart';
+import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/score_movements.dart';
 import 'package:gphil/components/score/score_sections.dart';
 import 'package:gphil/components/score/section_tempos.dart';
@@ -34,93 +34,91 @@ class _ScoreScreenState extends State<ScoreScreen> {
         return const Center(child: Text('No score found'));
       } else {
         return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            IconButton(
-              onPressed: () {
-                final navigator =
-                    Provider.of<NavigationProvider>(context, listen: false);
-                navigator.setNavigationIndex(0);
-              },
-              icon: const Icon(Icons.arrow_back),
-            ),
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              IconButton(
+                onPressed: () {
+                  final navigator =
+                      Provider.of<NavigationProvider>(context, listen: false);
+                  navigator.setNavigationIndex(0);
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
 
-            const SizedBox(height: 18),
+              const SizedBox(height: 18),
 
-            //MOVEMENTS % SECTIONS HEADING
-            Row(
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('M O V E M E N T S',
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SeparatorLine(),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: separatorLg),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('S E C T I O N S',
-                          style: Theme.of(context).textTheme.titleLarge),
-                      const SeparatorLine(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            // MOVEMENTS AND SECTIONS
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: ScoreMovements(movements: provider.currentMovements),
-                ),
-                const SizedBox(width: separatorLg),
-
-                //SECTIONS
-                Expanded(
+              //MOVEMENTS % SECTIONS HEADING
+              Row(
+                children: [
+                  Expanded(
                     flex: 2,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ScoreSections(
-                            sections: provider.currentSections,
-                          ),
-                          const SizedBox(height: separatorSm),
-                          Text('Section starts at:',
-                              style: Theme.of(context).textTheme.titleLarge),
-                          const SeparatorLine(),
-                          const SizedBox(height: separatorSm),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('M O V E M E N T S',
+                            style: Theme.of(context).textTheme.titleLarge),
+                        const SeparatorLine(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: separatorLg),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('S E C T I O N S',
+                            style: Theme.of(context).textTheme.titleLarge),
+                        const SeparatorLine(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
 
-                          //SECTION IMAGE
-                          Align(
-                            alignment: Alignment.center,
-                            child: Column(
-                              children: [
-                                const SectionImage(),
-                                const SizedBox(height: separatorSm),
-                                SectionTempos(
-                                    tempos: provider.currentSection.tempoRange),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ))
-              ],
+              // MOVEMENTS AND SECTIONS
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: ScoreMovements(movements: provider.currentMovements),
+                  ),
+                  const SizedBox(width: separatorLg),
+
+                  //SECTIONS
+                  Expanded(
+                      flex: 3,
+                      child: ScoreSections(
+                        sections: provider.currentSections,
+                      ))
+                ],
+              ),
+
+              const SizedBox(height: separatorSm),
+            ]),
+
+            //SECTION IMAGE
+            SizedBox(
+              height: 560,
+              child: Align(
+                alignment: Alignment.center,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Text('Section starts at:',
+                          style: Theme.of(context).textTheme.titleLarge),
+                      const SizedBox(height: separatorXs),
+                      const SectionImage(),
+                      const SizedBox(height: 12),
+                      SectionTempos(tempos: provider.currentSection.tempoRange),
+                    ],
+                  ),
+                ),
+              ),
             ),
-
-            const SizedBox(height: separatorLg),
           ],
         );
       }

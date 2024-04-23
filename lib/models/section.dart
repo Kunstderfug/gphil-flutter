@@ -1,4 +1,4 @@
-class Section {
+class InitSection {
   bool? metronomeAvailable;
   String name;
   bool? autoContinue;
@@ -14,7 +14,7 @@ class Section {
   int defaultTempo;
   int? userTempo;
 
-  Section({
+  InitSection({
     this.metronomeAvailable,
     required this.name,
     this.autoContinue,
@@ -31,7 +31,7 @@ class Section {
     this.userTempo,
   });
 
-  factory Section.fromJson(Map<String, dynamic> json) => Section(
+  factory InitSection.fromJson(Map<String, dynamic> json) => InitSection(
         metronomeAvailable: json["metronomeAvailable"],
         name: json["name"],
         autoContinue: json["autoContinue"],
@@ -87,24 +87,32 @@ class SectionImage {
       );
 }
 
-class SetupSection extends Section {
+class Section extends InitSection {
   List<int> tempoRange;
   List<String> fileList;
+  late int sectionIndex;
 
-  SetupSection({
+  Section({
     required super.name,
     required super.movementIndex,
     required super.key,
     required super.tempoRangeFull,
     required super.step,
     required super.defaultTempo,
+    super.defaultSectionLength,
+    super.metronomeAvailable,
+    super.beatsPerBar,
+    super.autoContinue,
+    super.autoContinueMarker,
     super.sectionImage,
     super.userTempo,
     required this.tempoRange,
     required this.fileList,
+    required this.sectionIndex,
   });
 
-  factory SetupSection.fromJson(Map<String, dynamic> json) => SetupSection(
+  factory Section.fromJson(Map<String, dynamic> json) => Section(
+        metronomeAvailable: json["metronomeAvailable"],
         name: json["name"],
         movementIndex: json["movementIndex"],
         key: json["_key"],
@@ -113,5 +121,18 @@ class SetupSection extends Section {
         defaultTempo: json["defaultTempo"],
         tempoRange: [],
         fileList: [],
+        defaultSectionLength: json["defaultSectionLength"]?.toDouble(),
+        sectionIndex: json["sectionIndex"],
+        sectionImage: json["sectionImage"] == null
+            ? null
+            : SectionImage.fromJson(json["sectionImage"]),
+        beatsPerBar: json["beatsPerBar"],
+        autoContinue: json["autoContinue"],
+        autoContinueMarker: json["autoContinueMarker"] == null
+            ? null
+            : Duration(
+                milliseconds:
+                    convertToDuration(json["autoContinueMarker"].toDouble())),
+        userTempo: json["userTempo"],
       );
 }

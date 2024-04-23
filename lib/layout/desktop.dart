@@ -33,11 +33,19 @@ class DesktopLayout extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(score.currentScore!.composer,
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(score.currentScore!.composer.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            letterSpacing: 2,
+                            wordSpacing: 4,
+                          )),
                       const ScoreLinks(),
-                      Text(score.currentScore!.shortTitle,
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(score.currentScore!.shortTitle.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            letterSpacing: 2,
+                            wordSpacing: 4,
+                          )),
                     ],
                   ),
                 ),

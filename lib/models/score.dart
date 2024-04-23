@@ -1,13 +1,13 @@
 import 'package:gphil/models/movement.dart';
 
-class Score {
+class InitScore {
   String pathName;
   List<String>? audioFormat;
   String slug;
   String? fullScoreUrl;
   String? pianoScoreUrl;
   dynamic layers;
-  List<Movement> movements;
+  List<InitMovement> movements;
   String? priceId;
   String? key;
   dynamic about;
@@ -22,7 +22,7 @@ class Score {
   String shortTitle;
   String composer;
 
-  Score({
+  InitScore({
     required this.pathName,
     this.audioFormat,
     required this.slug,
@@ -45,7 +45,7 @@ class Score {
     required this.composer,
   });
 
-  factory Score.fromJson(Map<String, dynamic> json) => Score(
+  factory InitScore.fromJson(Map<String, dynamic> json) => InitScore(
         pathName: json["pathName"],
         audioFormat: json["audio_format"] == null
             ? []
@@ -54,8 +54,8 @@ class Score {
         fullScoreUrl: json["full_score_url"] ?? '',
         pianoScoreUrl: json["piano_score_url"] ?? '',
         layers: json["layers"] ?? [],
-        movements: List<Movement>.from(
-            json["movements"].map((x) => Movement.fromJson(x))),
+        movements: List<InitMovement>.from(
+            json["movements"].map((x) => InitMovement.fromJson(x))),
         priceId: json["price_id"] ?? '',
         key: json["key"] ?? '',
         about: json["about"] ?? '',
@@ -83,10 +83,10 @@ class ScoreRef {
       );
 }
 
-class SetupScore extends Score {
-  List<SetupMovement> setupMovements;
+class Score extends InitScore {
+  List<Movement> setupMovements;
 
-  SetupScore({
+  Score({
     required super.movements,
     required super.updatedAt,
     required super.rev,
@@ -98,9 +98,9 @@ class SetupScore extends Score {
     required this.setupMovements,
   });
 
-  factory SetupScore.fromJson(Map<String, dynamic> json) => SetupScore(
-        movements: List<Movement>.from(
-            json["movements"].map((x) => Movement.fromJson(x))),
+  factory Score.fromJson(Map<String, dynamic> json) => Score(
+        movements: List<InitMovement>.from(
+            json["movements"].map((x) => InitMovement.fromJson(x))),
         updatedAt: DateTime.parse(json["_updatedAt"]),
         rev: json["_rev"],
         pathName: json["pathName"],
@@ -108,7 +108,7 @@ class SetupScore extends Score {
         id: json["_id"],
         shortTitle: json["shortTitle"],
         composer: json["composer"],
-        setupMovements: List<SetupMovement>.from(
-            json["setupMovements"].map((x) => SetupMovement.fromJson(x))),
+        setupMovements: List<Movement>.from(
+            json["setupMovements"].map((x) => Movement.fromJson(x))),
       );
 }

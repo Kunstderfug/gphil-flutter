@@ -1,8 +1,13 @@
 import 'dart:developer';
 import 'package:flutter_sanity/flutter_sanity.dart';
 import 'package:flutter_sanity_image_url/flutter_sanity_image_url.dart';
+import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
+import 'package:gphil/controllers/image_controller.dart';
+
+final persistentController = PersistentDataController();
+final imageProvider = ImageController();
 
 class SanityService {
   static const String sanityProjectId = 'b8uar5wl';
@@ -26,7 +31,6 @@ class SanityService {
   }
 
 //set query for score by id
-
   static String queryScore(String id) {
     final query = "*[_type == 'score' && _id == '$id']";
     const params =
@@ -35,14 +39,17 @@ class SanityService {
     return '$query $params';
   }
 
-  String queryImageUrl(String imageRef) {
+  String getImageUrl(String imageRef) {
     int lastIndex = imageRef.lastIndexOf("-");
 
     if (lastIndex != -1) {
       imageRef = imageRef.replaceRange(lastIndex, lastIndex + 1, ".");
     }
     imageRef = imageRef.replaceFirst('image-', '');
-    return 'https://cdn.sanity.io/images/b8uar5wl/production/$imageRef?w=1536&auto=format';
+    final imageUrl =
+        'https://cdn.sanity.io/images/b8uar5wl/production/$imageRef?w=1536&auto=format';
+
+    return imageUrl;
   }
 
   Future<List<LibraryItem>> fetchLibrary() async {
@@ -51,11 +58,11 @@ class SanityService {
     return libraryFromJson(response);
   }
 
-  Future<Score?> fetchScore(String id) async {
+  Future<InitScore?> fetchScore(String id) async {
     final query = queryScore(id);
     try {
       final response = await sanity.fetch(query);
-      return Score.fromJson(response[0]);
+      return InitScore.fromJson(response[0]);
     } catch (e) {
       log('Error: $e');
     }

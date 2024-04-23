@@ -15,4 +15,5 @@ ThemeData lightMode = ThemeData(
   ),
   hoverColor: const Color.fromRGBO(250, 222, 255, 1),
   highlightColor: const Color.fromARGB(255, 228, 184, 255),
+  fontFamily: 'Roboto',
 );

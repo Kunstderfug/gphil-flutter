@@ -1,14 +1,14 @@
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/section.dart';
 
-class Movement {
+class InitMovement {
   ScoreRef score;
   int index;
   String key;
   String title;
-  List<Section> sections;
+  List<InitSection> sections;
 
-  Movement({
+  InitMovement({
     required this.score,
     required this.index,
     required this.key,
@@ -16,20 +16,20 @@ class Movement {
     required this.sections,
   });
 
-  factory Movement.fromJson(Map<String, dynamic> json) => Movement(
+  factory InitMovement.fromJson(Map<String, dynamic> json) => InitMovement(
         score: ScoreRef?.fromJson(json["score"]),
         index: json["index"],
         key: json["_key"],
         title: json["title"],
-        sections: List<Section>.from(
-            json["sections"].map((x) => Section.fromJson(x))),
+        sections: List<InitSection>.from(
+            json["sections"].map((x) => InitSection.fromJson(x))),
       );
 }
 
-class SetupMovement extends Movement {
-  List<SetupSection> setupSections;
+class Movement extends InitMovement {
+  List<Section> setupSections;
 
-  SetupMovement({
+  Movement({
     required super.score,
     required super.index,
     required super.key,
@@ -38,14 +38,14 @@ class SetupMovement extends Movement {
     required this.setupSections,
   });
 
-  factory SetupMovement.fromJson(Map<String, dynamic> json) => SetupMovement(
+  factory Movement.fromJson(Map<String, dynamic> json) => Movement(
         score: ScoreRef?.fromJson(json["score"]),
         index: json["index"],
         key: json["_key"],
         title: json["title"],
-        sections: List<Section>.from(
-            json["sections"].map((x) => Section.fromJson(x))),
-        setupSections: List<SetupSection>.from(
-            json["setupSections"].map((x) => SetupSection.fromJson(x))),
+        sections: List<InitSection>.from(
+            json["sections"].map((x) => InitSection.fromJson(x))),
+        setupSections: List<Section>.from(
+            json["setupSections"].map((x) => Section.fromJson(x))),
       );
 }

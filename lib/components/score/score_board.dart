@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/score/score_image.dart';
+import 'package:gphil/components/score/section_image.dart';
 
 class ScoreBoard extends StatelessWidget {
   const ScoreBoard({super.key});

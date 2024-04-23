@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   flutter_animate: ^4.5.0
   flutter_cors: ^1.5.0
-  flutter_distributor: ^0.3.1
+  flutter_distributor: ^0.4.0
   flutter_sanity: ^1.1.0
   flutter_sanity_image_url: ^0.1.0
   provider: ^6.1.2
@@ -33,4 +33,16 @@ flutter:
   assets:
     - assets/images/
     - assets/audio/
-    - assets/fonts/
+    - fonts/
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Thin.ttf
+          weight: 100
+        - asset: fonts/Roboto-Regular.ttf
+          weight: 400
+        - asset: fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: fonts/Roboto-Bold.ttf
+          weight: 700

@@ -7,17 +7,17 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:provider/provider.dart';
 
 class ScoreSections extends StatelessWidget {
-  final List<SetupSection> sections;
+  final List<Section> sections;
   const ScoreSections({super.key, required this.sections});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ScoreProvider>(builder: (context, provider, child) {
       return Wrap(
-        spacing: 16,
+        // spacing: 8,
         runSpacing: 8,
         children: [
-          for (var section in sections)
+          for (final section in sections)
             ScoreSection(
                 name: section.name,
                 onTap: () =>
