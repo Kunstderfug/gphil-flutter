@@ -1,28 +1,41 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/movement.dart';
-import 'package:gphil/models/score.dart';
+import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/models/section.dart';
+import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/providers/score_provider.dart';
 
-class SessionMovement {
-  final String title;
-  final int index;
-
-  SessionMovement(this.title, this.index);
-}
+final playlistProvider = PlaylistProvider();
+final scoreProvider = ScoreProvider();
+final navigation = NavigationProvider();
+final persistentController = PersistentDataController();
 
 class SessionProvider extends ChangeNotifier {
   List<Section> _sessionPlaylist = [];
-  Score? _sessionScore;
+  // Score? _sessionScore;
   List<SessionMovement> _sessionMovements = [];
   bool _movementExistInSession = false;
+  int movementIndex = 0;
+  int sectionIndex = 0;
+  // final List<SectionClickData> _sessionClickData = [];
+  bool showPrompt = false;
+  Movement? movementToAdd;
+  SessionMovement? currentMovement;
+  String currentMovementKey = '';
+  String currentSectionKey = '';
 
   bool get movementExistInSession => _movementExistInSession;
   List<Section> get sessionPlaylist => _sessionPlaylist;
-  Score? get sessionScore => _sessionScore;
-  String get sessionComposer => _sessionScore?.composer ?? '';
+  // Score? get sessionScore => _sessionScore;
+  // String get sessionComposer => _sessionScore?.composer ?? '';
   List<SessionMovement> get sessionMovements => _sessionMovements;
+  // List<SectionClickData>? get sessionClickData => _sessionClickData;
+  // SectionClickData? get currentClick => _sessionClickData.isNotEmpty
+  //     ? _sessionClickData.firstWhere(
+  //         (click) => click.sectionKey == sessionPlaylist[sectionIndex].key)
+  //     : null;
+
   bool get playlistIsEmpty => sessionPlaylist.isEmpty;
 
   set sessionComposer(String? value) {
@@ -30,10 +43,10 @@ class SessionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  set sessionScore(Score? value) {
-    _sessionScore = value;
-    notifyListeners();
-  }
+  // set sessionScore(Score? value) {
+  //   sessionScore = value;
+  //   notifyListeners();
+  // }
 
   set sessionMovements(List<SessionMovement> value) {
     _sessionMovements = value;
@@ -53,54 +66,40 @@ class SessionProvider extends ChangeNotifier {
   void clearSession() {
     sessionPlaylist.clear();
     sessionMovements.clear();
-    sessionScore = null;
+    // sessionScore = null;
+    showPrompt = false;
     notifyListeners();
   }
 
   //check if a movement sections are all in the sessionPlaylist
-  bool containsMovement(Movement movement) {
-    return movement.setupSections.every((section) =>
-        sessionPlaylist.any((element) => element.key == section.key));
+
+  void setMovementIndex(int index) {
+    movementIndex = index;
+    notifyListeners();
   }
 
-  void addMovement(Score score, Movement movement) {
-    for (final section in movement.setupSections) {
-      //check if section already exists in session
-      if (sessionPlaylist.any((element) => element.key == section.key)) {
-        continue;
-      } else {
-        sessionPlaylist.add(section);
-        section.sectionIndex = sessionPlaylist.indexOf(section);
-        sessionScore = score;
-      }
-    }
-    sessionPlaylist.sort((a, b) => a.movementIndex.compareTo(b.movementIndex));
-    movementExistInSession = containsMovement(movement);
+  // void setMovementIndexByKey(String movementKey) {
+  //   currentMovementKey = movementKey;
+  //   sectionIndex = sessionPlaylist.indexWhere(
+  //     (element) => element.movementKey == movementKey,
+  //   );
+  //   log('sectionIndex: $sectionIndex');
+  //   log('movementKey: $currentMovementKey, currentMovementKey: ${currentMovement?.movementKey}');
+  // }
 
-    sessionMovements.add(SessionMovement(movement.title, movement.index));
-    sessionMovements.sort((a, b) => a.index.compareTo(b.index));
+  // void setCurrentSectionByKey(String sectionKey) {
+  //   sectionIndex = sessionPlaylist.indexWhere(
+  //     (element) => element.key == sectionKey,
+  //   );
+  //   currentSectionKey = sectionKey;
+  //   currentMovementKey = sessionPlaylist[sectionIndex].movementKey;
+  //   currentMovement = sessionMovements.firstWhere(
+  //     (element) => element.movementKey == currentMovementKey,
+  //   );
+  //   movementIndex = sessionPlaylist[sectionIndex].movementIndex;
+  // }
 
-    notifyListeners();
-    log('session playlist length: ${sessionPlaylist.length}');
-    log('sections movementIndex: ${sessionPlaylist.map((section) => section.movementIndex).toList()}');
-  }
-
-  void removeMovement(Movement movement) {
-    for (final section in movement.setupSections) {
-      sessionPlaylist.removeWhere((element) => element.key == section.key);
-    }
-
-    sessionMovements
-        .removeWhere((SessionMovement item) => item.index == movement.index);
-    sessionMovements.sort((a, b) => a.index.compareTo(b.index));
-    if (sessionPlaylist.isEmpty) {
-      sessionScore = null;
-    }
-    notifyListeners();
-    log('session playlist length: ${sessionPlaylist.length}');
-  }
-
-  void startSession() {
-    notifyListeners();
+  void setSectionIndex(int index) {
+    sectionIndex = index;
   }
 }

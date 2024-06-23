@@ -13,6 +13,7 @@ class InitSection {
   Duration? autoContinueMarker;
   int defaultTempo;
   int? userTempo;
+  int? tempoMultiplier;
 
   InitSection({
     this.metronomeAvailable,
@@ -29,6 +30,7 @@ class InitSection {
     this.autoContinueMarker,
     required this.defaultTempo,
     this.userTempo,
+    this.tempoMultiplier,
   });
 
   factory InitSection.fromJson(Map<String, dynamic> json) => InitSection(
@@ -52,7 +54,30 @@ class InitSection {
                     convertToDuration(json["autoContinueMarker"].toDouble())),
         defaultTempo: json["defaultTempo"],
         userTempo: json["userTempo"] ?? json["defaultTempo"],
+        tempoMultiplier: json["tempoMultiplier"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "metronomeAvailable": metronomeAvailable,
+        "name": name,
+        "autoContinue": autoContinue,
+        "movementIndex": movementIndex,
+        "_key": key,
+        "sectionImage": sectionImage == null
+            ? null
+            : SectionImage.fromJson(sectionImage!.toJson()),
+        "beatsPerBar": beatsPerBar,
+        "tempoRangeFull": List<dynamic>.from(tempoRangeFull.map((x) => x)),
+        "defaultSectionLength": defaultSectionLength,
+        "step": step,
+        "beatLength": beatLength,
+        "autoContinueMarker": autoContinueMarker != null
+            ? convertToDouble(autoContinueMarker!.inMilliseconds)
+            : null,
+        "defaultTempo": defaultTempo,
+        "userTempo": userTempo,
+        "tempoMultiplier": tempoMultiplier,
+      };
 }
 
 class SectionImageAsset {
@@ -66,10 +91,18 @@ class SectionImageAsset {
       SectionImageAsset(
         ref: json["_ref"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "_ref": ref,
+      };
 }
 
 int convertToDuration(double duration) {
   return (duration * 1000).round();
+}
+
+double convertToDouble(int duration) {
+  return duration / 1000;
 }
 
 class SectionImage {
@@ -85,12 +118,20 @@ class SectionImage {
         type: json["_type"],
         asset: SectionImageAsset.fromJson(json["asset"]),
       );
+
+  Map<String, dynamic> toJson() => {
+        "_type": type,
+        "asset": asset.toJson(),
+      };
 }
 
 class Section extends InitSection {
+  late String scoreId = '';
   List<int> tempoRange;
   List<String> fileList;
+  String? clickDataUrl = '';
   late int sectionIndex;
+  late String movementKey;
 
   Section({
     required super.name,
@@ -102,13 +143,18 @@ class Section extends InitSection {
     super.defaultSectionLength,
     super.metronomeAvailable,
     super.beatsPerBar,
+    super.beatLength,
     super.autoContinue,
     super.autoContinueMarker,
     super.sectionImage,
     super.userTempo,
+    super.tempoMultiplier,
     required this.tempoRange,
     required this.fileList,
     required this.sectionIndex,
+    this.clickDataUrl,
+    this.scoreId = '',
+    this.movementKey = '',
   });
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
@@ -127,6 +173,7 @@ class Section extends InitSection {
             ? null
             : SectionImage.fromJson(json["sectionImage"]),
         beatsPerBar: json["beatsPerBar"],
+        beatLength: json["beatLength"],
         autoContinue: json["autoContinue"],
         autoContinueMarker: json["autoContinueMarker"] == null
             ? null
@@ -134,5 +181,30 @@ class Section extends InitSection {
                 milliseconds:
                     convertToDuration(json["autoContinueMarker"].toDouble())),
         userTempo: json["userTempo"],
+        tempoMultiplier: json["tempoMultiplier"],
       );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "metronomeAvailable": metronomeAvailable,
+        "name": name,
+        "movementIndex": movementIndex,
+        "_key": key,
+        "tempoRangeFull": List<dynamic>.from(tempoRangeFull.map((x) => x)),
+        "step": step,
+        "defaultTempo": defaultTempo,
+        "tempoRange": List<dynamic>.from(tempoRange.map((x) => x)),
+        "fileList": List<dynamic>.from(fileList.map((x) => x)),
+        "defaultSectionLength": defaultSectionLength,
+        "sectionIndex": sectionIndex,
+        "sectionImage": sectionImage == null
+            ? null
+            : SectionImage.fromJson(sectionImage!.toJson()),
+        "beatsPerBar": beatsPerBar,
+        "beatLength": beatLength,
+        "autoContinue": autoContinue,
+        "autoContinueMarker": autoContinueMarker,
+        "userTempo": userTempo,
+        "tempoMultiplier": tempoMultiplier,
+      };
 }

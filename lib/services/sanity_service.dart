@@ -1,23 +1,16 @@
+import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter_sanity/flutter_sanity.dart';
-import 'package:flutter_sanity_image_url/flutter_sanity_image_url.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
-import 'package:gphil/controllers/image_controller.dart';
+import 'package:http/http.dart';
 
 final persistentController = PersistentDataController();
-final imageProvider = ImageController();
 
 class SanityService {
   static const String sanityProjectId = 'b8uar5wl';
-
-  static final SanityClient sanity = SanityClient(
-    projectId: sanityProjectId,
-    dataset: 'production',
-  );
-
-  static final imageBuilder = ImageUrlBuilder(sanity);
+  static const String projectUrl =
+      'https://b8uar5wl.api.sanity.io/v2023-05-03/data/query/production?query=';
 
   //set query for library
   static String queryLibrary() {
@@ -34,9 +27,13 @@ class SanityService {
   static String queryScore(String id) {
     final query = "*[_type == 'score' && _id == '$id']";
     const params =
-        "{_id,_updatedAt,_rev,composer,instrument,price_id,price,key,about,movements,pathName,ready,shortTitle,tips,audio_format,'slug': slug.current,title,full_score_url, piano_score_url, layers}";
+        "{_id,_updatedAt,_rev,composer,instrument,price_id,price,key,about,movements,pathName,ready,shortTitle,tips,audio_format,'slug': slug.current,title,'full_score_url':full_score_download.asset->url,'piano_score_url':piano_score_download.asset->url, layers}";
 
     return '$query $params';
+  }
+
+  static String scoreRevisionQuery(String id) {
+    return "*[_type == 'score' && _id == '$id']._rev";
   }
 
   String getImageUrl(String imageRef) {
@@ -53,24 +50,55 @@ class SanityService {
   }
 
   Future<List<LibraryItem>> fetchLibrary() async {
-    final query = queryLibrary();
-    final response = await sanity.fetch(query);
-    return libraryFromJson(response);
+    final String query = queryLibrary();
+    final String queryRequest = Uri.encodeQueryComponent(query);
+    try {
+      Response response = await Client().get(
+        Uri.parse(projectUrl + queryRequest),
+      );
+
+      if (response.statusCode == 200) {
+        return (json.decode(response.body)['result'] as List)
+            .map((e) => LibraryItem.fromJson(e))
+            .toList();
+      } else {
+        log(response.body.toString());
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+    return [];
   }
 
   Future<InitScore?> fetchScore(String id) async {
-    final query = queryScore(id);
+    final String query = queryScore(id);
+    final queryRequest = Uri.encodeQueryComponent(query);
     try {
-      final response = await sanity.fetch(query);
-      return InitScore.fromJson(response[0]);
+      Response response = await Client().get(
+        Uri.parse(projectUrl + queryRequest),
+      );
+      if (response.statusCode == 200) {
+        return InitScore.fromJson(json.decode(response.body)['result'][0]);
+      }
     } catch (e) {
       log('Error: $e');
     }
     return null;
   }
 
-  ImageUrlBuilder urlForImage(SanityImageSource asset) {
-    log('urlforimage: $asset');
-    return imageBuilder.image(asset);
+  Future<String?> getScoreRevision(String id) async {
+    final String query = scoreRevisionQuery(id);
+    final queryRequest = Uri.encodeQueryComponent(query);
+    try {
+      Response response = await Client().get(
+        Uri.parse(projectUrl + queryRequest),
+      );
+      if (response.statusCode == 200) {
+        return json.decode(response.body)['result'][0];
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+    return null;
   }
 }

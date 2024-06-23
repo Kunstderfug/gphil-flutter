@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/score/score_movement.dart';
-import 'package:gphil/providers/session_provider.dart';
+import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
@@ -12,8 +13,20 @@ class ScoreMovements extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scoreProvider = Provider.of<ScoreProvider>(context);
-    final sessionProvider = Provider.of<SessionProvider>(context);
+    final s = Provider.of<ScoreProvider>(context);
+    final p = Provider.of<PlaylistProvider>(context);
+    final n = Provider.of<NavigationProvider>(context);
+
+    void startSession() {
+      p.playlist.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
+      p.setMovementIndexByKey(p.sessionMovements.first.movementKey);
+      if (p.currentMovementKey != null && p.currentSectionKey != null) {
+        s.setCurrentSectionByKey(p.currentMovementKey!, p.currentSectionKey!);
+      }
+      p.loadClickFiles(p.playlist);
+      p.initSessionPlayers(0);
+      n.setNavigationIndex(1);
+    }
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -22,10 +35,10 @@ class ScoreMovements extends StatelessWidget {
         for (final Movement movement in movements)
           ScoreMovement(
             movement: movement,
-            isSelected:
-                scoreProvider.movementIndex == movements.indexOf(movement),
-            onTap: () =>
-                scoreProvider.setMovementIndex(movements.indexOf(movement)),
+            isSelected: s.movementIndex == movements.indexOf(movement),
+            onTap: () {
+              s.setMovementIndex(movements.indexOf(movement));
+            },
           ),
 
         //helper text
@@ -37,10 +50,10 @@ class ScoreMovements extends StatelessWidget {
               child: Icon(Icons.arrow_upward_sharp,
                   color: Theme.of(context).colorScheme.secondary, size: 24),
             ),
-            Text('Tap on the + button', style: TextStyles().textXSmall),
+            Text('Tap on the + button', style: TextStyles().textSm),
             Text(
               'to add a movement to the performance playlist',
-              style: TextStyles().textXSmall,
+              style: TextStyles().textSm,
             ),
             const SeparatorLine(),
           ],
@@ -51,46 +64,92 @@ class ScoreMovements extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Performance Playlist', style: TextStyles().textSmallBold),
+                Text('Performance Playlist', style: TextStyles().textMdBold),
                 const SizedBox(width: 12),
-                Expanded(
-                    child: TextButton(
-                  style: ButtonStyle(
-                    backgroundColor: sessionProvider.sessionPlaylist.isEmpty
-                        ? MaterialStateProperty.all(
-                            Theme.of(context).colorScheme.primary)
-                        : MaterialStateProperty.all(
-                            Theme.of(context).highlightColor),
-                    foregroundColor: MaterialStateProperty.all(
-                        Theme.of(context).colorScheme.inversePrimary),
-                  ),
-                  onPressed: () => sessionProvider.sessionPlaylist.isEmpty
-                      ? null
-                      : sessionProvider.startSession(),
-                  child: Ink(
-                    child: Text(
-                      sessionProvider.sessionPlaylist.isEmpty
-                          ? 'Playlist Empty'
-                          : 'Start Session',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: sessionProvider.sessionPlaylist.isEmpty
-                            ? Theme.of(context).colorScheme.secondary
-                            : Theme.of(context).colorScheme.inversePrimary,
+                MediaQuery.sizeOf(context).width <= 1024
+                    ? Expanded(
+                        child: TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: p.playlist.isEmpty
+                                ? WidgetStateProperty.all(
+                                    Theme.of(context).colorScheme.primary)
+                                : WidgetStateProperty.all(
+                                    Theme.of(context).highlightColor),
+                            foregroundColor: WidgetStateProperty.all(
+                                Theme.of(context).colorScheme.inversePrimary),
+                          ),
+                          onPressed: () =>
+                              p.playlist.isEmpty ? null : startSession(),
+                          child: Ink(
+                            child: Text(
+                              p.playlist.isEmpty
+                                  ? 'Playlist Empty'
+                                  : 'Start Session',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: p.playlist.isEmpty
+                                    ? Theme.of(context).colorScheme.secondary
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .inversePrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : TextButton(
+                        style: ButtonStyle(
+                          fixedSize: const WidgetStatePropertyAll(Size(170, 0)),
+                          backgroundColor: p.playlist.isEmpty
+                              ? WidgetStateProperty.all(
+                                  Theme.of(context).colorScheme.primary)
+                              : WidgetStateProperty.all(
+                                  Theme.of(context).highlightColor),
+                          foregroundColor: WidgetStateProperty.all(
+                              Theme.of(context).colorScheme.inversePrimary),
+                        ),
+                        onPressed: () =>
+                            p.playlist.isEmpty ? null : startSession(),
+                        child: Ink(
+                          child: Text(
+                            p.playlist.isEmpty
+                                ? 'Playlist Empty'
+                                : 'Start Session',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: p.playlist.isEmpty
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .inversePrimary,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                )),
               ],
             ),
+            const SizedBox(height: 16),
             Text(
-              sessionProvider.sessionComposer,
-              style: TextStyles().textSmall,
+              '${p.sessionComposer}${p.sessionScore != null ? ' - ' : ''}${p.sessionScore?.shortTitle ?? ''}',
+              style: TextStyles().textMd,
             ),
-            for (final movement in sessionProvider.sessionMovements)
-              Text(movement.title, style: TextStyles().textXSmall),
+            SizedBox(
+              height: 18,
+              child: Wrap(
+                spacing: 8,
+                children: [
+                  for (final movement in p.sessionMovements)
+                    Text(
+                      '${movement.title}${p.sessionMovements.indexOf(movement) < p.sessionMovements.length - 1 ? ', ' : ''}',
+                      style: TextStyles().textSm,
+                    ),
+                ],
+              ),
+            ),
           ],
         ),
       ],

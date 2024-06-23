@@ -1,11 +1,15 @@
 // import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class SectionImage extends StatelessWidget {
-  const SectionImage({super.key});
+  final File? imageFile;
+  const SectionImage({super.key, this.imageFile});
 
   @override
   Widget build(BuildContext context) {
@@ -23,28 +27,13 @@ class SectionImage extends StatelessWidget {
                     ? Colors.grey[300]
                     : Colors.grey[100],
                 borderRadius: const BorderRadius.all(Radius.circular(16)),
-                boxShadow: [
-                  //darker shadow on bottom right
-                  BoxShadow(
-                    color: Colors.grey.shade500,
-                    blurRadius: 15,
-                    offset: const Offset(4, 4), // changes position of shadow
-                  ),
-
-                  //lighter shadow on bottom left
-                  BoxShadow(
-                    color: Theme.of(context).colorScheme.background,
-                    blurRadius: 15,
-                    offset: const Offset(-4, -4), // changes position of shadow
-                  ),
-                ],
               ),
               child: Center(
                 child: Text(
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 32),
-                  'No image found',
+                  'No image yet',
                 ),
               ),
             ),
@@ -52,10 +41,9 @@ class SectionImage extends StatelessWidget {
         );
       } else {
         return Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 600,
+            Container(
+              constraints: BoxConstraints(maxWidth: imageWidth(context)),
               child: AspectRatio(
                 aspectRatio: 16 / 9,
                 child: Container(
@@ -64,29 +52,12 @@ class SectionImage extends StatelessWidget {
                         ? Colors.grey[300]
                         : Colors.grey[100],
                     borderRadius: const BorderRadius.all(Radius.circular(16)),
-                    boxShadow: [
-                      //darker shadow on bottom right
-                      BoxShadow(
-                        color: Colors.grey.shade500,
-                        blurRadius: 15,
-                        offset:
-                            const Offset(4, 4), // changes position of shadow
-                      ),
-
-                      //lighter shadow on bottom left
-                      BoxShadow(
-                        color: Theme.of(context).colorScheme.background,
-                        blurRadius: 15,
-                        offset:
-                            const Offset(-4, -4), // changes position of shadow
-                      ),
-                    ],
                   ),
-                  child: scoreProvider.sectionImageFile != null
+                  child: imageFile != null
                       ? Image.file(
+                          imageFile!,
                           filterQuality: FilterQuality.medium,
                           isAntiAlias: true,
-                          scoreProvider.sectionImageFile!,
                           fit: BoxFit.contain,
                         )
                       : Center(

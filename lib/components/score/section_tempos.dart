@@ -1,41 +1,43 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/models/section.dart';
+// import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
-import 'package:gphil/providers/session_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class SectionTempos extends StatelessWidget {
-  final List<int> tempos;
-  const SectionTempos({super.key, required this.tempos});
+  final Section section;
+  const SectionTempos({super.key, required this.section});
 
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
-    final scoreProvider = Provider.of<ScoreProvider>(context);
-    final sessionProvider = Provider.of<SessionProvider>(context);
+    final s = Provider.of<ScoreProvider>(context);
+    final p = Provider.of<PlaylistProvider>(context);
     bool isSelected(int tempo) {
-      if (scoreProvider.userTempo != null) {
-        return scoreProvider.userTempo == tempo;
-      } else {
-        return scoreProvider.currentTempo == tempo;
-      }
+      return p.playlist.isNotEmpty
+          ? p.currentTempo == tempo
+          : s.currentTempo == tempo;
     }
 
-    bool isDefaultTempo(int tempo) =>
-        scoreProvider.currentSection.defaultTempo == tempo;
+    bool isDefaultTempo(int tempo) => section.defaultTempo == tempo;
+
+    void setTempoAndPlay(int tempo) {
+      if (p.currentSection != null) p.setUserTempo(tempo);
+      s.setCurrentTempo(tempo);
+    }
 
     return Column(
       children: [
         const Text('Section tempos:'),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 8,
           runSpacing: 16,
           children: [
-            for (int tempo in tempos)
+            for (int tempo in section.tempoRange)
               TextButton(
                 style: TextButton.styleFrom(
                   elevation: 0,
@@ -53,19 +55,7 @@ class SectionTempos extends StatelessWidget {
                     ),
                   ),
                 ),
-                onPressed: () {
-                  scoreProvider.setCurrentTempo(tempo);
-                  //if sessionPlaylist contains current section, use it
-                  if (scoreProvider.userTempo != null &&
-                      sessionProvider
-                          .containsMovement(scoreProvider.currentMovement)) {
-                    log(sessionProvider.sessionMovements.length.toString());
-                    sessionProvider
-                        .removeMovement(scoreProvider.currentMovement);
-                    sessionProvider.addMovement(scoreProvider.currentScore!,
-                        scoreProvider.currentMovement);
-                  }
-                },
+                onPressed: () => setTempoAndPlay(tempo),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(

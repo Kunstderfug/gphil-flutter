@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class NavigationItem extends StatelessWidget {
@@ -15,12 +16,17 @@ class NavigationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final navigation = Provider.of<NavigationProvider>(context);
+    bool isSelected = navigation.currentIndex == index;
 
     return Padding(
       padding: const EdgeInsets.only(left: 25.0, top: 25),
       child: ListTile(
         title: Text(title),
         leading: Icon(icon),
+        selected: isSelected,
+        selectedTileColor: isSelected
+            ? AppColors().highLightColor(context)
+            : Colors.transparent,
         onTap: () {
           navigation.setNavigationIndex(index);
         },

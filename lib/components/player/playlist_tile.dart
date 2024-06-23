@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
-import 'package:gphil/models/song.dart';
+import 'package:gphil/models/section.dart';
 import 'package:provider/provider.dart';
 
 class PlaylistTile extends StatelessWidget {
-  final Song song;
-  final int songIndex;
+  final Section section;
+  final int sectionIndex;
 
   const PlaylistTile({
     super.key,
-    required this.song,
-    required this.songIndex,
+    required this.section,
+    required this.sectionIndex,
   });
 
   @override
@@ -19,34 +19,17 @@ class PlaylistTile extends StatelessWidget {
 
     return ListTile(
         title: Text(
-          song.songName,
+          section.name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.inversePrimary,
             fontSize: 18,
           ),
         ),
-        subtitle: Text(
-          song.artistName,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.inversePrimary,
-          ),
-        ),
-        leading: Image.asset(
-          song.albumArtImagePath,
-          width: 200,
-          height: 200,
-          scale: 1.5,
-          isAntiAlias: true,
-          filterQuality: FilterQuality.high,
-          fit: BoxFit.fitHeight,
-          color: Theme.of(context).colorScheme.inversePrimary,
-          // colorBlendMode: BlendMode.colorBurn,
-        ),
         visualDensity: const VisualDensity(horizontal: 0, vertical: 4),
         contentPadding: const EdgeInsets.all(16),
         onTap: () {
-          provider.currentSongIndex = songIndex;
+          provider.currentSectionIndex = sectionIndex;
           Navigator.pushNamed(context, '/song');
         });
   }

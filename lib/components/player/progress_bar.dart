@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class ProgressBar extends StatelessWidget {
@@ -7,20 +8,30 @@ class ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlaylistProvider>(builder: (context, provider, child) {
+    return Consumer<PlaylistProvider>(builder: (context, p, child) {
       return SliderTheme(
         data: SliderTheme.of(context).copyWith(
+            trackHeight: 6,
+            activeTrackColor:
+                p.defaultAutoContinueMarker != null ? greenColor : redColor,
+            inactiveTrackColor: p.defaultAutoContinueMarker != null
+                ? greenColor.withOpacity(0.3)
+                : redColor.withOpacity(0.3),
+            trackShape: const RoundedRectSliderTrackShape(),
             thumbShape: const RoundSliderThumbShape(
-          enabledThumbRadius: 0,
-        )),
+              enabledThumbRadius: 6,
+            )),
         child: Slider(
           min: 0,
-          max: provider.totalDuration.inMilliseconds.toDouble(),
-          value: provider.currentPosition.inMilliseconds.toDouble(),
-          activeColor: Colors.teal.shade300,
+          max: p.duration.inMilliseconds.toDouble(),
+          value: p.currentPosition.inMilliseconds > p.duration.inMilliseconds
+              ? p.duration.inMilliseconds.toDouble()
+              : p.currentPosition.inMilliseconds.toDouble(),
+          activeColor:
+              p.defaultAutoContinueMarker != null ? greenColor : redColor,
           onChanged: (double value) {},
           onChangeEnd: (double value) {
-            provider.seek(Duration(milliseconds: value.toInt()));
+            p.seek(Duration(milliseconds: value.toInt()));
           },
         ),
       );

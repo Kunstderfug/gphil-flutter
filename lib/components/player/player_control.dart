@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gphil/components/neo.dart';
+import 'package:gphil/components/player/metronome.dart';
 import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class PreviousIntent extends Intent {
@@ -25,36 +27,51 @@ class PlayerControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlaylistProvider>(builder: (context, provider, child) {
+    return Consumer<PlaylistProvider>(builder: (context, p, child) {
+      final s = Provider.of<ScoreProvider>(context);
+
+      void syncProviders() {
+        // final movementIndex = provider.currentSection!.movementIndex;
+        final movementKey = p.currentSection!.movementKey;
+        final sectionKey = p.currentSection!.key;
+        s.setCurrentSectionByKey(movementKey, sectionKey);
+        p.setCurrentSectionByKey(sectionKey);
+      }
+
       return Shortcuts(
         shortcuts: const <ShortcutActivator, Intent>{
           SingleActivator(LogicalKeyboardKey.arrowLeft): PreviousIntent(),
           SingleActivator(LogicalKeyboardKey.arrowRight): NextIntent(),
           SingleActivator(LogicalKeyboardKey.enter): StartIntent(),
           SingleActivator(LogicalKeyboardKey.space): StopIntent(),
+          SingleActivator(LogicalKeyboardKey.pageDown): StartIntent(),
+          SingleActivator(LogicalKeyboardKey.pageUp): StopIntent(),
         },
         child: Actions(
           actions: {
             PreviousIntent: CallbackAction<PreviousIntent>(onInvoke: (intent) {
-              provider.currentSongIndex =
-                  (provider.currentSongIndex - 1) % provider.playlist.length;
+              p.skipToPreviousSection();
+              syncProviders();
               return null;
             }),
-            StartIntent: CallbackAction<StartIntent>(onInvoke: (intent) {
-              if (!provider.isPlaying) {
-                provider.play();
+            StartIntent: CallbackAction<StartIntent>(onInvoke: (intent) async {
+              if (!p.isPlaying) {
+                p.play();
               } else {
-                provider.playNextSong();
+                if (!p.doublePressGuard) {
+                  p.playNextSection();
+                  syncProviders();
+                }
               }
               return null;
             }),
             StopIntent: CallbackAction<StopIntent>(onInvoke: (intent) {
-              provider.stop();
+              p.stop();
               return null;
             }),
             NextIntent: CallbackAction<NextIntent>(onInvoke: (intent) {
-              provider.currentSongIndex =
-                  (provider.currentSongIndex + 1) % provider.playlist.length;
+              p.skipToNextSection();
+              syncProviders();
               return null;
             }),
           },
@@ -67,40 +84,37 @@ class PlayerControl extends StatelessWidget {
                 children: [
                   //previous button
                   Expanded(
-                    child: Neo(
-                      child: IconButton(
-                          onPressed: () => provider.currentSongIndex =
-                              (provider.currentSongIndex - 1) %
-                                  provider.playlist.length,
-                          icon: const Icon(Icons.skip_previous)),
-                    ),
+                    child: IconButton(
+                        iconSize: iconSizeXl,
+                        onPressed: () => p.currentSectionIndex =
+                            (p.currentSectionIndex - 1) % p.playlist.length,
+                        icon: const Icon(Icons.skip_previous)),
                   ),
-                  const SizedBox(
-                    width: 18,
-                  ),
+
                   //play button
                   Expanded(
                     flex: 2,
-                    child: Neo(
-                      child: IconButton(
-                          onPressed: provider.pauseOrResume,
-                          icon: Icon(provider.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow)),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                            padding: const EdgeInsets.all(0),
+                            tooltip: 'Play/Pause',
+                            onPressed: p.pauseOrResume,
+                            icon: const RepaintBoundary(
+                              child: Metronome(),
+                            )),
+                      ],
                     ),
                   ),
-                  const SizedBox(
-                    width: 18,
-                  ),
+
                   //next button
                   Expanded(
-                    child: Neo(
-                      child: IconButton(
-                          onPressed: () => provider.currentSongIndex =
-                              (provider.currentSongIndex + 1) %
-                                  provider.playlist.length,
-                          icon: const Icon(Icons.skip_next)),
-                    ),
+                    child: IconButton(
+                        iconSize: iconSizeXl,
+                        onPressed: () => p.currentSectionIndex =
+                            (p.currentSectionIndex + 1) % p.playlist.length,
+                        icon: const Icon(Icons.skip_next)),
                   ),
                 ],
               ),

@@ -10,7 +10,7 @@ class FileLoading extends StatelessWidget {
     return Consumer<PlaylistProvider>(
       builder: (context, provider, child) {
         return Visibility(
-          visible: provider.isLoading,
+          visible: true,
           child: Padding(
               padding: const EdgeInsets.all(64),
               child: Column(
@@ -20,6 +20,7 @@ class FileLoading extends StatelessWidget {
                     child: Text('loading files...'),
                   ),
                   LinearProgressIndicator(
+                    minHeight: 4,
                     color: const Color.fromARGB(255, 159, 33, 243),
                     value: provider.filesLoaded / provider.playlist.length,
                   ),

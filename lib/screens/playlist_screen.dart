@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
 import 'package:gphil/components/player/playlist_tile.dart';
 import 'package:gphil/models/playlist_provider.dart';
-import 'package:gphil/models/song.dart';
+import 'package:gphil/models/section.dart';
 import 'package:provider/provider.dart';
 
 class PlaylistScreen extends StatelessWidget {
@@ -25,15 +25,15 @@ class PlaylistScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: gridCount(MediaQuery.of(context).size.width),
+            crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
             mainAxisSpacing: 16,
             crossAxisSpacing: 16,
             childAspectRatio: 3 / 1,
           ),
           itemCount: provider.playlist.length,
           itemBuilder: (context, index) {
-            final Song song = provider.playlist[index];
-            return PlaylistTile(song: song, songIndex: index);
+            final Section section = provider.playlist[index];
+            return PlaylistTile(section: section, sectionIndex: index);
           },
         ),
       );
@@ -42,4 +42,3 @@ class PlaylistScreen extends StatelessWidget {
 }
 
 // set up grid view
-

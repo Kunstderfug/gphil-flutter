@@ -3,46 +3,68 @@ import 'package:gphil/components/library/score_progress_indicator.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class LibraryItemCard extends StatelessWidget {
-  final LibraryItem scoreCard;
+  final LibraryItem libraryItem;
 
-  const LibraryItemCard({super.key, required this.scoreCard});
+  const LibraryItemCard({super.key, required this.libraryItem});
 
   @override
   Widget build(BuildContext context) {
-    final navigator = Provider.of<NavigationProvider>(context);
-    final scoreProvider = Provider.of<ScoreProvider>(context);
+    final n = Provider.of<NavigationProvider>(context);
+    final s = Provider.of<ScoreProvider>(context, listen: false);
 
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () async {
-          scoreProvider.scoreId = scoreCard.id;
-          await scoreProvider.getScore();
-          navigator.setNavigationIndex(3);
-        },
-        child: Stack(alignment: Alignment.topCenter, children: [
-          ScoreProgressIndicator(complete: scoreCard.complete),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(
-                scoreCard.composer,
-                style: Theme.of(context).textTheme.titleLarge,
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: SizedBox(
+        height: 40,
+        child: InkWell(
+          hoverColor: Theme.of(context).highlightColor,
+          borderRadius: BorderRadius.circular(32),
+          onTap: () async {
+            s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);
+            await s.getScore();
+            n.setNavigationIndex(2);
+          },
+          child: Stack(alignment: Alignment.bottomLeft, children: [
+            if (libraryItem.complete < 100)
+              ScoreProgressIndicator(complete: libraryItem.complete)
+            else
+              Positioned(
+                top: 8,
+                right: 16,
+                child: Icon(
+                  Icons.check_circle_outline,
+                  color: greenColor,
+                  size: iconSizeSm,
+                ),
               ),
-              Text(
-                scoreCard.shortTitle,
-                style: Theme.of(context).textTheme.titleMedium,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  libraryItem.shortTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ),
-            ],
-          ),
-          if (scoreProvider.isLoading && scoreProvider.scoreId == scoreCard.id)
-            const LinearProgressIndicator(
-              backgroundColor: Color.fromARGB(255, 159, 33, 243),
             ),
-        ]),
+            if (s.isLoading && s.scoreId == libraryItem.id)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: LinearProgressIndicator(
+                  minHeight: 2,
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  backgroundColor: highlightColor,
+                ),
+              ),
+          ]),
+        ),
       ),
     );
   }

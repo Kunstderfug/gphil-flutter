@@ -70,6 +70,31 @@ class InitScore {
         shortTitle: json["shortTitle"],
         composer: json["composer"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "pathName": pathName,
+        "audio_format": audioFormat == null
+            ? []
+            : List<dynamic>.from(audioFormat!.map((x) => x)),
+        "slug": slug,
+        "full_score_url": fullScoreUrl,
+        "piano_score_url": pianoScoreUrl,
+        "layers": layers,
+        "movements": List<dynamic>.from(movements.map((x) => x.toJson())),
+        "price_id": priceId,
+        "key": key,
+        "about": about,
+        "_updatedAt": updatedAt.toIso8601String(),
+        "_rev": rev,
+        "instrument": instrument,
+        "price": price,
+        "tips": tips,
+        "title": title,
+        "_id": id,
+        "ready": ready,
+        "shortTitle": shortTitle,
+        "composer": composer,
+      };
 }
 
 class ScoreRef {
@@ -81,6 +106,10 @@ class ScoreRef {
   factory ScoreRef.fromJson(Map<String, dynamic> json) => ScoreRef(
         ref: json["_ref"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "_ref": ref,
+      };
 }
 
 class Score extends InitScore {

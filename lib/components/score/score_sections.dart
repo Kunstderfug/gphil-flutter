@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:gphil/components/score/score_section.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class ScoreSections extends StatelessWidget {
@@ -14,15 +15,15 @@ class ScoreSections extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ScoreProvider>(builder: (context, provider, child) {
       return Wrap(
-        // spacing: 8,
-        runSpacing: 8,
+        runSpacing: isTablet(context) ? 8 : 14,
         children: [
           for (final section in sections)
             ScoreSection(
-                name: section.name,
-                onTap: () =>
-                    provider.setCurrentSection(sections.indexOf(section)),
-                isSelected: provider.sectionIndex == sections.indexOf(section))
+              name: section.name,
+              isAutoContinue: section.autoContinueMarker != null ? true : false,
+              onTap: () => provider.setCurrentSection(section.key),
+              isSelected: provider.sectionKey == section.key,
+            )
         ],
       );
     });

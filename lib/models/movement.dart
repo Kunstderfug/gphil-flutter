@@ -7,6 +7,7 @@ class InitMovement {
   String key;
   String title;
   List<InitSection> sections;
+  int? renderTail; //in seconds
 
   InitMovement({
     required this.score,
@@ -14,6 +15,7 @@ class InitMovement {
     required this.key,
     required this.title,
     required this.sections,
+    this.renderTail,
   });
 
   factory InitMovement.fromJson(Map<String, dynamic> json) => InitMovement(
@@ -23,13 +25,24 @@ class InitMovement {
         title: json["title"],
         sections: List<InitSection>.from(
             json["sections"].map((x) => InitSection.fromJson(x))),
+        renderTail: json["renderTail"],
       );
+
+  Map<String, dynamic> toJson() => {
+        "score": score.toJson(),
+        "index": index,
+        "_key": key,
+        "title": title,
+        "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
+        "renderTail": renderTail,
+      };
 }
 
 class Movement extends InitMovement {
   List<Section> setupSections;
 
   Movement({
+    super.renderTail,
     required super.score,
     required super.index,
     required super.key,
@@ -47,5 +60,18 @@ class Movement extends InitMovement {
             json["sections"].map((x) => InitSection.fromJson(x))),
         setupSections: List<Section>.from(
             json["setupSections"].map((x) => Section.fromJson(x))),
+        renderTail: json["renderTail"],
       );
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "score": score.toJson(),
+        "index": index,
+        "_key": key,
+        "title": title,
+        "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
+        "setupSections":
+            List<dynamic>.from(setupSections.map((x) => x.toJson())),
+        "renderTail": renderTail,
+      };
 }

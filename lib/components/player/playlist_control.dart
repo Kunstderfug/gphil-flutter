@@ -18,7 +18,7 @@ class PlaylistControl extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //start time
             Text(
@@ -27,15 +27,15 @@ class PlaylistControl extends StatelessWidget {
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),
 
-            // shuffle icon
-            IconButton(onPressed: () {}, icon: const Icon(Icons.shuffle)),
+            // mark in a loop icon
+            IconButton(onPressed: () {}, icon: const Icon(Icons.start_sharp)),
 
             //repeat icon
-            IconButton(onPressed: () {}, icon: const Icon(Icons.repeat)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.stop_rounded)),
 
             //end time
             Text(
-              convertDuration(provider.currentPlayer.duration!),
+              convertDuration(provider.duration),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),

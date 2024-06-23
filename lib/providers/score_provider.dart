@@ -1,4 +1,4 @@
-// import 'dart:developer';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -7,8 +7,8 @@ import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
-import 'package:gphil/services/sanity_service.dart';
 import 'package:gphil/services/supabase_service.dart';
+import 'package:signals/signals.dart';
 
 final String supabaseUrl = SupabaseService().supabaseUrl;
 const String format = 'mp3';
@@ -16,24 +16,32 @@ final persistentController = PersistentDataController();
 
 class ScoreProvider extends ChangeNotifier {
   late String _currentScoreId;
+  String currentScoreRev = '';
   int _movementIndex = 0;
   int _sectionIndex = 0;
   int _currentTempo = 0;
-  late int? _userTempo;
+  int? _userTempo = 0;
   Score? _currentScore;
   late Movement _currentMovement;
   late List<Section> _currentSections;
   late Section _currentSection;
-  bool isLoading = false;
+  String sectionKey = '';
   String error = '';
   String? _sectionImageUrl;
+  List<ClickData>? _sectionClickData;
   File? _sectionImageFile;
+  // bool _scoreIsUptoDate = false;
+  double _progressDownload = 0;
+  bool isLoading = false;
+  bool _scoreIsUptoDate = false;
 
 // GETTERS
   String get scoreId => _currentScoreId;
   int get movementIndex => _movementIndex;
   int get sectionIndex => _sectionIndex;
   int get currentTempo => _currentTempo;
+  int get tempoIndex => currentSection.tempoRange.indexOf(currentTempo);
+  String get audioUrl => currentSection.fileList[tempoIndex];
   int? get userTempo => _userTempo;
   Score? get currentScore => _currentScore;
   List<Movement> get currentMovements => _currentScore!.setupMovements;
@@ -42,6 +50,10 @@ class ScoreProvider extends ChangeNotifier {
   Movement get currentMovement => _currentMovement;
   String? get sectionImageUrl => _sectionImageUrl;
   File? get sectionImageFile => _sectionImageFile;
+  List<ClickData>? get sectionClickData => _sectionClickData;
+  String get scoreRev => currentScore?.rev ?? '';
+  double get progressDownload => _progressDownload;
+  bool get scoreIsUptoDate => _scoreIsUptoDate;
 
 // SETTERS
   set scoreId(String value) {
@@ -66,6 +78,7 @@ class ScoreProvider extends ChangeNotifier {
 
   set currentSection(Section value) {
     _currentSection = value;
+    sectionKey = value.key;
     notifyListeners();
   }
 
@@ -99,32 +112,76 @@ class ScoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //METHODS
-  void setMovementIndex(int index) async {
-    movementIndex = index;
-    setCurrentMovement(index);
-    setCurrentSections();
-    await setCurrentSection(0);
+  set sectionClickData(List<ClickData>? value) {
+    _sectionClickData = value;
+    notifyListeners();
   }
 
-  void setCurrentMovement(int index) {
-    currentMovement = _currentScore!.setupMovements[index];
+  set progressDownload(double value) {
+    _progressDownload = value;
+    notifyListeners();
+  }
+
+  set scoreIsUptoDate(bool value) {
+    _scoreIsUptoDate = value;
+    notifyListeners();
+  }
+
+  //METHODS
+
+  void setCurrentScoreIdAndRevision(String id, String rev) {
+    _currentScoreId = id;
+    currentScoreRev = rev;
+  }
+
+  void setMovementIndex(int index) async {
+    movementIndex = index;
+    _currentMovement = _currentScore!.setupMovements[movementIndex];
+    setCurrentSections();
+    await setCurrentSection(currentSections.first.key);
+  }
+
+  void setCurrentMovement(String key) {
+    _currentMovement = _currentScore!.setupMovements
+        .firstWhere((movement) => movement.key == key);
   }
 
   void setCurrentSections() {
     currentSections = _currentMovement.setupSections;
   }
 
-  Future<Section> setCurrentSection(int index) async {
-    sectionIndex = index;
-    currentSection = _currentSections[index];
+  void setCurrentSectionByKey(String movementKey, String sectionKey) async {
+    // log('$movementKey, $sectionKey');
+    setCurrentMovement(movementKey);
+    _movementIndex = _currentScore!.setupMovements
+        .indexWhere((element) => element.key == movementKey);
+    _currentSections = currentMovement.setupSections;
+    _currentSection =
+        _currentSections.firstWhere((section) => section.key == sectionKey);
+    if (_currentSection.sectionImage != null) {
+      await setImageFle();
+    }
+  }
+
+  Future<Section> setCurrentSection(String sectionKey) async {
+    sectionIndex =
+        _currentSections.indexWhere((section) => section.key == sectionKey);
+    currentSection =
+        _currentSections.firstWhere((section) => section.key == sectionKey);
+    currentSignalSection.value = currentSection;
     currentTempo = currentSection.defaultTempo;
+    log('setting section: $sectionIndex');
 
     //read from persistent storage
-    final data = await persistentController.readJsonFile(
+    final sectionUserPref = await persistentController.readSectionJsonFile(
         currentScore!.id, currentSection.key);
 
-    final currentPrefs = data != null ? SectionPrefs.fromJson(data) : null;
+    final clickData = await persistentController.readClickJsonFile(
+        currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
+    sectionClickData = clickData;
+
+    final currentPrefs =
+        sectionUserPref != null ? SectionPrefs.fromJson(sectionUserPref) : null;
 
     if (currentPrefs != null) {
       currentSection.userTempo = currentPrefs.userTempo;
@@ -140,19 +197,11 @@ class ScoreProvider extends ChangeNotifier {
         userTempo: currentSection.userTempo);
 
     try {
-      await persistentController.writeJsonFile(
+      await persistentController.writeSectionJsonFile(
           currentScore!.id, currentSection.key, sectionPrefs);
 
       if (currentSection.sectionImage != null) {
-        sectionImageFile = null;
-        sectionImageUrl = null;
-        String imageUrl =
-            SanityService().getImageUrl(currentSection.sectionImage!.asset.ref);
-        String imageRef = currentSection.sectionImage!.asset.ref;
-        final imageFile = await persistentController.readImageFile(
-            scoreId, imageUrl, imageRef);
-        sectionImageUrl = imageFile?.path;
-        sectionImageFile = imageFile;
+        await setImageFle();
       }
     } catch (e) {
       error = e.toString();
@@ -161,10 +210,22 @@ class ScoreProvider extends ChangeNotifier {
     return currentSection;
   }
 
+  Future<File?> setImageFle() async {
+    sectionImageFile = null;
+    sectionImageUrl = null;
+    final imageFile = await persistentController.readImageFile(
+        scoreId, currentSection.sectionImage!.asset.ref);
+    sectionImageUrl = imageFile?.path;
+    sectionImageFile = imageFile;
+    return imageFile;
+  }
+
   void setCurrentTempo(int tempo) async {
     currentSection.userTempo = tempo;
     currentTempo = tempo;
     userTempo = tempo;
+
+    final String audioFileName = audioUrl.split('/').last;
 
     //update sections array with new data
     currentMovement.setupSections[sectionIndex] = currentSection;
@@ -176,34 +237,62 @@ class ScoreProvider extends ChangeNotifier {
         userTempo: tempo);
 
     try {
-      await persistentController.writeJsonFile(
+      await persistentController.writeSectionJsonFile(
           currentScore!.id, currentSection.key, sectionPrefs);
+      await persistentController.readAudioFile(
+          scoreId, audioFileName, audioUrl);
     } catch (e) {
       error = e.toString();
     }
   }
 
   Future<void> getScore() async {
-    // currentScore = null;
+    _movementIndex = 0;
     try {
+      error = '';
       isLoading = true;
-      InitScore? score = await SanityService().fetchScore(_currentScoreId);
+      InitScore? score =
+          await persistentController.readScoreData(_currentScoreId);
 
       if (score == null) {
         error = 'No score found';
         return;
       }
       currentScore = setupScore(score);
-      scoreId = score.id;
-      setMovementIndex(0);
+      currentSignalScore.value = currentScore;
+
+      // scoreId = currentScore!.id;
+
+      //check score revision
+      scoreIsUptoDate = await persistentController.checkScoreRevision(
+          scoreId, currentScoreRev);
+
+      //set movement index
+      setMovementIndex(_movementIndex);
     } catch (e) {
+      log(e.toString());
       error = e.toString();
     } finally {
       isLoading = false;
     }
   }
 
+  Future<void> updateCurrentScore() async {
+    await persistentController.updateScore(_currentScoreId, currentScoreRev);
+    await persistentController.writeScoreRevision(scoreId, currentScoreRev);
+    InitScore? score =
+        await persistentController.readScoreData(_currentScoreId);
+    currentScore = setupScore(score!);
+    currentSignalScore.value = currentScore;
+    setMovementIndex(_movementIndex);
+
+    scoreIsUptoDate =
+        await persistentController.checkScoreRevision(scoreId, currentScoreRev);
+  }
+
   Score setupScore(InitScore score) {
+    int index = 0;
+
     Score newScore = Score(
       shortTitle: score.shortTitle,
       slug: score.slug,
@@ -223,20 +312,36 @@ class ScoreProvider extends ChangeNotifier {
           key: movement.key,
           index: movement.index,
           sections: movement.sections,
+          renderTail: movement.renderTail,
           setupSections: []);
       for (InitSection section in newMovement.sections) {
         Section newSection = Section(
-          sectionIndex: newMovement.sections.indexOf(section),
-          name: section.name,
-          tempoRangeFull: section.tempoRangeFull,
-          step: section.step,
-          movementIndex: movement.index,
-          key: section.key,
-          fileList: [],
-          tempoRange: [],
-          defaultTempo: section.defaultTempo,
-          sectionImage: section.sectionImage,
-        );
+            scoreId: newMovement.score.ref,
+            movementKey: newMovement.key,
+            sectionIndex: index,
+            name: section.name,
+            tempoRangeFull: section.tempoRangeFull,
+            step: section.step,
+            movementIndex: movement.index,
+            key: section.key,
+            fileList: [],
+            tempoRange: [],
+            metronomeAvailable: section.metronomeAvailable,
+            defaultTempo: section.defaultTempo,
+            sectionImage: section.sectionImage,
+            autoContinueMarker: section.autoContinueMarker,
+            defaultSectionLength: section.defaultSectionLength,
+            beatsPerBar: section.beatsPerBar,
+            beatLength: section.beatLength,
+            tempoMultiplier: section.tempoMultiplier,
+            clickDataUrl: getClickDataUrl(
+                score.slug,
+                score.pathName,
+                section.movementIndex,
+                section.name,
+                section.tempoMultiplier != null
+                    ? section.defaultTempo * section.tempoMultiplier!
+                    : section.defaultTempo));
 
         newSection.tempoRange =
             setTempoRange(section.tempoRangeFull, section.step);
@@ -245,12 +350,19 @@ class ScoreProvider extends ChangeNotifier {
           score.slug,
           score.pathName,
           section.movementIndex,
-          newSection.tempoRange,
+          section.tempoMultiplier == null
+              ? newSection.tempoRange
+              : newSection.tempoRange
+                  .map((int tempo) => tempo * section.tempoMultiplier!)
+                  .toList(),
           section.name,
           AudioFormat.mp3,
         );
 
         newMovement.setupSections.add(newSection);
+        newMovement.sections = [];
+
+        index++;
       }
 
       newScore.setupMovements.add(newMovement);
@@ -283,6 +395,40 @@ class ScoreProvider extends ChangeNotifier {
         .map((tempo) => '$fullPath/${fullName}_$tempo.$format')
         .toList();
   }
+
+  //save audio files
+  Future<void> saveAudioFiles(List<Section> sections) async {
+    progressDownload = 0;
+    final audioFilesUrls = [];
+    final requests = <Future>[];
+    int totalFiles = 0;
+
+    for (Section section in sections) {
+      for (String audioUrl in section.fileList) {
+        audioFilesUrls.add(audioUrl);
+      }
+    }
+    Future<void> readAndCheckProgress(String audioFileName) async {
+      totalFiles++;
+      progressDownload = totalFiles / audioFilesUrls.length;
+      progressDownload == 1 ? progressDownload = 0 : progressDownload;
+    }
+
+    for (final audioUrl in audioFilesUrls) {
+      final String audioFileName = audioUrl.split('/').last;
+      requests.add(readAndCheckProgress(audioFileName));
+    }
+
+    await Future.wait(requests);
+  }
+}
+
+//get click data url
+String getClickDataUrl(String slug, String pathName, int movementIndex,
+    String sectionName, int tempo) {
+  String fullPath = '$supabaseUrl$slug/$movementIndex/CLICKDATA';
+  String fileName = '${pathName}_${movementIndex}_${sectionName}_$tempo';
+  return '$fullPath/$fileName.json';
 }
 
 class AudioFormat {
@@ -290,3 +436,10 @@ class AudioFormat {
   static const String opus = 'opus';
   static const String flac = 'flac';
 }
+
+//TEST SIGNALS
+Signal<Score?> currentSignalScore = signal(null);
+Signal<Section?> currentSignalSection = signal(null);
+final currentScoreId = computed(() => currentSignalScore.value?.id);
+final currentScoreTitle = computed(() => currentSignalScore.value?.shortTitle);
+final currentSectionKey = computed(() => currentSignalSection.value?.key);

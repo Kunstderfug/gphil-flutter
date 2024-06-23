@@ -24,6 +24,7 @@ class DarkModeSlider extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           CupertinoSwitch(
+              activeColor: Theme.of(context).highlightColor,
               value:
                   Provider.of<ThemeProvider>(context, listen: false).isDarkMode,
               onChanged: (value) =>

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/theme/constants.dart';
 
 class ResponsiveLayout extends StatelessWidget {
   final Widget tabletLayout;
@@ -10,7 +11,7 @@ class ResponsiveLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth < 1600) {
+      if (isTablet(context)) {
         return tabletLayout;
       } else {
         return desktopLayout;

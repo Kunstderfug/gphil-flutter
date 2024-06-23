@@ -23,7 +23,7 @@ class Navigation extends StatelessWidget {
       )),
 
       //NAVIGATION
-      ...navigationScreens.getRange(0, 3).map((screen) => NavigationItem(
+      ...navigationScreens.getRange(0, 2).map((screen) => NavigationItem(
             title: screen['title'] as String,
             icon: screen['icon'] as IconData,
             index: navigationScreens.indexOf(screen),

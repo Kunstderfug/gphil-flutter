@@ -15,35 +15,29 @@ class ScoreLinks extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
-          child: fullScoreUrl == null
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('Full Score'),
-                )
-              : const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(''),
-                ),
-        ),
+        fullScoreUrl == null
+            ? TextButton(
+                onPressed: () {},
+                child: Text('Full Score',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    )),
+              )
+            : const Text(''),
         const SizedBox(width: 16),
         const Text('|'),
         const SizedBox(width: 16),
-        InkWell(
-          onTap: () {},
-          borderRadius: BorderRadius.circular(16),
-          child: fullScoreUrl == null
-              ? const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('Piano Score'),
-                )
-              : const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(''),
-                ),
-        ),
+        fullScoreUrl == null
+            ? TextButton(
+                onPressed: () {},
+                child: Text('Piano Score',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    )),
+              )
+            : const Text(''),
       ],
     );
   }

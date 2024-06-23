@@ -8,7 +8,7 @@ class Neo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
         boxShadow: [
           //darker shadow on bottom right
