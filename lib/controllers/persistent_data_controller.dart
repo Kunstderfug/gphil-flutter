@@ -109,7 +109,7 @@ class PersistentDataController {
 
   Future<File> imageFile(String scoreId, String imageId) async {
     final path = await getImagesDirectory(scoreId);
-    return File('$path/$imageId.$imageFormat');
+    return File('$path/$imageId');
   }
 
 //AUDIO FILE
@@ -201,9 +201,8 @@ class PersistentDataController {
 
   Future<File?> readImageFile(String scoreId, String imageRef) async {
     String imageUrl = SanityService().getImageUrl(imageRef);
-    final String imageRefString = imageUrl.split('/').last;
+    final String imageRefString = imageUrl.split('/').last.split('?').first;
     File file = await imageFile(scoreId, imageRefString);
-    // Uint8List byteList;
 
     if (!await file.exists()) {
       Response response = await Client().get(
@@ -211,10 +210,7 @@ class PersistentDataController {
       );
 
       Uint8List byteList = response.bodyBytes;
-      // imageController.imageData = byteList;
-      // imageController.imageFile = file;
       await writeImageFile(byteList, file);
-      // file = await imageFile(scoreId, imageRefString);
     }
 
     return file;

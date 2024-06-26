@@ -24,7 +24,7 @@ class LibraryItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(32),
       ),
       child: SizedBox(
-        height: sizeLg,
+        height: sizeXl,
         child: InkWell(
           hoverColor: Theme.of(context).highlightColor,
           borderRadius: BorderRadius.circular(32),
@@ -38,23 +38,25 @@ class LibraryItemCard extends StatelessWidget {
             if (libraryItem.complete < 100)
               ScoreProgressIndicator(complete: libraryItem.complete)
             else
-              Positioned(
-                top: 8,
-                right: 16,
-                child: Icon(
-                  Icons.check_circle_outline,
-                  color: greenColor,
-                  size: iconSizeXs,
+              Padding(
+                padding: const EdgeInsets.only(right: paddingMd),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(
+                    Icons.check_circle_outline,
+                    color: greenColor,
+                    size: iconSizeXs,
+                  ),
                 ),
               ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: paddingLg, vertical: paddingSm),
+              padding: const EdgeInsets.only(left: paddingLg),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   libraryItem.shortTitle,
                   style: TextStyles().textSm,
+                  textScaler: const TextScaler.linear(1.1),
                 ),
               ),
             ),

@@ -20,7 +20,6 @@ class TabletLayout extends StatelessWidget {
       backgroundColor: Colors.transparent,
       appBar: isScoreScreen
           ? AppBar(
-              flexibleSpace: backDropFilter(context),
               elevation: 0,
               backgroundColor:
                   Theme.of(context).colorScheme.surface.withOpacity(0.9),
@@ -33,7 +32,6 @@ class TabletLayout extends StatelessWidget {
                   overflow: TextOverflow.ellipsis),
             )
           : AppBar(
-              flexibleSpace: backDropFilter(context),
               elevation: 0,
               backgroundColor:
                   Theme.of(context).colorScheme.surface.withOpacity(0.9),

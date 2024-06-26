@@ -19,7 +19,8 @@ class ScoreSections extends StatelessWidget {
         final p = context.read<PlaylistProvider>();
         s.setCurrentSection(sectionKey);
         if (p.playlist.isNotEmpty &&
-            p.playlist.indexWhere((el) => el.key == sectionKey) == -1) {
+            p.playlist.indexWhere((el) => el.key == sectionKey) == -1 &&
+            s.currentScore?.id == p.sessionScore?.id) {
           p.setCurrentSectionByKey(sectionKey);
         }
       }

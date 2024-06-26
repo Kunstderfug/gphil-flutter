@@ -1,15 +1,18 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
+double scale(BuildContext context) => isHiDPI(context) ? 1.25 : 1.0;
+
 //sizes
+const sizeXxs = 4.0;
 const sizeXs = 8.0;
-const sizeSm = 16.0;
-const sizeMd = 24.0;
-const sizeLg = 32.0;
-const sizeXl = 64.0;
+const sizeSm = 12.0;
+const sizeMd = 16.0;
+const sizeLg = 24.0;
+const sizeXl = 32.0;
+const sizeXxl = 48.0;
 
 //paddings
 const paddingXs = 4.0;
@@ -64,7 +67,11 @@ double appBarHeight(BuildContext context) {
 }
 
 bool isTablet(BuildContext context) {
-  return MediaQuery.sizeOf(context).width <= 720;
+  return MediaQuery.sizeOf(context).width <= 900;
+}
+
+bool isHiDPI(BuildContext context) {
+  return MediaQuery.sizeOf(context).width >= 2560;
 }
 
 class AppColors {
@@ -235,27 +242,6 @@ class BottomBar extends StatelessWidget {
       ],
     );
   }
-}
-
-Widget backDropFilter(BuildContext context) {
-  return ClipRect(
-    child: BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-      child: Container(
-        height: appBarSize,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primary,
-              Theme.of(context).colorScheme.surface
-            ],
-          ),
-          // color: Colors.transparent,
-        ),
-        // height: 124,
-      ),
-    ),
-  );
 }
 
 double imageWidth(BuildContext context) {

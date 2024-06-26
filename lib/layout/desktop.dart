@@ -22,14 +22,12 @@ class DesktopLayout extends StatelessWidget {
         backgroundColor: Colors.transparent,
         appBar: !isScoreScreen
             ? AppBar(
-                flexibleSpace: backDropFilter(context),
                 title: Text(
                     n.navigationScreens[n.currentIndex]['title'] as String,
                     style: Theme.of(context).textTheme.titleMedium),
                 toolbarHeight: appBarSizeDesktop,
               )
             : AppBar(
-                flexibleSpace: backDropFilter(context),
                 title: Padding(
                   padding:
                       const EdgeInsets.only(left: paddingMd, right: paddingMd),
