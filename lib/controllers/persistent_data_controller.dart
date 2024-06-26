@@ -142,10 +142,16 @@ class PersistentDataController {
     if (await sectionFile.exists() &&
         json.encode(data) == await sectionFile.readAsString()) {
       return data;
+    } else {
+      await sectionFile.writeAsString(json.encode(data), flush: true);
+      log('wrote $sectionFile, autoContinue: ${await sectionFile.readAsString()}');
     }
-    await sectionFile.writeAsString(json.encode(data));
-
     return data;
+  }
+
+  Future<SectionPrefs> updateSectionPrefs(
+      String scoreId, String sectionKey, SectionPrefs data) {
+    return writeSectionJsonFile(scoreId, sectionKey, data);
   }
 
   //write click data

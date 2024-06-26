@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/player/player_control.dart';
-import 'package:gphil/components/player/player_header.dart';
 import 'package:gphil/components/player/playlist_control.dart';
 import 'package:gphil/components/player/progress_bar.dart';
 import 'package:gphil/models/playlist_provider.dart';
@@ -20,10 +19,6 @@ class PlayerArea extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PlayerHeader(sectionName: p.currentSection!.name),
-        const SizedBox(
-          height: separatorXs,
-        ),
         RepaintBoundary(
             child: Container(
                 constraints: const BoxConstraints(
@@ -51,7 +46,8 @@ class PlayerArea extends StatelessWidget {
 
             return Stack(children: [
               const ProgressBar(),
-              p.currentSection?.autoContinueMarker != null
+              p.currentSection?.autoContinueMarker != null &&
+                      p.currentSection?.autoContinue != null
                   ? Positioned(
                       left: constraints.maxWidth /
                               100 *
@@ -61,7 +57,9 @@ class PlayerArea extends StatelessWidget {
                         width: barWidth,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: greenColor,
+                          color: p.currentSection!.autoContinue! == true
+                              ? greenColor
+                              : Colors.grey.shade700,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8)),
                         ),
@@ -72,7 +70,7 @@ class PlayerArea extends StatelessWidget {
           }),
         )),
         const SizedBox(
-          height: separatorXs,
+          height: 8,
         ),
         const SizedBox(width: 600, child: PlayerControl()),
       ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/theme/constants.dart';
 
 class ScoreLinks extends StatelessWidget {
   final String? fullScoreUrl;
@@ -20,7 +21,7 @@ class ScoreLinks extends StatelessWidget {
                 onPressed: () {},
                 child: Text('Full Score',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSizeSm,
                       color: Theme.of(context).colorScheme.inversePrimary,
                     )),
               )
@@ -33,7 +34,7 @@ class ScoreLinks extends StatelessWidget {
                 onPressed: () {},
                 child: Text('Piano Score',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: fontSizeSm,
                       color: Theme.of(context).colorScheme.inversePrimary,
                     )),
               )

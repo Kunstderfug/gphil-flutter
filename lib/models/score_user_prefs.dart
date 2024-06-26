@@ -38,23 +38,27 @@ class SectionPrefs {
   final String sectionKey;
   final int defaultTempo;
   final int? userTempo;
+  final bool? autoContinue;
 
   SectionPrefs({
     required this.sectionKey,
     required this.defaultTempo,
     this.userTempo,
+    this.autoContinue,
   });
 
   factory SectionPrefs.fromJson(Map<String, dynamic> json) => SectionPrefs(
         sectionKey: json["sectionKey"],
         defaultTempo: json["defaultTempo"],
         userTempo: json["userTempo"],
+        autoContinue: json["autoContinue"],
       );
 
   Map<String, dynamic> toJson() => {
         "sectionKey": sectionKey,
         "defaultTempo": defaultTempo,
         "userTempo": userTempo,
+        "autoContinue": autoContinue,
       };
 }
 

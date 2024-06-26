@@ -6,20 +6,20 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-class PreviousIntent extends Intent {
-  const PreviousIntent();
+class HandlePreviousSection extends Intent {
+  const HandlePreviousSection();
 }
 
-class NextIntent extends Intent {
-  const NextIntent();
+class HandleNextSection extends Intent {
+  const HandleNextSection();
 }
 
-class StartIntent extends Intent {
-  const StartIntent();
+class StartOrContinue extends Intent {
+  const StartOrContinue();
 }
 
-class StopIntent extends Intent {
-  const StopIntent();
+class Stop extends Intent {
+  const Stop();
 }
 
 class PlayerControl extends StatelessWidget {
@@ -31,7 +31,6 @@ class PlayerControl extends StatelessWidget {
       final s = Provider.of<ScoreProvider>(context);
 
       void syncProviders() {
-        // final movementIndex = provider.currentSection!.movementIndex;
         final movementKey = p.currentSection!.movementKey;
         final sectionKey = p.currentSection!.key;
         s.setCurrentSectionByKey(movementKey, sectionKey);
@@ -40,21 +39,24 @@ class PlayerControl extends StatelessWidget {
 
       return Shortcuts(
         shortcuts: const <ShortcutActivator, Intent>{
-          SingleActivator(LogicalKeyboardKey.arrowLeft): PreviousIntent(),
-          SingleActivator(LogicalKeyboardKey.arrowRight): NextIntent(),
-          SingleActivator(LogicalKeyboardKey.enter): StartIntent(),
-          SingleActivator(LogicalKeyboardKey.space): StopIntent(),
-          SingleActivator(LogicalKeyboardKey.pageDown): StartIntent(),
-          SingleActivator(LogicalKeyboardKey.pageUp): StopIntent(),
+          SingleActivator(LogicalKeyboardKey.arrowLeft):
+              HandlePreviousSection(),
+          SingleActivator(LogicalKeyboardKey.arrowRight): HandleNextSection(),
+          SingleActivator(LogicalKeyboardKey.enter): StartOrContinue(),
+          SingleActivator(LogicalKeyboardKey.space): Stop(),
+          SingleActivator(LogicalKeyboardKey.pageDown): StartOrContinue(),
+          SingleActivator(LogicalKeyboardKey.pageUp): Stop(),
         },
         child: Actions(
           actions: {
-            PreviousIntent: CallbackAction<PreviousIntent>(onInvoke: (intent) {
+            HandlePreviousSection:
+                CallbackAction<HandlePreviousSection>(onInvoke: (intent) {
               p.skipToPreviousSection();
               syncProviders();
               return null;
             }),
-            StartIntent: CallbackAction<StartIntent>(onInvoke: (intent) async {
+            StartOrContinue:
+                CallbackAction<StartOrContinue>(onInvoke: (intent) async {
               if (!p.isPlaying) {
                 p.play();
               } else {
@@ -65,11 +67,12 @@ class PlayerControl extends StatelessWidget {
               }
               return null;
             }),
-            StopIntent: CallbackAction<StopIntent>(onInvoke: (intent) {
+            Stop: CallbackAction<Stop>(onInvoke: (intent) {
               p.stop();
               return null;
             }),
-            NextIntent: CallbackAction<NextIntent>(onInvoke: (intent) {
+            HandleNextSection:
+                CallbackAction<HandleNextSection>(onInvoke: (intent) {
               p.skipToNextSection();
               syncProviders();
               return null;

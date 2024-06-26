@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:gphil/theme/dark_mode.dart';
 import 'package:gphil/layout/navigation_item.dart';
 import 'package:provider/provider.dart';
@@ -13,14 +14,17 @@ class Navigation extends StatelessWidget {
     final navigationScreens = navigationProvider.navigationScreens;
     return Column(children: [
       //logo
-      DrawerHeader(
-          child: Center(
-        child: Icon(
-          Icons.music_note,
-          size: 40,
-          color: Theme.of(context).colorScheme.inversePrimary,
-        ),
-      )),
+      SizedBox(
+        height: 145,
+        child: DrawerHeader(
+            child: Center(
+          child: Image.asset(
+            'assets/images/gphil_icon.png',
+            width: sizeXl,
+            height: sizeXl,
+          ),
+        )),
+      ),
 
       //NAVIGATION
       ...navigationScreens.getRange(0, 2).map((screen) => NavigationItem(
@@ -31,7 +35,8 @@ class Navigation extends StatelessWidget {
 
       //DARK MODE
       const Padding(
-        padding: EdgeInsets.all(25.0),
+        padding:
+            EdgeInsets.symmetric(horizontal: paddingMd, vertical: paddingXs),
         child: DarkModeSlider(),
       ),
     ]);

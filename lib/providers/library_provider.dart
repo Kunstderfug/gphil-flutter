@@ -5,6 +5,7 @@ import 'package:gphil/services/sanity_service.dart';
 class LibraryProvider extends ChangeNotifier {
   final List<LibraryItem> _library = [];
   final LibraryIndex _indexedLibrary = LibraryIndex(composers: []);
+  String currentScoreId = '';
   String error = '';
   bool _isLoading = false;
 
@@ -45,6 +46,11 @@ class LibraryProvider extends ChangeNotifier {
     } finally {
       isLoading = false;
     }
+    notifyListeners();
+  }
+
+  void setScoreId(String scoreId) {
+    currentScoreId = scoreId;
     notifyListeners();
   }
 }

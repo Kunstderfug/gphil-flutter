@@ -18,13 +18,9 @@ class ScoreMovements extends StatelessWidget {
     final n = Provider.of<NavigationProvider>(context);
 
     void startSession() {
-      p.playlist.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
-      p.setMovementIndexByKey(p.sessionMovements.first.movementKey);
-      if (p.currentMovementKey != null && p.currentSectionKey != null) {
-        s.setCurrentSectionByKey(p.currentMovementKey!, p.currentSectionKey!);
-      }
+      p.buildPlaylist(s.currentScore!);
       p.loadClickFiles(p.playlist);
-      p.initSessionPlayers(0);
+      p.initSessionPlayers(p.playlist.first.key);
       n.setNavigationIndex(1);
     }
 
@@ -46,15 +42,14 @@ class ScoreMovements extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Padding(
-              padding: const EdgeInsets.only(right: 12.0),
+              padding: const EdgeInsets.only(right: paddingSm),
               child: Icon(Icons.arrow_upward_sharp,
-                  color: Theme.of(context).colorScheme.secondary, size: 24),
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: iconSizeSm),
             ),
-            Text('Tap on the + button', style: TextStyles().textSm),
             Text(
-              'to add a movement to the performance playlist',
-              style: TextStyles().textSm,
-            ),
+                'Tap on the + button\nto add a movement to the performance playlist',
+                style: TextStyles().textSm),
             const SeparatorLine(),
           ],
         ),
@@ -67,8 +62,8 @@ class ScoreMovements extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Performance Playlist', style: TextStyles().textMdBold),
-                const SizedBox(width: 12),
-                MediaQuery.sizeOf(context).width <= 1024
+                const SizedBox(width: separatorSm),
+                isTablet(context)
                     ? Expanded(
                         child: TextButton(
                           style: ButtonStyle(
@@ -88,7 +83,7 @@ class ScoreMovements extends StatelessWidget {
                                   ? 'Playlist Empty'
                                   : 'Start Session',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: fontSizeMd,
                                 fontWeight: FontWeight.bold,
                                 color: p.playlist.isEmpty
                                     ? Theme.of(context).colorScheme.secondary
@@ -103,7 +98,7 @@ class ScoreMovements extends StatelessWidget {
                     : TextButton(
                         style: ButtonStyle(
                           fixedSize: const WidgetStatePropertyAll(Size(170, 0)),
-                          backgroundColor: p.playlist.isEmpty
+                          backgroundColor: p.sessionMovements.isEmpty
                               ? WidgetStateProperty.all(
                                   Theme.of(context).colorScheme.primary)
                               : WidgetStateProperty.all(
@@ -112,16 +107,16 @@ class ScoreMovements extends StatelessWidget {
                               Theme.of(context).colorScheme.inversePrimary),
                         ),
                         onPressed: () =>
-                            p.playlist.isEmpty ? null : startSession(),
+                            p.sessionMovements.isEmpty ? null : startSession(),
                         child: Ink(
                           child: Text(
-                            p.playlist.isEmpty
+                            p.sessionMovements.isEmpty
                                 ? 'Playlist Empty'
                                 : 'Start Session',
                             style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: p.playlist.isEmpty
+                              fontSize: fontSizeSm,
+                              // fontWeight: FontWeight.bold,
+                              color: p.sessionMovements.isEmpty
                                   ? Theme.of(context).colorScheme.secondary
                                   : Theme.of(context)
                                       .colorScheme
@@ -132,7 +127,7 @@ class ScoreMovements extends StatelessWidget {
                       ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: separatorXs),
             Text(
               '${p.sessionComposer}${p.sessionScore != null ? ' - ' : ''}${p.sessionScore?.shortTitle ?? ''}',
               style: TextStyles().textMd,

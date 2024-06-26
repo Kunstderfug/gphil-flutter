@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:gphil/components/score/score_section.dart';
+import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
@@ -13,16 +14,24 @@ class ScoreSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ScoreProvider>(builder: (context, provider, child) {
+    return Consumer<ScoreProvider>(builder: (context, s, child) {
+      void syncSections(String sectionKey) {
+        final p = context.read<PlaylistProvider>();
+        s.setCurrentSection(sectionKey);
+        if (p.playlist.isNotEmpty &&
+            p.playlist.indexWhere((el) => el.key == sectionKey) == -1) {
+          p.setCurrentSectionByKey(sectionKey);
+        }
+      }
+
       return Wrap(
         runSpacing: isTablet(context) ? 8 : 14,
         children: [
-          for (final section in sections)
+          for (Section section in sections)
             ScoreSection(
-              name: section.name,
-              isAutoContinue: section.autoContinueMarker != null ? true : false,
-              onTap: () => provider.setCurrentSection(section.key),
-              isSelected: provider.sectionKey == section.key,
+              section: section,
+              onTap: () => syncSections(section.key),
+              isSelected: s.sectionKey == section.key,
             )
         ],
       );

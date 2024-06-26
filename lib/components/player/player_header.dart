@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,7 @@ class PlayerHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final n = Provider.of<NavigationProvider>(context, listen: false);
     final p = Provider.of<PlaylistProvider>(context);
+    final s = Provider.of<ScoreProvider>(context, listen: false);
 
     return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -19,13 +21,14 @@ class PlayerHeader extends StatelessWidget {
         children: [
           //back button
           IconButton(
-            iconSize: iconSizeMd,
-            padding: const EdgeInsets.all(paddingMd),
+            iconSize: iconSizeXs,
+            padding: const EdgeInsets.all(paddingSm),
             tooltip: 'Back to Score',
-            onPressed: () {
+            onPressed: () async {
               if (p.isPlaying) {
                 p.stop();
               }
+              s.setCurrentSection(p.currentSection!.key);
               n.setNavigationIndex(2);
             },
             icon: const Icon(Icons.arrow_back),
@@ -33,22 +36,28 @@ class PlayerHeader extends StatelessWidget {
 
           //song name
           SizedBox(
-            height: 68,
+            height: 48,
             width: 600,
-            child: p.currentSection!.autoContinueMarker != null
+            child: p.currentSection!.autoContinueMarker != null &&
+                    p.currentSection!.autoContinue != null
                 ? Stack(
                     alignment: Alignment.topCenter,
                     children: [
                       Text(
                         sectionName,
-                        style: TextStyles().textXl,
+                        style: TextStyles().textLg,
                       ),
                       Positioned(
-                        top: 38,
+                        top: 28,
                         child: Text(
-                          "Auto-continue",
+                          p.currentSection!.autoContinue! != false
+                              ? "Auto-continue"
+                              : "Auto-continue disabled",
                           style: TextStyle(
-                              fontSize: fontSizeLg, color: greenColor),
+                              fontSize: fontSizeMd,
+                              color: p.currentSection!.autoContinue! != false
+                                  ? greenColor
+                                  : Colors.grey.shade700),
                         ),
                       ),
                     ],
@@ -62,9 +71,9 @@ class PlayerHeader extends StatelessWidget {
 
           //menu button
           IconButton(
-            iconSize: iconSizeMd,
-            padding: const EdgeInsets.all(paddingMd),
-            tooltip: 'Menu',
+            iconSize: iconSizeXs,
+            padding: const EdgeInsets.all(paddingSm),
+            tooltip: 'Menu (for the future actions)',
             onPressed: () {},
             icon: const Icon(Icons.menu),
           ),

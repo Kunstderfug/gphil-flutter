@@ -8,7 +8,7 @@ class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
 
   int gridCount(double pixels) {
-    return (pixels / 700).ceil();
+    return (pixels / 600).ceil();
   }
 
   @override
@@ -22,7 +22,7 @@ class LibraryScreen extends StatelessWidget {
             Text('L O A D I N G  L I B R A R Y . . .',
                 style: TextStyles().textXl),
             const SizedBox(
-              height: 18,
+              height: separatorMd,
             ),
             const CircularProgressIndicator(),
           ],
@@ -33,12 +33,12 @@ class LibraryScreen extends StatelessWidget {
         width: MediaQuery.sizeOf(context).width,
         height: isTablet(context)
             ? MediaQuery.sizeOf(context).height - 156
-            : MediaQuery.sizeOf(context).height - 160,
+            : MediaQuery.sizeOf(context).height - 110,
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 48,
+            crossAxisSpacing: separatorMd,
+            mainAxisSpacing: separatorLg,
             childAspectRatio: 4 / 3,
           ),
           itemCount: provider.indexedLibrary.composers.length,

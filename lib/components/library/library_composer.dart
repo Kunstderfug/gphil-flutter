@@ -15,12 +15,12 @@ class LibraryComposer extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          composerName,
-          style: TextStyles().textLg,
+          composerName.toUpperCase(),
+          style: TextStyles().textMd,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: separatorSm),
         SizedBox(
-          height: 230,
+          height: 200,
           child: SingleChildScrollView(
             child: Column(
               children: [

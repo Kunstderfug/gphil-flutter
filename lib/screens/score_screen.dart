@@ -7,6 +7,7 @@ import 'package:gphil/components/score/section_tempos.dart';
 import 'package:gphil/components/score/show_prompt.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
@@ -19,14 +20,17 @@ class ScoreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = Provider.of<LibraryProvider>(context, listen: false);
     return FutureBuilder(
-      future: Provider.of<ScoreProvider>(context, listen: false).getScore(),
+      future: Provider.of<ScoreProvider>(context, listen: false)
+          .getScore(l.currentScoreId),
       builder: (context, snapshot) {
-        return Consumer<ScoreProvider>(builder: (context, provider, child) {
+        return Consumer<ScoreProvider>(builder: (context, s, child) {
+          //s ScoreProvider
           final p = Provider.of<PlaylistProvider>(context);
           final n = Provider.of<NavigationProvider>(context);
-          if (provider.currentScore == null) {
-            return Center(child: Text(provider.error));
+          if (s.currentScore == null) {
+            return Center(child: Text(s.error));
           } else {
             return Stack(children: [
               Column(
@@ -36,9 +40,9 @@ class ScoreScreen extends StatelessWidget {
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ScoreNavigation(s: provider, n: n, p: p),
+                        ScoreNavigation(s: s, n: n, p: p),
 
-                        const SizedBox(height: separatorSm),
+                        const SizedBox(height: separatorXs),
 
                         //MOVEMENTS % SECTIONS HEADING
                         Row(
@@ -51,7 +55,7 @@ class ScoreScreen extends StatelessWidget {
                                   Text('M O V E M E N T S',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleLarge),
+                                          .titleMedium),
                                   const SeparatorLine(),
                                 ],
                               ),
@@ -65,7 +69,7 @@ class ScoreScreen extends StatelessWidget {
                                   Text('S E C T I O N S',
                                       style: Theme.of(context)
                                           .textTheme
-                                          .titleLarge),
+                                          .titleMedium),
                                   const SeparatorLine(),
                                 ],
                               ),
@@ -79,42 +83,53 @@ class ScoreScreen extends StatelessWidget {
                           children: [
                             Expanded(
                               flex: 2,
-                              child: ScoreMovements(
-                                  movements: provider.currentMovements),
+                              child:
+                                  ScoreMovements(movements: s.currentMovements),
                             ),
                             const SizedBox(width: separatorLg),
 
                             //SECTIONS
                             Expanded(
                                 flex: 3,
-                                child: ScoreSections(
-                                  sections: provider.currentSections,
+                                child: Column(
+                                  children: [
+                                    ScoreSections(
+                                      sections: s.currentSections,
+                                    ),
+                                    //SECTION IMAGE
+                                    SizedBox(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            children: [
+                                              const SizedBox(
+                                                  height: separatorMd),
+                                              Text('Section starts at:',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleMedium),
+                                              const SizedBox(
+                                                  height: separatorXs),
+                                              SectionImage(
+                                                  imageFile: s.sectionImageFile,
+                                                  width: 250),
+                                              const SizedBox(
+                                                  height: separatorXs),
+                                              SectionTempos(
+                                                  section: s.currentSection),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ))
                           ],
                         ),
 
                         const SizedBox(height: separatorXs),
                       ]),
-
-                  //SECTION IMAGE
-                  SizedBox(
-                    // height: 560,
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Text('Section starts at:',
-                                style: Theme.of(context).textTheme.titleLarge),
-                            const SizedBox(height: separatorXs),
-                            SectionImage(imageFile: provider.sectionImageFile),
-                            const SizedBox(height: 18),
-                            SectionTempos(section: provider.currentSection),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
               if (p.showPrompt) const ShowPrompt(),

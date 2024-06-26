@@ -10,7 +10,7 @@ class ShowPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
-    final score = Provider.of<ScoreProvider>(context);
+    final s = Provider.of<ScoreProvider>(context);
 
     final ButtonStyle buttonStyle = TextButton.styleFrom(
       shape: const RoundedRectangleBorder(
@@ -36,7 +36,7 @@ class ShowPrompt extends StatelessWidget {
       style: buttonStyle,
       onPressed: () {
         p.clearSession();
-        p.addMovement(score.currentScore!, p.movementToAdd!);
+        p.addMovement(s.currentScore!, p.movementToAdd!, s.currentSection.key);
       },
       icon: const Icon(Icons.check),
     );

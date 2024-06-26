@@ -7,7 +7,7 @@ class MyDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      width: 300,
+      width: 240,
       backgroundColor: Theme.of(context).colorScheme.surface,
       child: const Navigation(),
     );

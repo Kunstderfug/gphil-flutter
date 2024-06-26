@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/theme_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class DarkModeSlider extends StatelessWidget {
@@ -13,23 +14,25 @@ class DarkModeSlider extends StatelessWidget {
         color: Theme.of(context).colorScheme.primary,
         borderRadius: const BorderRadius.all(Radius.circular(16)),
       ),
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+          vertical: paddingXs, horizontal: paddingSm),
+      margin: const EdgeInsets.all(paddingMd),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           //dark mode text
-          const Text(
+          Text(
             'Dark Mode',
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyles().textSm,
           ),
-          CupertinoSwitch(
-              activeColor: Theme.of(context).highlightColor,
-              value:
-                  Provider.of<ThemeProvider>(context, listen: false).isDarkMode,
-              onChanged: (value) =>
-                  Provider.of<ThemeProvider>(context, listen: false)
-                      .toggleTheme()),
+          Transform.scale(
+            scale: 0.8,
+            child: CupertinoSwitch(
+                activeColor: Theme.of(context).highlightColor,
+                value: context.read<ThemeProvider>().isDarkMode,
+                onChanged: (value) =>
+                    context.read<ThemeProvider>().toggleTheme()),
+          ),
         ],
       ),
     );

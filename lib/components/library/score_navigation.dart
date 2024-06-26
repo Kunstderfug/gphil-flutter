@@ -52,7 +52,7 @@ class _ScoreNavigationState extends State<ScoreNavigation>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
-          iconSize: iconSizeMd,
+          iconSize: iconSizeXs,
           padding: const EdgeInsets.all(paddingMd),
           tooltip: 'Back to Library',
           onPressed: () {
@@ -63,8 +63,8 @@ class _ScoreNavigationState extends State<ScoreNavigation>
         isTablet(context) ? const ScoreLinks() : const SizedBox(),
         Stack(alignment: AlignmentDirectional.center, children: [
           SizedBox(
-            height: 45,
-            width: 45,
+            height: sizeLg,
+            width: sizeLg,
             child: CircularProgressIndicator(
               color: Theme.of(context).highlightColor,
               value: widget.s.progressDownload,
@@ -73,7 +73,7 @@ class _ScoreNavigationState extends State<ScoreNavigation>
           Row(
             children: [
               IconButton(
-                  iconSize: iconSizeMd,
+                  iconSize: iconSizeXs,
                   padding: const EdgeInsets.all(paddingMd),
                   tooltip: 'Download',
                   onPressed: () async =>
@@ -81,7 +81,7 @@ class _ScoreNavigationState extends State<ScoreNavigation>
                   icon: const Icon(Icons.download_outlined)),
               !widget.s.scoreIsUptoDate && widget.s.currentScore != null
                   ? IconButton(
-                      iconSize: iconSizeMd,
+                      iconSize: iconSizeXs,
                       padding: const EdgeInsets.all(paddingMd),
                       tooltip: 'Score update available, refresh',
                       onPressed: () async =>
@@ -98,7 +98,10 @@ class _ScoreNavigationState extends State<ScoreNavigation>
                       tooltip: 'Delete score',
                       onPressed: () async => await persistentController
                           .deleteScore(widget.s.currentScore!.id),
-                      icon: const Icon(Icons.delete)),
+                      icon: const Icon(
+                        size: iconSizeXs,
+                        Icons.delete,
+                      )),
             ],
           ),
         ]),

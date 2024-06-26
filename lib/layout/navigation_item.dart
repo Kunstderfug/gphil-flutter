@@ -15,20 +15,23 @@ class NavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navigation = Provider.of<NavigationProvider>(context);
-    bool isSelected = navigation.currentIndex == index;
+    final n = Provider.of<NavigationProvider>(context);
+    bool isSelected = n.currentIndex == index;
 
     return Padding(
-      padding: const EdgeInsets.only(left: 25.0, top: 25),
+      padding: const EdgeInsets.only(left: paddingLg, top: paddingLg),
       child: ListTile(
-        title: Text(title),
-        leading: Icon(icon),
+        title: Text(title, style: TextStyles().textSm),
+        leading: Icon(
+          icon,
+          size: iconSizeSm,
+        ),
         selected: isSelected,
         selectedTileColor: isSelected
             ? AppColors().highLightColor(context)
             : Colors.transparent,
         onTap: () {
-          navigation.setNavigationIndex(index);
+          n.setNavigationIndex(index);
         },
       ),
     );

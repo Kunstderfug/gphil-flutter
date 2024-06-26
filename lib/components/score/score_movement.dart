@@ -21,7 +21,7 @@ class ScoreMovement extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: paddingSm),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -35,8 +35,8 @@ class ScoreMovement extends StatelessWidget {
                     : Colors.transparent,
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 32),
+                padding: const EdgeInsets.symmetric(
+                    vertical: paddingSm, horizontal: paddingLg),
                 child: Text(movement.title,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.inversePrimary,
@@ -54,13 +54,14 @@ class ScoreMovement extends StatelessWidget {
               onPressed: () {
                 p.containsMovement(movement.key)
                     ? p.removeMovement(movement)
-                    : p.addMovement(s.currentScore!, movement);
+                    : p.addMovement(
+                        s.currentScore!, movement, s.currentSection.key);
               },
               tooltip: p.containsMovement(movement.key)
                   ? 'Remove movement from the playlist'
                   : 'Add movement to the playlist',
               icon: Icon(
-                size: iconSizeSm * 1.2,
+                size: iconSizeXs,
                 p.containsMovement(movement.key) ? Icons.check : Icons.add,
                 color: p.containsMovement(movement.key)
                     ? Theme.of(context).colorScheme.inversePrimary

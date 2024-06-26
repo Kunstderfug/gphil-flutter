@@ -9,30 +9,31 @@ import 'package:provider/provider.dart';
 
 class SectionImage extends StatelessWidget {
   final File? imageFile;
-  const SectionImage({super.key, this.imageFile});
+  final double width;
+  const SectionImage({super.key, this.imageFile, required this.width});
+
+  //s scoreProvider
+  //t themeProvider
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<ScoreProvider, ThemeProvider>(
-        builder: (context, scoreProvider, themeProvider, child) {
-      if (scoreProvider.currentSection.sectionImage == null) {
+        builder: (context, s, t, child) {
+      if (s.currentSection.sectionImage == null) {
         return SizedBox(
-          width: 600,
+          width: width,
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 400),
               decoration: BoxDecoration(
-                color: themeProvider.isDarkMode
-                    ? Colors.grey[300]
-                    : Colors.grey[100],
-                borderRadius: const BorderRadius.all(Radius.circular(16)),
-              ),
+                  color: t.isDarkMode ? Colors.grey[300] : Colors.grey[100],
+                  borderRadius: BorderRad().bRadiusMd),
               child: Center(
                 child: Text(
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 32),
+                      fontSize: fontSizeMd),
                   'No image yet',
                 ),
               ),
@@ -48,10 +49,8 @@ class SectionImage extends StatelessWidget {
                 aspectRatio: 16 / 9,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: themeProvider.isDarkMode
-                        ? Colors.grey[300]
-                        : Colors.grey[100],
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                    color: t.isDarkMode ? Colors.grey[300] : Colors.grey[100],
+                    borderRadius: BorderRad().bRadiusMd,
                   ),
                   child: imageFile != null
                       ? Image.file(

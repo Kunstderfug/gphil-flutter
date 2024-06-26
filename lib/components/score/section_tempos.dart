@@ -4,6 +4,7 @@ import 'package:gphil/models/section.dart';
 // import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class SectionTempos extends StatelessWidget {
@@ -16,7 +17,7 @@ class SectionTempos extends StatelessWidget {
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
     bool isSelected(int tempo) {
-      return p.playlist.isNotEmpty
+      return p.playlist.isNotEmpty && p.currentSectionKey == section.key
           ? p.currentTempo == tempo
           : s.currentTempo == tempo;
     }
@@ -24,7 +25,7 @@ class SectionTempos extends StatelessWidget {
     bool isDefaultTempo(int tempo) => section.defaultTempo == tempo;
 
     void setTempoAndPlay(int tempo) {
-      if (p.currentSection != null) p.setUserTempo(tempo);
+      p.setUserTempo(tempo);
       s.setCurrentTempo(tempo);
     }
 
@@ -34,8 +35,8 @@ class SectionTempos extends StatelessWidget {
         const SizedBox(height: 16),
         Wrap(
           alignment: WrapAlignment.center,
-          spacing: 8,
-          runSpacing: 16,
+          spacing: 0,
+          runSpacing: separatorXs,
           children: [
             for (int tempo in section.tempoRange)
               TextButton(
@@ -57,9 +58,13 @@ class SectionTempos extends StatelessWidget {
                 ),
                 onPressed: () => setTempoAndPlay(tempo),
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12),
                   child: Text(
                     tempo.toString(),
+                    style: TextStyle(
+                      fontSize: fontSizeSm,
+                      fontWeight: isSelected(tempo) ? FontWeight.bold : null,
+                    ),
                   ),
                 ),
               )

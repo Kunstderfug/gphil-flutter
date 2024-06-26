@@ -6,10 +6,9 @@ class ScoreBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        SizedBox(child: SectionImage()),
-      ],
-    );
+    return const SizedBox(
+        child: SectionImage(
+      width: 600,
+    ));
   }
 }

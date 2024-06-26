@@ -4,28 +4,38 @@ import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
+//sizes
+const sizeXs = 8.0;
+const sizeSm = 16.0;
+const sizeMd = 24.0;
+const sizeLg = 32.0;
+const sizeXl = 64.0;
+
 //paddings
+const paddingXs = 4.0;
 const paddingSm = 8.0;
 const paddingMd = 16.0;
 const paddingLg = 24.0;
 const paddingXl = 32.0;
 
 //icon sizes
+const iconSizeXs = 16.0;
 const iconSizeSm = 24.0;
 const iconSizeMd = 32.0;
 const iconSizeLg = 48.0;
 const iconSizeXl = 64.0;
 
 //separators
-const separatorXs = 28.0;
-const separatorSm = 40.0;
-const separatorMd = 52.0;
-const separatorLg = 64.0;
+const separatorXs = 16.0;
+const separatorSm = 24.0;
+const separatorMd = 32.0;
+const separatorLg = 48.0;
+const separatorXl = 64.0;
 const separatorThickness = 2.0;
 
 //app bar
 const appBarSize = 84.0;
-const appBarSizeDesktop = 64.0;
+const appBarSizeDesktop = 44.0;
 
 //text
 const normalLetterSpace = 1.0;
@@ -54,7 +64,7 @@ double appBarHeight(BuildContext context) {
 }
 
 bool isTablet(BuildContext context) {
-  return MediaQuery.sizeOf(context).width <= 1600;
+  return MediaQuery.sizeOf(context).width <= 720;
 }
 
 class AppColors {
@@ -178,12 +188,13 @@ class BackButton extends StatelessWidget {
 }
 
 class SeparatorLine extends StatelessWidget {
-  const SeparatorLine({super.key});
+  const SeparatorLine({super.key, this.height = separatorMd});
+  final double height;
   @override
   Widget build(BuildContext context) {
     final theme = Provider.of<ThemeProvider>(context);
     return SizedBox(
-      height: separatorMd,
+      height: height,
       child: Center(
         child: Container(
           height: separatorThickness,
@@ -248,5 +259,7 @@ Widget backDropFilter(BuildContext context) {
 }
 
 double imageWidth(BuildContext context) {
-  return MediaQuery.sizeOf(context).width <= 1024 ? 650 : 800;
+  return MediaQuery.sizeOf(context).width <= 899 ? 500 : 600;
 }
+
+double maxLaptopWidth = 1512; //mackbook pro 14 inch

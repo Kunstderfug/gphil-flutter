@@ -14,12 +14,14 @@ final persistentController = PersistentDataController();
 
 class SessionMovement {
   final String movementKey;
+  final String scoreId;
   final String title;
   final int index;
   final int? renderTail;
 
   SessionMovement(
     this.movementKey,
+    this.scoreId,
     this.title,
     this.index,
     this.renderTail,
@@ -132,6 +134,7 @@ class PlaylistProvider extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   bool get autoStart => _autoStart;
   Duration get autoContinueAt => _autoContinueAt;
+  bool get autoContinueEnabled => currentSection?.autoContinue ?? false;
   ClickData? get currentBeatData =>
       currentClickData?.clickData[currentBeatIndex];
   bool get filesAreLoaded => filesLoaded == playerPool.length;
@@ -211,6 +214,20 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  int getTempoIndex(Section section) {
+    return section.userTempo != null
+        ? section.tempoRange.indexOf(section.userTempo!)
+        : section.tempoRange.indexOf(section.defaultTempo);
+  }
+
+  String getAudioUrl(Section section) {
+    return section.fileList[getTempoIndex(section)];
+  }
+
+  String getAudioFileNAme(String audioUrl) {
+    return audioUrl.split('/').last;
+  }
+
   Future<void> setPlayerPool() async {
     final loadAudioFiles = <Future>[];
     final audioUrls = <Map<int, dynamic>>[];
@@ -218,18 +235,13 @@ class PlaylistProvider extends ChangeNotifier {
     await player.init();
 
     for (Section section in playlist) {
-      //get tempo
-      final tempoIndex = section.userTempo != null
-          ? section.tempoRange.indexOf(section.userTempo!)
-          : section.tempoRange.indexOf(section.defaultTempo);
-      //get source url
-      final audioUrl = section.fileList[tempoIndex];
+      final audioUrl = getAudioUrl(section);
       audioUrls.add({section.sectionIndex: audioUrl});
     }
 
     Future<void> loadFile(int index, String audioUrl) async {
       final scoreId = playlist[0].scoreId;
-      final String audioFileName = audioUrl.split('/').last;
+      final String audioFileName = getAudioFileNAme(audioUrl);
       final file = await persistentController.readAudioFile(
           scoreId, audioFileName, audioUrl);
       audioFilesUrls.add({index: file.path});
@@ -265,7 +277,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   //create array of AudioPlayers for all songs in playlist
-  void initSessionPlayers(int index) async {
+  void initSessionPlayers(String sectionKey) async {
     isLoading = true;
     resetPlayers();
     await setPlayerPool();
@@ -273,7 +285,8 @@ class PlaylistProvider extends ChangeNotifier {
     //set current section image and duration if not empty
     if (playerPool.isNotEmpty &&
         _currentSectionIndex <= playerPool.length - 1) {
-      setCurrentSectionImage();
+      // setCurrentSectionImage();
+      setCurrentSectionByKey(sectionKey);
       getDuration();
     }
 
@@ -414,12 +427,15 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void handlePlayNextSection() {
-    jumped = true;
-    log('currentPosition: ${currentPosition.inMilliseconds.toString()}, autoContinueMarker: ${autoContinueMarker.toString()}');
-    ticker.stop();
-    ticker.dispose();
-    stopMetronome();
-    playNextSection();
+    //only when autoContinue switch in section is on
+    if (currentSection!.autoContinue == true) {
+      jumped = true;
+      log('currentPosition: ${currentPosition.inMilliseconds.toString()}, autoContinueMarker: ${autoContinueMarker.toString()}');
+      ticker.stop();
+      ticker.dispose();
+      stopMetronome();
+      playNextSection();
+    }
   }
 
 // if marker is 50000, and seeked position is 30000, 50000 - 30000 = 20000 (autoContinueMarkerIfSeeked)
@@ -776,33 +792,16 @@ class PlaylistProvider extends ChangeNotifier {
     return sessionMovements.any((element) => element.movementKey == key);
   }
 
-  void addMovement(Score score, Movement movement) {
+  void addMovement(Score score, Movement movement, String sectionKey) {
     movementToAdd = movement;
     //check if sections from other concerto are already in session
-    if (playlist.any((element) => element.scoreId != score.id)) {
+    if (sessionMovements.any((el) => el.scoreId != score.id)) {
       showPrompt = true;
       notifyListeners();
     } else {
-      for (final section in movement.setupSections) {
-        //check if section already exists in session
-        if (playlist.any((element) => element.key == section.key)) {
-          continue;
-        } else {
-          playlist.add(section);
-          // section.sectionIndex = playlist.indexOf(section);
-          sessionScore = score;
-        }
-      }
-      // playlist.sort((a, b) => a.movementIndex.compareTo(b.movementIndex));
-      playlist.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
-
-      sessionMovements.add(SessionMovement(
-          movement.key, movement.title, movement.index, movement.renderTail));
+      sessionMovements.add(SessionMovement(movement.key, score.id,
+          movement.title, movement.index, movement.renderTail));
       sessionMovements.sort((a, b) => a.index.compareTo(b.index));
-      for (final element in playlist) {
-        element.sectionIndex = playlist.indexOf(element);
-        // log(element.movementIndex.toString());
-      }
 
       notifyListeners();
     }
@@ -841,15 +840,42 @@ class PlaylistProvider extends ChangeNotifier {
     setCurrentSectionImage();
   }
 
+  void buildPlaylist(Score score) {
+    playlist.clear();
+    sessionScore = score;
+
+//add sections from score according to sessionmovements
+    for (SessionMovement sessionMovement in sessionMovements) {
+      final movementKey = sessionMovement.movementKey;
+
+      for (Section section in score.setupMovements
+          .firstWhere((element) => element.key == movementKey)
+          .setupSections) {
+        playlist.add(section);
+      }
+    }
+
+    for (Section section in playlist) {
+      section.sectionIndex = playlist.indexOf(section);
+      log('sectionIndex: ${section.sectionIndex.toString()}');
+    }
+
+    // playlist.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
+
+    notifyListeners();
+  }
+
   void setCurrentSectionByKey(String sectionKey) {
     _currentSectionIndex = playlist.indexWhere(
       (element) => element.key == sectionKey,
     );
-    currentMovementIndex = playlist[_currentSectionIndex].movementIndex;
+    // currentMovementIndex = sessionMovements
+    //     .indexWhere((el) => el.movementKey == currentSection!.movementKey);
     setCurrentSectionAndMovementKey();
-    currentMovement = sessionMovements.firstWhere(
-      (element) => element.movementKey == currentMovementKey,
-    );
+    log('currentMovementKey: $currentMovementKey');
+    // currentMovement = sessionMovements.firstWhere(
+    //   (element) => element.movementKey == currentMovementKey,
+    // );
     setCurrentSectionImage();
   }
 
@@ -863,6 +889,30 @@ class PlaylistProvider extends ChangeNotifier {
     currentTempo = currentSection?.userTempo ?? currentSection?.defaultTempo;
     getDuration();
     setGuardAndMarker();
+  }
+
+  bool? setCurrentSectionAutoContinue() {
+    if (currentSection!.autoContinue == null) {
+      currentSection!.autoContinue = true;
+      notifyListeners();
+    } else if (currentSection!.autoContinue == true) {
+      currentSection!.autoContinue = false;
+      notifyListeners();
+    } else if (currentSection!.autoContinue == false) {
+      currentSection!.autoContinue = true;
+      notifyListeners();
+    } else {
+      return null;
+    }
+    final SectionPrefs sectionPrefs = SectionPrefs(
+      sectionKey: currentSection!.key,
+      defaultTempo: currentSection!.defaultTempo,
+      userTempo: currentSection!.userTempo,
+      autoContinue: currentSection!.autoContinue,
+    );
+    persistentController.updateSectionPrefs(
+        currentSection!.scoreId, currentSection!.key, sectionPrefs);
+    return currentSection!.autoContinue;
   }
 
   void clearSession() {

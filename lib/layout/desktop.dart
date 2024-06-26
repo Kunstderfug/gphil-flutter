@@ -12,11 +12,11 @@ class DesktopLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navigation = Provider.of<NavigationProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final n = Provider.of<NavigationProvider>(context);
+    final t = Provider.of<ThemeProvider>(context);
 
-    bool isPerformanceScreen = navigation.currentIndex == 1;
-    bool isScoreScreen = navigation.currentIndex == 2;
+    bool isPerformanceScreen = n.currentIndex == 1;
+    bool isScoreScreen = n.currentIndex == 2;
 
     return Scaffold(
         backgroundColor: Colors.transparent,
@@ -24,15 +24,15 @@ class DesktopLayout extends StatelessWidget {
             ? AppBar(
                 flexibleSpace: backDropFilter(context),
                 title: Text(
-                    navigation.navigationScreens[navigation.currentIndex]
-                        ['title'] as String,
-                    style: Theme.of(context).textTheme.titleLarge),
+                    n.navigationScreens[n.currentIndex]['title'] as String,
+                    style: Theme.of(context).textTheme.titleMedium),
                 toolbarHeight: appBarSizeDesktop,
               )
             : AppBar(
                 flexibleSpace: backDropFilter(context),
                 title: Padding(
-                  padding: const EdgeInsets.only(left: 28.0, right: 28.0),
+                  padding:
+                      const EdgeInsets.only(left: paddingMd, right: paddingMd),
                   child: Stack(
                     fit: StackFit.passthrough,
                     alignment: Alignment.center,
@@ -43,14 +43,14 @@ class DesktopLayout extends StatelessWidget {
                           Text(
                               '${currentSignalScore.value?.composer.toUpperCase()}',
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: fontSizeMd,
                                 letterSpacing: 2,
                                 wordSpacing: 4,
                               )),
                           Text(
                               '${currentSignalScore.value?.shortTitle.toUpperCase()}',
                               style: const TextStyle(
-                                fontSize: 24,
+                                fontSize: fontSizeMd,
                                 letterSpacing: 2,
                                 wordSpacing: 4,
                               )),
@@ -68,7 +68,7 @@ class DesktopLayout extends StatelessWidget {
                 toolbarHeight: appBarSizeDesktop,
               ),
         body: Stack(children: [
-          themeProvider.isDarkMode
+          t.isDarkMode
               ? Image.asset('assets/images/bg-dark-desktop.png',
                   width: MediaQuery.sizeOf(context).width,
                   height: MediaQuery.sizeOf(context).height,
@@ -83,13 +83,13 @@ class DesktopLayout extends StatelessWidget {
               !isPerformanceScreen ? const MyDrawer() : const SizedBox(),
               SizedBox(
                 width: !isPerformanceScreen
-                    ? MediaQuery.sizeOf(context).width - 300
+                    ? MediaQuery.sizeOf(context).width - 240
                     : MediaQuery.sizeOf(context).width,
                 height: MediaQuery.sizeOf(context).height,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(48.0),
-                  child: navigation.navigationScreens[navigation.currentIndex]
-                      ['screen'] as Widget,
+                  padding: const EdgeInsets.all(paddingXl),
+                  child:
+                      n.navigationScreens[n.currentIndex]['screen'] as Widget,
                 ),
               ),
             ],

@@ -163,6 +163,24 @@ class ScoreProvider extends ChangeNotifier {
     }
   }
 
+  Future<SectionPrefs?> getSectionPrefs(
+      String scoreId, String sectionKey) async {
+    final sectionUserPref =
+        await persistentController.readSectionJsonFile(scoreId, sectionKey);
+
+    final currentPrefs =
+        sectionUserPref != null ? SectionPrefs.fromJson(sectionUserPref) : null;
+
+    return currentPrefs;
+  }
+
+  Future<void> updateSectionFromLocalPrefs(
+      SectionPrefs sectionPrefs, Section section) async {
+    section.userTempo = sectionPrefs.userTempo;
+    section.autoContinue = sectionPrefs.autoContinue;
+    log('updateSectionFromLocalPrefs, ${section.autoContinue}');
+  }
+
   Future<Section> setCurrentSection(String sectionKey) async {
     sectionIndex =
         _currentSections.indexWhere((section) => section.key == sectionKey);
@@ -170,41 +188,41 @@ class ScoreProvider extends ChangeNotifier {
         _currentSections.firstWhere((section) => section.key == sectionKey);
     currentSignalSection.value = currentSection;
     currentTempo = currentSection.defaultTempo;
-    log('setting section: $sectionIndex');
+    // log('setting section: $sectionIndex');
 
     //read from persistent storage
-    final sectionUserPref = await persistentController.readSectionJsonFile(
-        currentScore!.id, currentSection.key);
 
     final clickData = await persistentController.readClickJsonFile(
         currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
     sectionClickData = clickData;
 
     final currentPrefs =
-        sectionUserPref != null ? SectionPrefs.fromJson(sectionUserPref) : null;
+        await getSectionPrefs(currentScore!.id, currentSection.key);
 
     if (currentPrefs != null) {
       currentSection.userTempo = currentPrefs.userTempo;
       userTempo = currentPrefs.userTempo;
+      currentSection.autoContinue = currentPrefs.autoContinue;
       currentMovement.setupSections[sectionIndex] = currentSection;
       currentSections = _currentSections;
-    }
+      log('setCurrentSection, ${currentSection.autoContinue}');
+    } else {
+      //write to persistent storage
+      final sectionPrefs = SectionPrefs(
+          sectionKey: currentSection.key,
+          defaultTempo: currentTempo,
+          userTempo: currentSection.userTempo,
+          autoContinue: currentSection.autoContinue);
 
-    //write to persistent storage
-    final sectionPrefs = SectionPrefs(
-        sectionKey: currentSection.key,
-        defaultTempo: currentTempo,
-        userTempo: currentSection.userTempo);
-
-    try {
-      await persistentController.writeSectionJsonFile(
-          currentScore!.id, currentSection.key, sectionPrefs);
-
-      if (currentSection.sectionImage != null) {
-        await setImageFle();
+      try {
+        await persistentController.writeSectionJsonFile(
+            currentScore!.id, currentSection.key, sectionPrefs);
+      } catch (e) {
+        error = e.toString();
       }
-    } catch (e) {
-      error = e.toString();
+    }
+    if (currentSection.sectionImage != null) {
+      await setImageFle();
     }
 
     return currentSection;
@@ -232,9 +250,11 @@ class ScoreProvider extends ChangeNotifier {
     currentSections = _currentSections;
 
     final sectionPrefs = SectionPrefs(
-        sectionKey: currentSection.key,
-        defaultTempo: currentSection.defaultTempo,
-        userTempo: tempo);
+      sectionKey: currentSection.key,
+      defaultTempo: currentSection.defaultTempo,
+      userTempo: tempo,
+      autoContinue: currentSection.autoContinue,
+    );
 
     try {
       await persistentController.writeSectionJsonFile(
@@ -246,19 +266,21 @@ class ScoreProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> getScore() async {
+  Future<void> getScore(String scoreId) async {
+    if (_currentScore?.id == scoreId) {
+      return;
+    }
     _movementIndex = 0;
     try {
       error = '';
       isLoading = true;
-      InitScore? score =
-          await persistentController.readScoreData(_currentScoreId);
+      InitScore? score = await persistentController.readScoreData(scoreId);
 
       if (score == null) {
         error = 'No score found';
         return;
       }
-      currentScore = setupScore(score);
+      currentScore = await setupScore(score);
       currentSignalScore.value = currentScore;
 
       // scoreId = currentScore!.id;
@@ -282,7 +304,7 @@ class ScoreProvider extends ChangeNotifier {
     await persistentController.writeScoreRevision(scoreId, currentScoreRev);
     InitScore? score =
         await persistentController.readScoreData(_currentScoreId);
-    currentScore = setupScore(score!);
+    currentScore = await setupScore(score!);
     currentSignalScore.value = currentScore;
     setMovementIndex(_movementIndex);
 
@@ -290,7 +312,7 @@ class ScoreProvider extends ChangeNotifier {
         await persistentController.checkScoreRevision(scoreId, currentScoreRev);
   }
 
-  Score setupScore(InitScore score) {
+  Future<Score> setupScore(InitScore score) async {
     int index = 0;
 
     Score newScore = Score(
@@ -329,6 +351,7 @@ class ScoreProvider extends ChangeNotifier {
             metronomeAvailable: section.metronomeAvailable,
             defaultTempo: section.defaultTempo,
             sectionImage: section.sectionImage,
+            autoContinue: section.autoContinue,
             autoContinueMarker: section.autoContinueMarker,
             defaultSectionLength: section.defaultSectionLength,
             beatsPerBar: section.beatsPerBar,
@@ -359,6 +382,13 @@ class ScoreProvider extends ChangeNotifier {
           AudioFormat.mp3,
         );
 
+        final SectionPrefs? localPrefs =
+            await getSectionPrefs(newSection.scoreId, newSection.key);
+        if (localPrefs != null) {
+          await updateSectionFromLocalPrefs(localPrefs, newSection);
+        } else {
+          log('local prefs not found');
+        }
         newMovement.setupSections.add(newSection);
         newMovement.sections = [];
 

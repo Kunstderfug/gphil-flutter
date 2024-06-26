@@ -14,7 +14,7 @@ class SectionsArea extends StatelessWidget {
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
 
-    setSection(Section section) {
+    syncSection(Section section) {
       if (!p.isPlaying) {
         s.setCurrentSectionByKey(section.movementKey, section.key);
         p.setCurrentSectionByKey(section.key);
@@ -24,9 +24,8 @@ class SectionsArea extends StatelessWidget {
     return Wrap(runSpacing: paddingMd, spacing: 0, children: [
       for (final section in p.currentMovementSections)
         ScoreSection(
-            name: section.name,
-            isAutoContinue: section.autoContinueMarker != null ? true : false,
-            onTap: () => setSection(section),
+            section: section,
+            onTap: () => syncSection(section),
             isSelected: p.currentSectionKey == section.key),
     ]);
   }
