@@ -28,6 +28,7 @@ class PlayerHeader extends StatelessWidget {
               if (p.isPlaying) {
                 p.stop();
               }
+              s.setSections(p.currentMovementKey!, p.currentSection!.key);
               s.setCurrentSection(p.currentSection!.key);
               n.setNavigationIndex(2);
             },

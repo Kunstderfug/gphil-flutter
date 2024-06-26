@@ -151,7 +151,6 @@ class ScoreProvider extends ChangeNotifier {
   }
 
   void setCurrentSectionByKey(String movementKey, String sectionKey) async {
-    // log('$movementKey, $sectionKey');
     setCurrentMovement(movementKey);
     _movementIndex = _currentScore!.setupMovements
         .indexWhere((element) => element.key == movementKey);
@@ -181,6 +180,11 @@ class ScoreProvider extends ChangeNotifier {
     log('updateSectionFromLocalPrefs, ${section.autoContinue}');
   }
 
+  void setSections(String movementKey, String sectionKey) {
+    setCurrentMovement(movementKey);
+    setCurrentSections();
+  }
+
   Future<Section> setCurrentSection(String sectionKey) async {
     sectionIndex =
         _currentSections.indexWhere((section) => section.key == sectionKey);
@@ -188,7 +192,6 @@ class ScoreProvider extends ChangeNotifier {
         _currentSections.firstWhere((section) => section.key == sectionKey);
     currentSignalSection.value = currentSection;
     currentTempo = currentSection.defaultTempo;
-    // log('setting section: $sectionIndex');
 
     //read from persistent storage
 

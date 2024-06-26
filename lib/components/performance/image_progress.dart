@@ -4,7 +4,8 @@ import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class ImageProgress extends StatefulWidget {
-  const ImageProgress({super.key});
+  final double windowSize;
+  const ImageProgress({super.key, required this.windowSize});
 
   @override
   State<ImageProgress> createState() => _ImageProgressState();
@@ -63,7 +64,7 @@ class _ImageProgressState extends State<ImageProgress>
         animation: _animation,
         builder: (context, child) {
           return SizedBox(
-            width: 800,
+            width: widget.windowSize,
             height: 4,
             child: LinearProgressIndicator(
               value: _animation.value,

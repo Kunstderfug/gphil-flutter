@@ -13,6 +13,7 @@ import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class PerformanceScreen extends StatelessWidget {
+  final double windowSize = 600;
   const PerformanceScreen({super.key});
 
   @override
@@ -20,11 +21,11 @@ class PerformanceScreen extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     Widget image = Stack(alignment: Alignment.topLeft, children: [
-      SectionImage(imageFile: p.currentSectionImage, width: 250),
+      SectionImage(imageFile: p.currentSectionImage, width: windowSize),
       // if (p.isPlaying)
-      const Positioned(
+      Positioned(
         top: sizeXs,
-        child: ImageProgress(),
+        child: ImageProgress(windowSize: windowSize),
       )
     ]);
 
