@@ -441,15 +441,18 @@ class ScoreProvider extends ChangeNotifier {
         audioFilesUrls.add(audioUrl);
       }
     }
-    Future<void> readAndCheckProgress(String audioFileName) async {
-      totalFiles++;
+    Future<void> readAndCheckProgress(
+        String audioUrl, String audioFileName) async {
+      final bytes = await persistentController.readAudioFile(
+          scoreId, audioFileName, audioUrl);
+      if (bytes.bytes.isNotEmpty) totalFiles++;
       progressDownload = totalFiles / audioFilesUrls.length;
       progressDownload == 1 ? progressDownload = 0 : progressDownload;
     }
 
     for (final audioUrl in audioFilesUrls) {
       final String audioFileName = audioUrl.split('/').last;
-      requests.add(readAndCheckProgress(audioFileName));
+      requests.add(readAndCheckProgress(audioUrl, audioFileName));
     }
 
     await Future.wait(requests);

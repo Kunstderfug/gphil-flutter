@@ -62,12 +62,17 @@ class _ScoreNavigationState extends State<ScoreNavigation>
         ),
         isTablet(context) ? const ScoreLinks() : const SizedBox(),
         Stack(alignment: AlignmentDirectional.center, children: [
-          SizedBox(
-            height: sizeLg,
-            width: sizeLg,
-            child: CircularProgressIndicator(
-              color: Theme.of(context).highlightColor,
-              value: widget.s.progressDownload,
+          Positioned(
+            top: 4,
+            left: 4,
+            child: SizedBox(
+              height: 40,
+              width: 40,
+              child: CircularProgressIndicator(
+                color: Theme.of(context).highlightColor,
+                strokeCap: StrokeCap.round,
+                value: widget.s.progressDownload,
+              ),
             ),
           ),
           Row(
@@ -76,8 +81,8 @@ class _ScoreNavigationState extends State<ScoreNavigation>
                   iconSize: iconSizeXs,
                   padding: const EdgeInsets.all(paddingMd),
                   tooltip: 'Download',
-                  onPressed: () async =>
-                      await widget.s.saveAudioFiles(widget.p.playlist),
+                  onPressed: () =>
+                      widget.s.saveAudioFiles(widget.s.currentSections),
                   icon: const Icon(Icons.download_outlined)),
               !widget.s.scoreIsUptoDate && widget.s.currentScore != null
                   ? IconButton(

@@ -473,10 +473,12 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void setAdjustedMarkerPosition() {
-    if (defaultAutoContinueMarker != null) {
+    if (defaultAutoContinueMarker != null &&
+        currentSection?.autoContinue == true) {
       autoContinueMarker = adjustedAutoContinueMarker()?.inMilliseconds;
       setGuardAndMarker();
     } else {
+      log('setAdjustedMarkerPosition: ${autoContinueMarker.toString()}, setGuard');
       autoContinueMarker = null;
       guardPosition = setGuardPosition();
     }
@@ -616,7 +618,6 @@ class PlaylistProvider extends ChangeNotifier {
         _currentSectionIndex++;
         setCurrentSectionAndMovementKey();
       }
-      // setCurrentSectionImage();s
       setAdjustedMarkerPosition();
     }
   }
@@ -630,7 +631,6 @@ class PlaylistProvider extends ChangeNotifier {
         _currentSectionIndex--;
         setCurrentSectionAndMovementKey();
       }
-      // setCurrentSectionImage();
       setAdjustedMarkerPosition();
     }
   }
@@ -710,6 +710,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   double setGuardPosition() {
     final int safetyTimer = duration.inMilliseconds - autoContinueOffset;
+    log('safetyTimer: $safetyTimer, autoContinueOffset: $autoContinueOffset');
     if (duration.inMilliseconds <= 7000) {
       //percentage of 100
       return 30;
@@ -844,7 +845,7 @@ class PlaylistProvider extends ChangeNotifier {
     playlist.clear();
     sessionScore = score;
 
-//add sections from score according to sessionmovements
+//add sections from score according to sessionMovements
     for (SessionMovement sessionMovement in sessionMovements) {
       final movementKey = sessionMovement.movementKey;
 
@@ -859,8 +860,6 @@ class PlaylistProvider extends ChangeNotifier {
       section.sectionIndex = playlist.indexOf(section);
       log('sectionIndex: ${section.sectionIndex.toString()}');
     }
-
-    // playlist.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
 
     notifyListeners();
   }
@@ -910,6 +909,8 @@ class PlaylistProvider extends ChangeNotifier {
       userTempo: currentSection!.userTempo,
       autoContinue: currentSection!.autoContinue,
     );
+    setAdjustedMarkerPosition();
+
     persistentController.updateSectionPrefs(
         currentSection!.scoreId, currentSection!.key, sectionPrefs);
     return currentSection!.autoContinue;

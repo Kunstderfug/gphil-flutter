@@ -66,10 +66,21 @@ class ScoreScreen extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('S E C T I O N S',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('S E C T I O N S',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
+                                      if (!s.scoreIsUptoDate)
+                                        Text('Update available',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium),
+                                    ],
+                                  ),
                                   const SeparatorLine(),
                                 ],
                               ),

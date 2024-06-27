@@ -16,19 +16,21 @@ class PlayerArea extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
 
+    const double maxWidth = 720;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         RepaintBoundary(
             child: Container(
                 constraints: const BoxConstraints(
-                  maxWidth: 720,
+                  maxWidth: maxWidth,
                 ),
                 child: const PlaylistControl())),
         RepaintBoundary(
             child: Container(
           constraints: const BoxConstraints(
-            maxWidth: 720,
+            maxWidth: maxWidth,
           ),
           child: LayoutBuilder(builder: (context, constraints) {
             //continie bar guard
@@ -47,7 +49,7 @@ class PlayerArea extends StatelessWidget {
             return Stack(children: [
               const ProgressBar(),
               p.currentSection?.autoContinueMarker != null &&
-                      p.currentSection?.autoContinue != null
+                      p.currentSection?.autoContinue != false
                   ? Positioned(
                       left: constraints.maxWidth /
                               100 *
