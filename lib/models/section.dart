@@ -14,6 +14,7 @@ class InitSection {
   int defaultTempo;
   int? userTempo;
   int? tempoMultiplier;
+  List<String>? layers;
 
   InitSection({
     this.metronomeAvailable,
@@ -31,6 +32,7 @@ class InitSection {
     required this.defaultTempo,
     this.userTempo,
     this.tempoMultiplier,
+    this.layers,
   });
 
   factory InitSection.fromJson(Map<String, dynamic> json) => InitSection(
@@ -55,6 +57,8 @@ class InitSection {
         defaultTempo: json["defaultTempo"],
         userTempo: json["userTempo"] ?? json["defaultTempo"],
         tempoMultiplier: json["tempoMultiplier"],
+        layers:
+            json["layers"] == null ? null : List<String>.from(json["layers"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -77,6 +81,7 @@ class InitSection {
         "defaultTempo": defaultTempo,
         "userTempo": userTempo,
         "tempoMultiplier": tempoMultiplier,
+        "layers": layers,
       };
 }
 
@@ -132,6 +137,7 @@ class Section extends InitSection {
   String? clickDataUrl = '';
   late int sectionIndex;
   late String movementKey;
+  double? sectionVolume;
 
   Section({
     required super.name,
@@ -149,12 +155,14 @@ class Section extends InitSection {
     super.sectionImage,
     super.userTempo,
     super.tempoMultiplier,
+    super.layers,
     required this.tempoRange,
     required this.fileList,
     required this.sectionIndex,
     this.clickDataUrl,
     this.scoreId = '',
     this.movementKey = '',
+    this.sectionVolume = 0.8,
   });
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
@@ -182,6 +190,9 @@ class Section extends InitSection {
                     convertToDuration(json["autoContinueMarker"].toDouble())),
         userTempo: json["userTempo"],
         tempoMultiplier: json["tempoMultiplier"],
+        sectionVolume: json["sectionVolume"]?.toDouble() ?? 0.8,
+        layers:
+            json["layers"] == null ? null : List<String>.from(json["layers"]),
       );
 
   @override
@@ -206,5 +217,7 @@ class Section extends InitSection {
         "autoContinueMarker": autoContinueMarker,
         "userTempo": userTempo,
         "tempoMultiplier": tempoMultiplier,
+        "sectionVolume": sectionVolume,
+        "layers": layers,
       };
 }

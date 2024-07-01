@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:gphil/components/file_loading.dart';
+import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/movements_area.dart';
 import 'package:gphil/components/performance/player_area.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
+import 'package:gphil/components/performance/section_auto_continue_switch.dart';
 import 'package:gphil/components/performance/sections_area.dart';
+import 'package:gphil/components/performance/switch.dart';
 import 'package:gphil/components/player/player_header.dart';
 import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/section_tempos.dart';
@@ -29,37 +32,6 @@ class PerformanceScreen extends StatelessWidget {
       )
     ]);
 
-    Widget autoSwitch = Align(
-      alignment: Alignment.topRight,
-      child: Opacity(
-        opacity: p.currentSection?.autoContinueMarker == null ? 0.5 : 1,
-        child: Wrap(
-            spacing: 8,
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                'Section Auto Continue',
-                style: TextStyles().textSm,
-              ),
-              Transform.scale(
-                scale: isTablet(context) ? 1 : 0.6,
-                child: CupertinoSwitch(
-                  activeColor: highlightColor,
-                  value: p.currentSection?.autoContinue != null
-                      ? p.currentSection!.autoContinue!
-                      : false,
-                  onChanged: (value) async {
-                    if (p.currentSection!.autoContinueMarker != null) {
-                      p.setCurrentSectionAutoContinue();
-                    }
-                  },
-                ),
-              ),
-            ]),
-      ),
-    );
-
     Widget laptopBody = ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxLaptopWidth),
         child: Column(
@@ -75,14 +47,11 @@ class PerformanceScreen extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      const MovementsArea(isTablet: true),
+                      const MovementsArea(),
                       const SeparatorLine(height: 48),
-                      // const SizedBox(
-                      //   height: separatorXs,
-                      // ),
-                      SizedBox(height: separatorLg, child: autoSwitch),
+                      SectionAutoContinueSwitch(p: p),
                       ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 50),
+                        constraints: const BoxConstraints(minHeight: 130),
                         child: const SectionsArea(),
                       ),
                       const SizedBox(
@@ -104,14 +73,7 @@ class PerformanceScreen extends StatelessWidget {
                     child: Column(
                   children: [
                     const PlayerArea(),
-                    const SizedBox(
-                      height: separatorLg,
-                    ),
-                    Text(
-                      'Some important stuff \n will be here in the future\nmaybe',
-                      textAlign: TextAlign.center,
-                      style: TextStyles().textLg,
-                    ),
+                    GlobalMixer(p: p),
                   ],
                 )),
               ],
@@ -129,10 +91,18 @@ class PerformanceScreen extends StatelessWidget {
         height: separatorXs,
       ),
       Text(p.currentSection?.sectionIndex.toString() ?? ''),
-      const MovementsArea(isTablet: true),
+      const MovementsArea(),
       SizedBox(
         height: separatorMd,
-        child: autoSwitch,
+        child: AutoSwitch(
+          p: p,
+          onToggle: (value) => p.setCurrentSectionAutoContinue(),
+          label: 'Section auto-continue',
+          value: p.currentSection?.autoContinue != null
+              ? p.currentSection!.autoContinue!
+              : false,
+          opacity: p.currentSection!.autoContinueMarker != null ? 1 : 0.4,
+        ),
       ),
       const SectionsArea(),
       const SizedBox(
@@ -157,7 +127,10 @@ class PerformanceScreen extends StatelessWidget {
     if (p.playlist.isEmpty) {
       return const PlaylistIsEmpty();
     } else {
-      return p.isLoading ? const FileLoading() : layout;
+      return p.isLoading
+          ? LoadingAudioFiles(
+              filesLoaded: p.filesLoaded, filesLength: p.playlist.length)
+          : layout;
     }
   }
 }

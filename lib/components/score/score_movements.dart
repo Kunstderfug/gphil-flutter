@@ -97,7 +97,7 @@ class ScoreMovements extends StatelessWidget {
                       )
                     : TextButton(
                         style: ButtonStyle(
-                          fixedSize: const WidgetStatePropertyAll(Size(170, 0)),
+                          // fixedSize: const WidgetStatePropertyAll(Size(170, 0)),
                           backgroundColor: p.sessionMovements.isEmpty
                               ? WidgetStateProperty.all(
                                   Theme.of(context).colorScheme.primary)

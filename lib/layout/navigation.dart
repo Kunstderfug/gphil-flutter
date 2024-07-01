@@ -18,10 +18,12 @@ class Navigation extends StatelessWidget {
         height: 145,
         child: DrawerHeader(
             child: Center(
-          child: Image.asset(
-            'assets/images/gphil_icon.png',
-            width: sizeXl,
-            height: sizeXl,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/images/gphil_icon.png',
+              width: 100,
+              height: 100,
+            ),
           ),
         )),
       ),

@@ -22,6 +22,8 @@ dependencies:
   flutter_rust_bridge: 2.0.0
   rust_lib_gphil:
     path: rust_builder
+  syncfusion_flutter_sliders: ^26.1.39
+  syncfusion_flutter_core: ^26.1.39
 
 dev_dependencies:
   flutter_lints: ^4.0.0
@@ -36,7 +38,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
-    - assets/audio/
+    - assets/audio/STEMS/
     - fonts/
 
   fonts:

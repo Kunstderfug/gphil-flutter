@@ -9,8 +9,28 @@ import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
+import 'package:gphil/providers/score_provider.dart';
 
 final persistentController = PersistentDataController();
+final p = PlaylistProvider();
+final a = AudioProvider();
+final m = MetronomeProvider();
+
+//test
+const audioAssets = [
+  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_woodwinds.mp3',
+  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_brass.mp3',
+  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_percussion.mp3',
+  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_strings.mp3',
+];
+
+enum OrchestraLayer {
+  flute,
+  woodwinds,
+  brass,
+  percussion,
+  strings,
+}
 
 class SessionMovement {
   final String movementKey;
@@ -44,12 +64,205 @@ class PlaylistDuration {
 
 class PlayerPool {
   final int sectionIndex;
+  final String sectionKey;
   AudioSource audioSource;
+  double? playerVolume;
 
-  PlayerPool({required this.sectionIndex, required this.audioSource});
+  PlayerPool(
+      {required this.sectionIndex,
+      required this.sectionKey,
+      required this.audioSource,
+      this.playerVolume = 1.0});
+}
+
+class LayerPlayer extends PlayerPool {
+  final String layer;
+  bool isActive;
+  bool isMuted = false;
+  SoundHandle? activeHandle;
+  SoLoud player;
+
+  LayerPlayer({
+    required super.sectionIndex,
+    required super.sectionKey,
+    required super.audioSource,
+    super.playerVolume,
+    required this.layer,
+    this.activeHandle,
+    this.isActive = true,
+    required this.player,
+  });
+
+  void setPlayerVolume(double value) {
+    playerVolume = value;
+    if (activeHandle != null && playerVolume != null) {
+      player.setVolume(activeHandle!, playerVolume!);
+    }
+  }
+}
+
+class Layer {
+  final String layerName;
+
+  Layer({required this.layerName});
+  String get fullName {
+    switch (layerName) {
+      case 'f':
+        return 'Flute';
+      case 'w':
+        return 'Woodwinds';
+      case 'b':
+        return 'Brass';
+      case 'p':
+        return 'Percussion';
+      case 's':
+        return 'Strings';
+    }
+    return 'Unnamed Layer';
+  }
+}
+
+class LayerChannel {
+  final String name;
+  final double channelVolume;
+  final LayerPlayer player;
+  LayerChannel(
+      {required this.name, required this.channelVolume, required this.player});
+
+  String get channelName {
+    switch (name) {
+      case 'f':
+        return 'Flute';
+      case 'w':
+        return 'Woodwinds';
+      case 'b':
+        return 'Brass';
+      case 'p':
+        return 'Percussion';
+      case 's':
+        return 'Strings';
+    }
+    return 'Unnamed Layer';
+  }
+}
+
+class SectionLayer {
+  final String layer;
+  final String audioUrl;
+
+  SectionLayer({required this.layer, required this.audioUrl});
+}
+
+class LayerPlayerPool {
+  final int sectionIndex;
+  final String sectionKey;
+  final List<SectionLayer> layers;
+  List<LayerPlayer> players;
+  LayerPlayerPool(
+      {required this.sectionIndex,
+      required this.sectionKey,
+      required this.layers,
+      required this.players});
+
+  List<SoundHandle> get activeLayerHandles =>
+      players.where((p) => p.isActive).map((p) => p.activeHandle!).toList();
+//getting liest of available channels
+  List<LayerChannel> get layerChannels {
+    List<LayerChannel> channels = [];
+    for (LayerPlayer player in orderedPlayers) {
+      channels.add(
+        LayerChannel(
+          name: player.layer,
+          player: player,
+          channelVolume: player.playerVolume ?? 0.0,
+        ),
+      );
+    }
+    return channels;
+  }
+
+  List<LayerPlayer> get activeChannels =>
+      players.where((p) => p.isActive).toList();
+
+  List<LayerPlayer> get orderedPlayers {
+    List<LayerPlayer> orderedPlayers = [];
+    int index = 0;
+    for (SectionLayer layer in layers) {
+      final currentPlayer = players.firstWhere((p) => p.layer == layer.layer);
+      orderedPlayers.insert(index, currentPlayer);
+      index++;
+    }
+    return orderedPlayers;
+  }
+
+//set individual channel volume
+  void setChannelVolume(double volume, String layer) {
+    for (LayerPlayer player in players) {
+      if (player.layer == layer) {
+        player.playerVolume = volume;
+        player.setPlayerVolume(volume);
+      }
+    }
+  }
+
+  void setChannelActive(String layer, bool active) {
+    for (LayerPlayer player in players) {
+      if (player.layer == layer) {
+        player.isActive = active;
+      }
+    }
+  }
+
+  void setChannelSoloOrMuted(String layer, bool value) {
+    for (LayerPlayer player in players) {
+      if (player.layer == layer) {
+        player.playerVolume = value ? 1.0 : 0.0;
+        player.isActive = value ? true : false;
+        player.isMuted = value ? false : true;
+      }
+    }
+  }
+
+  void setSoloOrMutedReset() {
+    for (LayerPlayer player in players) {
+      player.playerVolume = 1.0;
+      player.isActive = true;
+      player.isMuted = false;
+    }
+  }
+}
+
+class GlobalLayerPlayerPool {
+  final List<Layer> globalLayers;
+  final List<LayerPlayerPool> globalPools;
+
+  GlobalLayerPlayerPool(
+      {required this.globalLayers, required this.globalPools});
+
+  void resetPools() {
+    globalPools.clear();
+  }
+
+  void resetLayers() {
+    globalLayers.clear();
+  }
+
+  void resetAll() {
+    resetPools();
+    resetLayers();
+  }
+}
+
+class AudioUrl {
+  final int sectionIndex;
+  final String sectionKey;
+  final String url;
+
+  AudioUrl(this.sectionIndex, this.sectionKey, this.url);
 }
 
 class PlaylistProvider extends ChangeNotifier {
+  // PLAYLIST
   List<Section> playlist = [];
   List<SessionMovement> sessionMovements = [];
   Score? sessionScore;
@@ -59,15 +272,27 @@ class PlaylistProvider extends ChangeNotifier {
   int _currentSectionIndex = 0;
   String? currentMovementKey;
   String? currentSectionKey;
+  final orchestralLayers = <OrchestraLayer>[
+    OrchestraLayer.flute,
+    OrchestraLayer.woodwinds,
+    OrchestraLayer.brass,
+    OrchestraLayer.percussion,
+    OrchestraLayer.strings
+  ];
+  bool layersEnabled = false;
+  int totalLayerFiles = 0;
+
+  //IMAGES
   File? currentSectionImage;
   File? nextSectionImage;
   bool imagesSwapped = false;
   bool imageProgress = false;
 
+  // LOADING
   int filesLoaded = 0;
+  int layerFilesLoaded = 0;
   bool isLoading = false;
-  bool _isPlaying = false;
-  bool _autoStart = false;
+  bool layerFilesLoading = false;
 
   //AUTO CONTINUE
   int autoContinueOffset = 5000;
@@ -87,12 +312,21 @@ class PlaylistProvider extends ChangeNotifier {
   // AUDIO PLAYERS
   final player = SoLoud.instance;
   SoundHandle? activeHandle;
+  final activeLayerHandles =
+      <SoundHandle>[]; //when multiple layers are available for mixing
   SoundHandle? passiveHandle;
   final playerPool = <PlayerPool>[];
+  bool _isPlaying = false;
   bool jumped = false;
   Ticker ticker = Ticker((elapsed) {});
+  double globalVolume = 1;
+  double playerVolume = 1;
+  final GlobalLayerPlayerPool layerPlayersPool = GlobalLayerPlayerPool(
+    globalLayers: [],
+    globalPools: [],
+  );
 
-// Durations
+// DURATIONS
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
   Stream<int> position = Stream<int>.value(0);
@@ -112,6 +346,7 @@ class PlaylistProvider extends ChangeNotifier {
       currentSection?.userTempo ?? currentSection?.defaultTempo;
 
 //GETTERS
+  //PLAYLIST
   int get currentSectionIndex => _currentSectionIndex;
   Section? get currentSection => playlist.isNotEmpty
       ? playlist
@@ -122,22 +357,34 @@ class PlaylistProvider extends ChangeNotifier {
           ? playlist[_currentSectionIndex + 1]
           : null;
   String get sessionComposer => sessionScore?.composer ?? '';
-
   List<Section> get currentMovementSections => playlist
       .where((element) =>
           element.movementKey == currentMovementKey &&
           element.scoreId == sessionScore?.id)
       .toList();
+  Duration get autoContinueAt => _autoContinueAt;
+  bool get autoContinueEnabled => currentSection?.autoContinue ?? false;
+  bool get filesAreLoaded => filesLoaded == playerPool.length;
+  int get continueGuardTimer => duration.inMilliseconds - autoContinueOffset;
+  Duration? get defaultAutoContinueMarker => currentSection?.autoContinueMarker;
+  double? get defaultSectionLength => currentSection?.defaultSectionLength;
+  bool get isDefaultTempo => currentSection?.defaultTempo == currentTempo;
+  double get tempoDiff => setTempoDiff();
+  int get tailDuration => currentMovement?.renderTail ?? 0;
 
   Duration get currentPosition => _currentPosition;
   Duration get duration => _duration;
   bool get isPlaying => _isPlaying;
-  bool get autoStart => _autoStart;
-  Duration get autoContinueAt => _autoContinueAt;
-  bool get autoContinueEnabled => currentSection?.autoContinue ?? false;
+  LayerPlayerPool? get currentLayerPlayerPool =>
+      layerPlayersPool.globalPools.isNotEmpty &&
+              layerPlayersPool.globalPools
+                  .any((section) => section.sectionKey == currentSectionKey)
+          ? layerPlayersPool.globalPools
+              .firstWhere((element) => element.sectionKey == currentSectionKey)
+          : null;
+
   ClickData? get currentBeatData =>
       currentClickData?.clickData[currentBeatIndex];
-  bool get filesAreLoaded => filesLoaded == playerPool.length;
   SectionClickData? get currentClickData => playlistClickData.isNotEmpty
       ? playlistClickData.firstWhere(
           (click) => click.sectionKey == playlist[_currentSectionIndex].key)
@@ -150,12 +397,6 @@ class PlaylistProvider extends ChangeNotifier {
   List<int> get currentPlaylistDurationBeats =>
       currentPlaylistDuration?.beatLengths ?? [];
   bool get isFirstBeat => currentBeatData?.beat == 1;
-  int get continueGuardTimer => duration.inMilliseconds - autoContinueOffset;
-  Duration? get defaultAutoContinueMarker => currentSection?.autoContinueMarker;
-  double? get defaultSectionLength => currentSection?.defaultSectionLength;
-  bool get isDefaultTempo => currentSection?.defaultTempo == currentTempo;
-  double get tempoDiff => setTempoDiff();
-  int get tailDuration => currentMovement?.renderTail ?? 0;
 
   set duration(Duration value) {
     _duration = value;
@@ -186,11 +427,6 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  set autoStart(bool value) {
-    _autoStart = value;
-    notifyListeners();
-  }
-
   set autoContinueAt(Duration value) {
     _autoContinueAt = value;
     notifyListeners();
@@ -203,13 +439,19 @@ class PlaylistProvider extends ChangeNotifier {
 
   void resetPlayers() {
     playerPool.clear();
+    layerPlayersPool.resetAll();
+    activeLayerHandles.clear();
+    activeHandle = null;
+    playerVolume = 1;
     _currentSectionIndex = 0;
     _isPlaying = false;
-    _autoStart = false;
+    // _autoStart = false;
     _autoContinueAt = Duration.zero;
     autoContinueMarker = null;
     autoContinueTimer?.cancel();
     filesLoaded = 0;
+    layerFilesLoaded = 0;
+    totalLayerFiles = 0;
     currentPlaylistDurations.clear();
     notifyListeners();
   }
@@ -224,50 +466,148 @@ class PlaylistProvider extends ChangeNotifier {
     return section.fileList[getTempoIndex(section)];
   }
 
+  String getAudioLayerUrl(Section section, String layer) {
+    String pathName =
+        '$supabaseUrl${sessionScore!.slug}/${section.movementIndex}/${section.name}/STEMS/';
+    String fileName =
+        '${sessionScore!.pathName}_${section.movementIndex}_${section.name}';
+    return '$pathName/${fileName}_${section.userTempo ?? section.defaultTempo}_$layer.$audioFormat';
+  }
+
+  List<SectionLayer> setLayerAudioUrls(Section section) {
+    final sectionLayers = <SectionLayer>[];
+
+    if (section.layers != null && section.layers!.isNotEmpty) {
+      for (final layer in section.layers!) {
+        sectionLayers.add(SectionLayer(
+            layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
+        totalLayerFiles++;
+      }
+    }
+
+    return sectionLayers;
+  }
+
   String getAudioFileNAme(String audioUrl) {
     return audioUrl.split('/').last;
   }
 
   Future<void> setPlayerPool() async {
     final loadAudioFiles = <Future>[];
-    final audioUrls = <Map<int, dynamic>>[];
-    final audioFilesUrls = <Map<int, dynamic>>[];
+    final audioUrls = <AudioUrl>[];
+    final audioFilesUrls = <AudioUrl>[];
     await player.init();
 
     for (Section section in playlist) {
       final audioUrl = getAudioUrl(section);
-      audioUrls.add({section.sectionIndex: audioUrl});
+      audioUrls.add(AudioUrl(section.sectionIndex, section.key, audioUrl));
     }
 
-    Future<void> loadFile(int index, String audioUrl) async {
+    Future<void> loadFile(AudioUrl audioUrl) async {
       final scoreId = playlist[0].scoreId;
-      final String audioFileName = getAudioFileNAme(audioUrl);
+      final String audioFileName = getAudioFileNAme(audioUrl.url);
       final file = await persistentController.readAudioFile(
-          scoreId, audioFileName, audioUrl);
-      audioFilesUrls.add({index: file.path});
+          scoreId, audioFileName, audioUrl.url);
+      audioFilesUrls
+          .add(AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
     }
 
     for (final audioUrl in audioUrls) {
-      loadAudioFiles.add(loadFile(audioUrl.keys.first, audioUrl.values.first));
+      loadAudioFiles.add(loadFile(audioUrl));
     }
 
     await Future.wait(loadAudioFiles);
 
-    audioFilesUrls.sort((a, b) => a.keys.first.compareTo(b.keys.first));
+    audioFilesUrls.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
 
     for (final audioFileUrl in audioFilesUrls) {
       try {
-        // log(audioFileUrl.values.first);
-        final sectionIndex = audioFileUrl.keys.first;
-        final audioSource = await player.loadFile(audioFileUrl.values.first);
-        playerPool.add(
-            PlayerPool(sectionIndex: sectionIndex, audioSource: audioSource));
+        final audioSource = await player.loadFile(audioFileUrl.url);
+        playerPool.add(PlayerPool(
+            sectionIndex: audioFileUrl.sectionIndex,
+            sectionKey: audioFileUrl.sectionKey,
+            audioSource: audioSource));
         filesLoaded++;
         notifyListeners();
       } catch (e) {
         log(e.toString());
       }
     }
+  }
+
+  void setGlobalPlaylistLayers() {
+    if (sessionScore != null && sessionScore!.globalLayers != null) {
+      for (final layer in sessionScore!.globalLayers!) {
+        layerPlayersPool.globalLayers.add(Layer(layerName: layer));
+      }
+    }
+  }
+
+  Future<void> setSectionLayersPlayerPool(Section section) async {
+    //set global layers for the whole playlist
+    final handleLoadLayerFiles =
+        <Future>[]; //set of tasks running at the same time
+    final playerPools = <LayerPlayer>[];
+    final sectionLayers = <SectionLayer>[];
+
+    //initialize player if for some reason it's not
+    if (!player.isInitialized) {
+      await player.init();
+    }
+
+    Future<void> setLayerPlayerPool(
+        String filePath, String audioFileName, String layer) async {
+      try {
+        final audioSource = await player.loadFile(filePath);
+        playerPools.add(
+          LayerPlayer(
+              sectionIndex: section.sectionIndex,
+              sectionKey: section.key,
+              audioSource: audioSource,
+              layer: layer,
+              player: player),
+        );
+        layerFilesLoaded++;
+        totalLayerFiles++;
+        notifyListeners();
+      } catch (e) {
+        log(e.toString());
+      }
+    }
+
+    Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
+      final String audioFileName = getAudioFileNAme(sectionLayer.audioUrl);
+      log('audioFileName: $audioFileName, audioUrl: ${sectionLayer.audioUrl}');
+
+      final file = await persistentController.readAudioFile(
+          sessionScore!.id, audioFileName, sectionLayer.audioUrl);
+      await setLayerPlayerPool(file.path, audioFileName, sectionLayer.layer);
+    }
+
+    for (final layer in section.layers!) {
+      sectionLayers.add(SectionLayer(
+          layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
+    }
+
+    //getting section layer audio files
+    for (final sectionLayer in sectionLayers) {
+      handleLoadLayerFiles.add(loadAudioFiles(sectionLayer));
+    }
+
+    await Future.wait(handleLoadLayerFiles);
+
+    void addPlayerPool() {
+      // log('adding player pool, ${sectionLayers.toString()}');
+      final layerPlayerPool = LayerPlayerPool(
+          sectionIndex: section.sectionIndex,
+          sectionKey: section.key,
+          layers: sectionLayers,
+          players: playerPools);
+      //order pool
+      layerPlayersPool.globalPools.add(layerPlayerPool);
+    }
+
+    addPlayerPool();
   }
 
   void setDefaultTempos() {
@@ -281,6 +621,8 @@ class PlaylistProvider extends ChangeNotifier {
     isLoading = true;
     resetPlayers();
     await setPlayerPool();
+    setGlobalPlaylistLayers();
+    layersEnabled = false;
 
     //set current section image and duration if not empty
     if (playerPool.isNotEmpty &&
@@ -305,6 +647,78 @@ class PlaylistProvider extends ChangeNotifier {
     if (playerPool.isNotEmpty && currentAudioSource() != null) {
       duration = player.getLength(currentAudioSource()!);
     }
+  }
+
+  void getGlobalVolume() {
+    if (player.isInitialized) {
+      globalVolume = player.getGlobalVolume();
+      notifyListeners();
+    }
+  }
+
+  void setGlobalVolume(double value) {
+    globalVolume = value;
+    notifyListeners();
+    if (player.isInitialized) {
+      player.setGlobalVolume(globalVolume);
+    }
+  }
+
+  void setPlayerVolume(double value) {
+    playerVolume = value;
+    notifyListeners();
+  }
+
+  void setChannelVolume(String layerName, double value) {
+    final pool = currentLayerPlayerPool;
+    //find currently targeted pool player
+    pool?.setChannelVolume(value, layerName);
+
+    notifyListeners();
+  }
+
+  Future<void> setLayersEnabled(bool value) async {
+    layersEnabled = value;
+    log('layerFilesLoaded: $layerFilesLoaded, totalLayerFiles: $totalLayerFiles');
+    if (totalLayerFiles == 0) {
+      layerFilesLoading = true;
+      for (Section section
+          in playlist.where((section) => section.layers != null)) {
+        //check if files are there already
+        if (layerPlayersPool.globalPools.isNotEmpty &&
+            layerPlayersPool.globalPools
+                .any((element) => element.sectionKey == section.key)) {
+          continue;
+        } else {
+          await setSectionLayersPlayerPool(section);
+        }
+      }
+    }
+    toggleDefaultToLayerPlayerVolume(layersEnabled);
+
+    layerFilesLoading = false;
+    notifyListeners();
+  }
+
+  void toggleDefaultToLayerPlayerVolume(bool value) {
+    void setVolume(double volume) {
+      if (isPlaying) {
+        player.setVolume(activeHandle!, playerVolume);
+        for (SoundHandle handle in activeLayerHandles) {
+          player.setVolume(handle, volume);
+        }
+      }
+    }
+
+    if (value) {
+      playerVolume = 0;
+      setVolume(1);
+    } else {
+      playerVolume = 1;
+      setVolume(0);
+      activeHandle != null ? player.setVolume(activeHandle!, 1) : null;
+    }
+    notifyListeners();
   }
 
   Future<void> patchPool(int tempo) async {
@@ -340,6 +754,9 @@ class PlaylistProvider extends ChangeNotifier {
 
   Future<void> playCurrentSection() async {
     activeHandle = await player.play(currentAudioSource()!);
+    player.setVolume(activeHandle!, playerVolume);
+    log('player volume: ${player.getVolume(activeHandle!)}');
+    notifyListeners();
   }
 
   void getCurrentPosition() {
@@ -349,11 +766,12 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void getPositionStream() {
-    position = Stream<int>.periodic(const Duration(milliseconds: 1), (pos) {
-      return player.getPosition(activeHandle!).inMilliseconds;
-    });
-  }
+  // void getPositionStream() {
+  //   if (activeHandle != null) {}
+  //   position = Stream<int>.periodic(const Duration(milliseconds: 1), (pos) {
+  //     return player.getPosition(activeHandle!).inMilliseconds;
+  //   });
+  // }
 
   void handleAutoContinue(Duration position) {
     if (position.inMilliseconds >=
@@ -395,15 +813,52 @@ class PlaylistProvider extends ChangeNotifier {
     ticker.start();
   }
 
+  Future<void> playLayers() async {
+    activeLayerHandles.clear();
+    log('play layers');
+
+    if (currentLayerPlayerPool != null) {
+      for (final pool in currentLayerPlayerPool!.players) {
+        pool.activeHandle = await player.play(pool.audioSource);
+        player.setVolume(pool.activeHandle!, pool.playerVolume!);
+      }
+    }
+  }
+
+  void stopLayers() {
+    if (currentLayerPlayerPool?.activeLayerHandles != null) {
+      for (final SoundHandle handle
+          in currentLayerPlayerPool!.activeLayerHandles) {
+        player.stop(handle);
+      }
+    }
+  }
+
   void play() async {
     ticker.stop();
     jumped = false;
     currentPosition = Duration.zero;
     notifyListeners();
     getDuration();
+    setGlobalVolume(globalVolume);
+
+    if (currentSection?.layers != null) {
+      await playLayers();
+    } else {
+      stopLayers();
+      layersEnabled = false;
+    }
+
+//set volume
+    if (!layersEnabled) {
+      setPlayerVolume(1);
+    } else {
+      setPlayerVolume(0);
+    }
+
     await playCurrentSection();
     isPlaying = true;
-    getPositionStream(); //test position Stream
+    // getPositionStream(); //test position Stream
     startMetronome();
     handleStartPlayback();
     initImagesOrder();
@@ -423,7 +878,7 @@ class PlaylistProvider extends ChangeNotifier {
     }
     Future.delayed(Duration(milliseconds: autoContinueOffset),
         () => isPlaying ? swapImages() : null);
-    positionSub = position.listen((position) {});
+    // positionSub = position.listen((position) {});
   }
 
   void handlePlayNextSection() {
@@ -576,6 +1031,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   void stop() async {
     await player.stop(activeHandle!);
+    stopLayers();
     autoContinueTimer?.cancel();
     ticker.stop();
     ticker.dispose();
@@ -891,18 +1347,16 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   bool? setCurrentSectionAutoContinue() {
-    if (currentSection!.autoContinue == null) {
-      currentSection!.autoContinue = true;
-      notifyListeners();
+    if (currentSection?.autoContinueMarker == null) {
+      return null;
     } else if (currentSection!.autoContinue == true) {
       currentSection!.autoContinue = false;
-      notifyListeners();
     } else if (currentSection!.autoContinue == false) {
       currentSection!.autoContinue = true;
-      notifyListeners();
     } else {
       return null;
     }
+    notifyListeners();
     final SectionPrefs sectionPrefs = SectionPrefs(
       sectionKey: currentSection!.key,
       defaultTempo: currentSection!.defaultTempo,
@@ -965,4 +1419,87 @@ class PlaylistProvider extends ChangeNotifier {
     imagesSwapped = value;
     notifyListeners();
   }
+}
+
+class AudioProvider extends ChangeNotifier {
+  // AUDIO PLAYERS
+  final player = SoLoud.instance;
+  SoundHandle? activeHandle;
+  final activeLayerHandles =
+      <SoundHandle>[]; //when multiple layers are available for mixing
+  SoundHandle? passiveHandle;
+  final playerPool = <PlayerPool>[];
+  bool jumped = false;
+  Ticker ticker = Ticker((elapsed) {});
+  double globalVolume = 1;
+  double playerVolume = 1;
+  List<double> layersVolumes = <double>[0, 0, 0, 0];
+  final playerLayers = <OrchestraLayer>[
+    OrchestraLayer.woodwinds,
+    OrchestraLayer.brass,
+    OrchestraLayer.percussion,
+    OrchestraLayer.strings,
+  ];
+  final layerPlayerPool = <LayerPlayerPool>[];
+  bool layersEnabled = false;
+  bool _isPlaying = false;
+
+// Durations
+  Duration _currentPosition = Duration.zero;
+  Duration _duration = Duration.zero;
+  // Stream<int> position = Stream<int>.value(0);
+  // StreamSubscription? positionSub;
+
+// GETTERS
+  Duration get currentPosition => _currentPosition;
+  Duration get duration => _duration;
+  bool get isPlaying => _isPlaying;
+
+// SETTERS
+  set duration(Duration value) {
+    _duration = value;
+    notifyListeners();
+  }
+
+  set currentPosition(Duration value) {
+    _currentPosition = value;
+    notifyListeners();
+  }
+
+  set isPlaying(bool value) {
+    _isPlaying = value;
+    notifyListeners();
+  }
+
+  // METHODS
+  void resetPlayers() {
+    playerPool.clear();
+    layerPlayerPool.clear();
+    activeLayerHandles.clear();
+    activeHandle = null;
+    playerVolume = 1;
+    layersVolumes = [0, 0, 0, 0];
+    _isPlaying = false;
+    notifyListeners();
+  }
+}
+
+class MetronomeProvider extends ChangeNotifier {
+  //PROVIDERS
+  final List<SectionClickData> playlistClickData = [];
+  ClickData currentBeat = ClickData(time: 0, beat: 0);
+  int currentBeatIndex = 0;
+  int beatLength = 0;
+  final List<PlaylistDuration> currentPlaylistDurations = [];
+  bool isLeft = true;
+  bool isStarted = false;
+  Timer? metronomeTimer;
+
+//GETTERS
+  ClickData? get currentBeatData =>
+      currentClickData?.clickData[currentBeatIndex];
+  SectionClickData? get currentClickData => playlistClickData.isNotEmpty
+      ? playlistClickData.firstWhere(
+          (click) => click.sectionKey == p.playlist[p._currentSectionIndex].key)
+      : null;
 }

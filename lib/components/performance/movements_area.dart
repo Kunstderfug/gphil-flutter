@@ -5,8 +5,7 @@ import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class MovementsArea extends StatelessWidget {
-  final bool isTablet;
-  const MovementsArea({super.key, required this.isTablet});
+  const MovementsArea({super.key});
 
   @override
   Widget build(BuildContext context) {

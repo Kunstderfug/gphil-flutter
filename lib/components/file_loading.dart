@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
 import 'package:provider/provider.dart';
 
-class FileLoading extends StatelessWidget {
-  const FileLoading({super.key});
+class LoadingAudioFiles extends StatelessWidget {
+  final int filesLoaded;
+  final int filesLength;
+  const LoadingAudioFiles(
+      {super.key, required this.filesLoaded, required this.filesLength});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +25,7 @@ class FileLoading extends StatelessWidget {
                   LinearProgressIndicator(
                     minHeight: 4,
                     color: const Color.fromARGB(255, 159, 33, 243),
-                    value: provider.filesLoaded / provider.playlist.length,
+                    value: filesLoaded / filesLength,
                   ),
                 ],
               )),

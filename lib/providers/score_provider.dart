@@ -10,8 +10,10 @@ import 'package:gphil/models/section.dart';
 import 'package:gphil/services/supabase_service.dart';
 import 'package:signals/signals.dart';
 
+enum AudioFormats { mp3, flac, opus }
+
 final String supabaseUrl = SupabaseService().supabaseUrl;
-const String format = 'mp3';
+const String audioFormat = AudioFormat.mp3;
 final persistentController = PersistentDataController();
 
 class ScoreProvider extends ChangeNotifier {
@@ -177,6 +179,7 @@ class ScoreProvider extends ChangeNotifier {
       SectionPrefs sectionPrefs, Section section) async {
     section.userTempo = sectionPrefs.userTempo;
     section.autoContinue = sectionPrefs.autoContinue;
+    section.sectionVolume = sectionPrefs.sectionVolume;
     log('updateSectionFromLocalPrefs, ${section.autoContinue}');
   }
 
@@ -319,16 +322,16 @@ class ScoreProvider extends ChangeNotifier {
     int index = 0;
 
     Score newScore = Score(
-      shortTitle: score.shortTitle,
-      slug: score.slug,
-      pathName: score.pathName,
-      movements: score.movements,
-      updatedAt: score.updatedAt,
-      rev: score.rev,
-      id: score.id,
-      composer: score.composer,
-      setupMovements: [],
-    );
+        shortTitle: score.shortTitle,
+        slug: score.slug,
+        pathName: score.pathName,
+        movements: score.movements,
+        updatedAt: score.updatedAt,
+        rev: score.rev,
+        id: score.id,
+        composer: score.composer,
+        setupMovements: [],
+        globalLayers: score.globalLayers);
 
     for (InitMovement movement in score.movements) {
       Movement newMovement = Movement(
@@ -360,6 +363,7 @@ class ScoreProvider extends ChangeNotifier {
             beatsPerBar: section.beatsPerBar,
             beatLength: section.beatLength,
             tempoMultiplier: section.tempoMultiplier,
+            layers: section.layers,
             clickDataUrl: getClickDataUrl(
                 score.slug,
                 score.pathName,

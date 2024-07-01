@@ -18,7 +18,8 @@ class PlaylistScreen extends StatelessWidget {
       //get the playlist
 
       if (provider.isLoading) {
-        return const FileLoading();
+        return LoadingAudioFiles(
+            filesLoaded: p.filesLoaded, filesLength: p.playlist.length);
       }
 
       return Padding(

@@ -13,7 +13,7 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LibraryProvider>(builder: (context, provider, child) {
+    return Consumer<LibraryProvider>(builder: (context, l, child) {
       Widget loading = Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,20 +34,35 @@ class LibraryScreen extends StatelessWidget {
         height: isTablet(context)
             ? MediaQuery.sizeOf(context).height - 156
             : MediaQuery.sizeOf(context).height - 110,
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
-            crossAxisSpacing: separatorMd,
-            mainAxisSpacing: separatorLg,
-            childAspectRatio: 4 / 3,
-          ),
-          itemCount: provider.indexedLibrary.composers.length,
-          itemBuilder: (context, index) {
-            return LibraryComposer(
-              composerName: provider.indexedLibrary.composers[index].name,
-              composerScores: provider.indexedLibrary.composers[index].scores,
-            );
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 120,
+              child: Text(
+                'W E L C O M E    T O    G P H I L',
+                style: TextStyle(fontSize: fontSizeLg),
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.sizeOf(context).height - 230,
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
+                  crossAxisSpacing: separatorMd,
+                  mainAxisSpacing: separatorLg,
+                  childAspectRatio: 4 / 3,
+                ),
+                itemCount: l.indexedLibrary.composers.length,
+                itemBuilder: (context, index) {
+                  return LibraryComposer(
+                    composerName: l.indexedLibrary.composers[index].name,
+                    composerScores: l.indexedLibrary.composers[index].scores,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       );
       return AnimatedCrossFade(
@@ -56,9 +71,8 @@ class LibraryScreen extends StatelessWidget {
           child: loading,
         ),
         secondChild: body,
-        crossFadeState: provider.isLoading
-            ? CrossFadeState.showFirst
-            : CrossFadeState.showSecond,
+        crossFadeState:
+            l.isLoading ? CrossFadeState.showFirst : CrossFadeState.showSecond,
       );
     });
   }

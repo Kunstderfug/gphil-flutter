@@ -6,7 +6,7 @@ class InitScore {
   String slug;
   String? fullScoreUrl;
   String? pianoScoreUrl;
-  dynamic layers;
+  List<dynamic>? globalLayers;
   List<InitMovement> movements;
   String? priceId;
   String? key;
@@ -28,7 +28,7 @@ class InitScore {
     required this.slug,
     this.fullScoreUrl,
     this.pianoScoreUrl,
-    this.layers,
+    this.globalLayers,
     required this.movements,
     this.priceId,
     this.key,
@@ -53,7 +53,7 @@ class InitScore {
         slug: json["slug"],
         fullScoreUrl: json["full_score_url"] ?? '',
         pianoScoreUrl: json["piano_score_url"] ?? '',
-        layers: json["layers"] ?? [],
+        globalLayers: json["layers"] ?? [],
         movements: List<InitMovement>.from(
             json["movements"].map((x) => InitMovement.fromJson(x))),
         priceId: json["price_id"] ?? '',
@@ -79,7 +79,7 @@ class InitScore {
         "slug": slug,
         "full_score_url": fullScoreUrl,
         "piano_score_url": pianoScoreUrl,
-        "layers": layers,
+        "layers": globalLayers,
         "movements": List<dynamic>.from(movements.map((x) => x.toJson())),
         "price_id": priceId,
         "key": key,
@@ -115,17 +115,17 @@ class ScoreRef {
 class Score extends InitScore {
   List<Movement> setupMovements;
 
-  Score({
-    required super.movements,
-    required super.updatedAt,
-    required super.rev,
-    required super.pathName,
-    required super.slug,
-    required super.id,
-    required super.shortTitle,
-    required super.composer,
-    required this.setupMovements,
-  });
+  Score(
+      {required super.movements,
+      required super.updatedAt,
+      required super.rev,
+      required super.pathName,
+      required super.slug,
+      required super.id,
+      required super.shortTitle,
+      required super.composer,
+      required this.setupMovements,
+      required super.globalLayers});
 
   factory Score.fromJson(Map<String, dynamic> json) => Score(
         movements: List<InitMovement>.from(
@@ -137,6 +137,7 @@ class Score extends InitScore {
         id: json["_id"],
         shortTitle: json["shortTitle"],
         composer: json["composer"],
+        globalLayers: json["layers"] ?? [],
         setupMovements: List<Movement>.from(
             json["setupMovements"].map((x) => Movement.fromJson(x))),
       );

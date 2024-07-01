@@ -18,6 +18,43 @@ class PlayerArea extends StatelessWidget {
 
     const double maxWidth = 720;
 
+    final progressBarAndGuard = LayoutBuilder(builder: (context, constraints) {
+      //continie bar guard
+      Widget continueGuardBar = Positioned(
+        left: constraints.maxWidth / 100 * p.guardPosition - barOffset,
+        child: Container(
+          width: barWidth,
+          height: 48,
+          decoration: BoxDecoration(
+            color: redColor,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+          ),
+        ),
+      );
+
+      return Stack(children: [
+        const ProgressBar(),
+        p.currentSection?.autoContinueMarker != null &&
+                p.currentSection?.autoContinue != false
+            ? Positioned(
+                left: constraints.maxWidth /
+                        100 *
+                        p.adjustedAutoContinuePosition -
+                    barOffset,
+                child: Container(
+                  width: barWidth,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: p.currentSection!.autoContinue! == true
+                        ? greenColor
+                        : Colors.grey.shade700,
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  ),
+                ),
+              )
+            : continueGuardBar
+      ]);
+    });
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -26,55 +63,18 @@ class PlayerArea extends StatelessWidget {
                 constraints: const BoxConstraints(
                   maxWidth: maxWidth,
                 ),
-                child: const PlaylistControl())),
-        RepaintBoundary(
-            child: Container(
-          constraints: const BoxConstraints(
-            maxWidth: maxWidth,
-          ),
-          child: LayoutBuilder(builder: (context, constraints) {
-            //continie bar guard
-            Widget continueGuardBar = Positioned(
-              left: constraints.maxWidth / 100 * p.guardPosition - barOffset,
-              child: Container(
-                width: barWidth,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: redColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                ),
-              ),
-            );
-
-            return Stack(children: [
-              const ProgressBar(),
-              p.currentSection?.autoContinueMarker != null &&
-                      p.currentSection?.autoContinue != false
-                  ? Positioned(
-                      left: constraints.maxWidth /
-                              100 *
-                              p.adjustedAutoContinuePosition -
-                          barOffset,
-                      child: Container(
-                        width: barWidth,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: p.currentSection!.autoContinue! == true
-                              ? greenColor
-                              : Colors.grey.shade700,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
-                        ),
-                      ),
-                    )
-                  : continueGuardBar
-            ]);
-          }),
-        )),
-        const SizedBox(
-          height: 8,
-        ),
-        const SizedBox(width: 600, child: PlayerControl()),
+                child: Column(
+                  children: [
+                    const PlaylistControl(),
+                    progressBarAndGuard,
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: maxWidth),
+                        child: const PlayerControl()),
+                  ],
+                ))),
       ],
     );
   }

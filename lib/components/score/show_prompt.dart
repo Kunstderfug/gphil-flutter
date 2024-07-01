@@ -23,12 +23,12 @@ class ShowPrompt extends StatelessWidget {
     Widget clearSession = ElevatedButton.icon(
       iconAlignment: IconAlignment.end,
       label: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(paddingSm),
         child: Text(
           'Yes, replace',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: fontSizeMd,
             color: Theme.of(context).colorScheme.inversePrimary,
           ),
         ),
@@ -38,34 +38,34 @@ class ShowPrompt extends StatelessWidget {
         p.clearSession();
         p.addMovement(s.currentScore!, p.movementToAdd!, s.currentSection.key);
       },
-      icon: const Icon(Icons.check),
+      icon: Icon(Icons.check, color: greenColor),
     );
 
     Widget closePrompt = ElevatedButton.icon(
         iconAlignment: IconAlignment.end,
         label: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(paddingSm),
           child: Text(
             'No, close window',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: fontSizeMd,
               color: Theme.of(context).colorScheme.inversePrimary,
             ),
           ),
         ),
         style: buttonStyle,
         onPressed: () => p.closePrompt(),
-        icon: const Icon(Icons.close_sharp));
+        icon: Icon(Icons.close_sharp, color: redColor));
 
     return AnimatedOpacity(
-      opacity: 1,
-      duration: const Duration(milliseconds: 200),
+      opacity: p.showPrompt ? 0.97 : 0,
+      duration: const Duration(milliseconds: 300),
       child: AlertDialog(
         alignment: Alignment.topCenter,
         actionsAlignment: MainAxisAlignment.spaceEvenly,
         backgroundColor: Theme.of(context).colorScheme.surface,
-        contentPadding: const EdgeInsets.all(42),
-        iconColor: Theme.of(context).highlightColor,
+        contentPadding: const EdgeInsets.all(paddingXl * 1.5),
+        iconColor: highlightColor,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -80,7 +80,7 @@ class ShowPrompt extends StatelessWidget {
               textAlign: TextAlign.start,
               style: TextStyles().textMd,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: separatorXl),
             Text(
               'Would you like to replace it?',
               textAlign: TextAlign.center,
