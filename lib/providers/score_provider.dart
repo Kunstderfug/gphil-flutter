@@ -178,6 +178,7 @@ class ScoreProvider extends ChangeNotifier {
   Future<void> updateSectionFromLocalPrefs(
       SectionPrefs sectionPrefs, Section section) async {
     section.userTempo = sectionPrefs.userTempo;
+    section.userLayerTempo = sectionPrefs.userLayerTempo;
     section.autoContinue = sectionPrefs.autoContinue;
     section.sectionVolume = sectionPrefs.sectionVolume;
     log('updateSectionFromLocalPrefs, ${section.autoContinue}');
@@ -259,6 +260,7 @@ class ScoreProvider extends ChangeNotifier {
       sectionKey: currentSection.key,
       defaultTempo: currentSection.defaultTempo,
       userTempo: tempo,
+      userLayerTempo: tempo,
       autoContinue: currentSection.autoContinue,
     );
 
@@ -349,6 +351,11 @@ class ScoreProvider extends ChangeNotifier {
             sectionIndex: index,
             name: section.name,
             tempoRangeFull: section.tempoRangeFull,
+            layerStep: section.layerStep,
+            tempoRangeLayers: section.tempoRangeLayers != null &&
+                    section.layerStep != null
+                ? setTempoRange(section.tempoRangeLayers!, section.layerStep!)
+                : [],
             step: section.step,
             movementIndex: movement.index,
             key: section.key,

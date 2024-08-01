@@ -5,32 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
+import 'package:gphil/models/layer_player.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final persistentController = PersistentDataController();
 final p = PlaylistProvider();
 final a = AudioProvider();
 final m = MetronomeProvider();
-
-//test
-const audioAssets = [
-  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_woodwinds.mp3',
-  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_brass.mp3',
-  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_percussion.mp3',
-  'assets/audio/STEMS/RAVEL_G_1_EXPO_1_116_strings.mp3',
-];
-
-enum OrchestraLayer {
-  flute,
-  woodwinds,
-  brass,
-  percussion,
-  strings,
-}
 
 class SessionMovement {
   final String movementKey;
@@ -62,204 +48,13 @@ class PlaylistDuration {
   PlaylistDuration({required this.sectionKey, required this.beatLengths});
 }
 
-class PlayerPool {
-  final int sectionIndex;
-  final String sectionKey;
-  AudioSource audioSource;
-  double? playerVolume;
-
-  PlayerPool(
-      {required this.sectionIndex,
-      required this.sectionKey,
-      required this.audioSource,
-      this.playerVolume = 1.0});
-}
-
-class LayerPlayer extends PlayerPool {
-  final String layer;
-  bool isActive;
-  bool isMuted = false;
-  SoundHandle? activeHandle;
-  SoLoud player;
-
-  LayerPlayer({
-    required super.sectionIndex,
-    required super.sectionKey,
-    required super.audioSource,
-    super.playerVolume,
-    required this.layer,
-    this.activeHandle,
-    this.isActive = true,
-    required this.player,
-  });
-
-  void setPlayerVolume(double value) {
-    playerVolume = value;
-    if (activeHandle != null && playerVolume != null) {
-      player.setVolume(activeHandle!, playerVolume!);
-    }
-  }
-}
-
-class Layer {
-  final String layerName;
-
-  Layer({required this.layerName});
-  String get fullName {
-    switch (layerName) {
-      case 'f':
-        return 'Flute';
-      case 'w':
-        return 'Woodwinds';
-      case 'b':
-        return 'Brass';
-      case 'p':
-        return 'Percussion';
-      case 's':
-        return 'Strings';
-    }
-    return 'Unnamed Layer';
-  }
-}
-
-class LayerChannel {
-  final String name;
-  final double channelVolume;
-  final LayerPlayer player;
-  LayerChannel(
-      {required this.name, required this.channelVolume, required this.player});
-
-  String get channelName {
-    switch (name) {
-      case 'f':
-        return 'Flute';
-      case 'w':
-        return 'Woodwinds';
-      case 'b':
-        return 'Brass';
-      case 'p':
-        return 'Percussion';
-      case 's':
-        return 'Strings';
-    }
-    return 'Unnamed Layer';
-  }
-}
-
-class SectionLayer {
-  final String layer;
-  final String audioUrl;
-
-  SectionLayer({required this.layer, required this.audioUrl});
-}
-
-class LayerPlayerPool {
-  final int sectionIndex;
-  final String sectionKey;
-  final List<SectionLayer> layers;
-  List<LayerPlayer> players;
-  LayerPlayerPool(
-      {required this.sectionIndex,
-      required this.sectionKey,
-      required this.layers,
-      required this.players});
-
-  List<SoundHandle> get activeLayerHandles =>
-      players.where((p) => p.isActive).map((p) => p.activeHandle!).toList();
-//getting liest of available channels
-  List<LayerChannel> get layerChannels {
-    List<LayerChannel> channels = [];
-    for (LayerPlayer player in orderedPlayers) {
-      channels.add(
-        LayerChannel(
-          name: player.layer,
-          player: player,
-          channelVolume: player.playerVolume ?? 0.0,
-        ),
-      );
-    }
-    return channels;
-  }
-
-  List<LayerPlayer> get activeChannels =>
-      players.where((p) => p.isActive).toList();
-
-  List<LayerPlayer> get orderedPlayers {
-    List<LayerPlayer> orderedPlayers = [];
-    int index = 0;
-    for (SectionLayer layer in layers) {
-      final currentPlayer = players.firstWhere((p) => p.layer == layer.layer);
-      orderedPlayers.insert(index, currentPlayer);
-      index++;
-    }
-    return orderedPlayers;
-  }
-
-//set individual channel volume
-  void setChannelVolume(double volume, String layer) {
-    for (LayerPlayer player in players) {
-      if (player.layer == layer) {
-        player.playerVolume = volume;
-        player.setPlayerVolume(volume);
-      }
-    }
-  }
-
-  void setChannelActive(String layer, bool active) {
-    for (LayerPlayer player in players) {
-      if (player.layer == layer) {
-        player.isActive = active;
-      }
-    }
-  }
-
-  void setChannelSoloOrMuted(String layer, bool value) {
-    for (LayerPlayer player in players) {
-      if (player.layer == layer) {
-        player.playerVolume = value ? 1.0 : 0.0;
-        player.isActive = value ? true : false;
-        player.isMuted = value ? false : true;
-      }
-    }
-  }
-
-  void setSoloOrMutedReset() {
-    for (LayerPlayer player in players) {
-      player.playerVolume = 1.0;
-      player.isActive = true;
-      player.isMuted = false;
-    }
-  }
-}
-
-class GlobalLayerPlayerPool {
-  final List<Layer> globalLayers;
-  final List<LayerPlayerPool> globalPools;
-
-  GlobalLayerPlayerPool(
-      {required this.globalLayers, required this.globalPools});
-
-  void resetPools() {
-    globalPools.clear();
-  }
-
-  void resetLayers() {
-    globalLayers.clear();
-  }
-
-  void resetAll() {
-    resetPools();
-    resetLayers();
-  }
-}
-
-class AudioUrl {
-  final int sectionIndex;
-  final String sectionKey;
-  final String url;
-
-  AudioUrl(this.sectionIndex, this.sectionKey, this.url);
-}
+final List<Layer> defaultMixer = [
+  // Layer(layerName: 'f'),
+  Layer(layerName: 'w'),
+  Layer(layerName: 'b'),
+  Layer(layerName: 'p'),
+  Layer(layerName: 's'),
+];
 
 class PlaylistProvider extends ChangeNotifier {
   // PLAYLIST
@@ -280,6 +75,7 @@ class PlaylistProvider extends ChangeNotifier {
     OrchestraLayer.strings
   ];
   bool layersEnabled = false;
+  bool onePedalMode = false;
   int totalLayerFiles = 0;
 
   //IMAGES
@@ -312,8 +108,6 @@ class PlaylistProvider extends ChangeNotifier {
   // AUDIO PLAYERS
   final player = SoLoud.instance;
   SoundHandle? activeHandle;
-  final activeLayerHandles =
-      <SoundHandle>[]; //when multiple layers are available for mixing
   SoundHandle? passiveHandle;
   final playerPool = <PlayerPool>[];
   bool _isPlaying = false;
@@ -323,7 +117,6 @@ class PlaylistProvider extends ChangeNotifier {
   double playerVolume = 1;
   final GlobalLayerPlayerPool layerPlayersPool = GlobalLayerPlayerPool(
     globalLayers: [],
-    globalPools: [],
   );
 
 // DURATIONS
@@ -380,11 +173,15 @@ class PlaylistProvider extends ChangeNotifier {
               layerPlayersPool.globalPools
                   .any((section) => section.sectionKey == currentSectionKey)
           ? layerPlayersPool.globalPools
-              .firstWhere((element) => element.sectionKey == currentSectionKey)
+              .firstWhere((pool) => pool.sectionKey == currentSectionKey)
           : null;
 
-  ClickData? get currentBeatData =>
-      currentClickData?.clickData[currentBeatIndex];
+  ClickData? get currentBeatData => currentClickData?.clickData != null &&
+          currentClickData!.clickData.isNotEmpty &&
+          currentClickData?.clickData[currentBeatIndex] != null
+      ? currentClickData!.clickData[currentBeatIndex]
+      : null;
+  ClickData? get nextBeatData => currentClickData?.clickData[currentBeatIndex];
   SectionClickData? get currentClickData => playlistClickData.isNotEmpty
       ? playlistClickData.firstWhere(
           (click) => click.sectionKey == playlist[_currentSectionIndex].key)
@@ -437,10 +234,22 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setOnePedalMode(bool value) async {
+    onePedalMode = value;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('onePedalMode', value);
+    notifyListeners();
+  }
+
+  void getOnePedalMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    onePedalMode = prefs.getBool('onePedalMode') ?? false;
+    notifyListeners();
+  }
+
   void resetPlayers() {
     playerPool.clear();
     layerPlayersPool.resetAll();
-    activeLayerHandles.clear();
     activeHandle = null;
     playerVolume = 1;
     _currentSectionIndex = 0;
@@ -543,11 +352,12 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> setSectionLayersPlayerPool(Section section) async {
+  Future<void>? setSectionLayersPlayerPool(Section section, bool patch) async {
     //set global layers for the whole playlist
     final handleLoadLayerFiles =
         <Future>[]; //set of tasks running at the same time
-    final playerPools = <LayerPlayer>[];
+    late MainPlayer mainPlayer;
+    final layerPlayers = <LayerPlayer>[];
     final sectionLayers = <SectionLayer>[];
 
     //initialize player if for some reason it's not
@@ -558,8 +368,8 @@ class PlaylistProvider extends ChangeNotifier {
     Future<void> setLayerPlayerPool(
         String filePath, String audioFileName, String layer) async {
       try {
-        final audioSource = await player.loadFile(filePath);
-        playerPools.add(
+        AudioSource audioSource = await player.loadFile(filePath);
+        layerPlayers.add(
           LayerPlayer(
               sectionIndex: section.sectionIndex,
               sectionKey: section.key,
@@ -575,16 +385,34 @@ class PlaylistProvider extends ChangeNotifier {
       }
     }
 
-    Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
-      final String audioFileName = getAudioFileNAme(sectionLayer.audioUrl);
-      log('audioFileName: $audioFileName, audioUrl: ${sectionLayer.audioUrl}');
-
-      final file = await persistentController.readAudioFile(
-          sessionScore!.id, audioFileName, sectionLayer.audioUrl);
-      await setLayerPlayerPool(file.path, audioFileName, sectionLayer.layer);
+    Future<void> setMainPlayer(String filePath) async {
+      try {
+        AudioSource audioSource = await player.loadFile(filePath);
+        mainPlayer = MainPlayer(audioSource: audioSource, player: player);
+        log('mainPlayer set');
+        notifyListeners();
+      } catch (e) {
+        log(e.toString());
+      }
     }
 
-    for (final layer in section.layers!) {
+    Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
+      final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
+      log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
+
+      //layer file
+      final layerFile = await persistentController.readAudioFile(
+          sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
+      await setLayerPlayerPool(
+          layerFile.path, layerAudioFileName, sectionLayer.layer);
+    }
+
+    final String audioFileName = getAudioFileNAme(getAudioUrl(section));
+    final file = await persistentController.readAudioFile(
+        sessionScore!.id, audioFileName, getAudioUrl(section));
+    await setMainPlayer(file.path);
+
+    for (final String layer in section.layers!) {
       sectionLayers.add(SectionLayer(
           layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
     }
@@ -596,15 +424,25 @@ class PlaylistProvider extends ChangeNotifier {
 
     await Future.wait(handleLoadLayerFiles);
 
-    void addPlayerPool() {
-      // log('adding player pool, ${sectionLayers.toString()}');
+    LayerPlayerPool addPlayerPool() {
       final layerPlayerPool = LayerPlayerPool(
           sectionIndex: section.sectionIndex,
           sectionKey: section.key,
+          tempo: section.userTempo ?? section.defaultTempo,
           layers: sectionLayers,
-          players: playerPools);
-      //order pool
-      layerPlayersPool.globalPools.add(layerPlayerPool);
+          mainPlayer: mainPlayer,
+          players: layerPlayers);
+
+      if (patch) {
+        final index = layerPlayersPool.globalPools
+            .indexWhere((p) => p.sectionKey == section.key);
+        layerPlayersPool.globalPools.removeAt(index);
+        layerPlayersPool.globalPools.insert(index, layerPlayerPool);
+      } else {
+        layerPlayersPool.globalPools.add(layerPlayerPool);
+      }
+
+      return layerPlayerPool;
     }
 
     addPlayerPool();
@@ -620,6 +458,7 @@ class PlaylistProvider extends ChangeNotifier {
   void initSessionPlayers(String sectionKey) async {
     isLoading = true;
     resetPlayers();
+
     await setPlayerPool();
     setGlobalPlaylistLayers();
     layersEnabled = false;
@@ -634,6 +473,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     setDefaultTempos();
     setAdjustedMarkerPosition();
+    getOnePedalMode();
     isLoading = false;
     notifyListeners();
   }
@@ -669,19 +509,26 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setChannelVolume(String layerName, double value) {
-    final pool = currentLayerPlayerPool;
-    //find currently targeted pool player
-    pool?.setChannelVolume(value, layerName);
-
+  void setGlobalLayerVolume(
+    double value,
+    String layer,
+  ) {
+    layerPlayersPool.setGlobalLayerVolume(value, layer);
+    // log('setGlobalLayerVolume: $value, $layer');
+    if (isPlaying && currentLayerPlayerPool != null) {
+      layerPlayersPool.setIndividualLayerVolume(
+          currentLayerPlayerPool!, layer, value);
+    }
     notifyListeners();
   }
 
   Future<void> setLayersEnabled(bool value) async {
     layersEnabled = value;
+    layerFilesLoading = true;
+    notifyListeners();
+
     log('layerFilesLoaded: $layerFilesLoaded, totalLayerFiles: $totalLayerFiles');
     if (totalLayerFiles == 0) {
-      layerFilesLoading = true;
       for (Section section
           in playlist.where((section) => section.layers != null)) {
         //check if files are there already
@@ -690,7 +537,8 @@ class PlaylistProvider extends ChangeNotifier {
                 .any((element) => element.sectionKey == section.key)) {
           continue;
         } else {
-          await setSectionLayersPlayerPool(section);
+          await setSectionLayersPlayerPool(section, false);
+          await setGlobalLayers();
         }
       }
     }
@@ -700,12 +548,38 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setGlobalLayers() async {
+    final sectionPrefsList = <SectionPrefs>[];
+    for (Section section
+        in playlist.where((section) => section.layers != null)) {
+      final prefs = await persistentController.readSectionJsonFile(
+          sessionScore!.id, section.key);
+
+      if (prefs != null) {
+        sectionPrefsList.add(SectionPrefs.fromJson(prefs));
+      }
+    }
+
+    if (sectionPrefsList.isNotEmpty) {
+      // ignore: unnecessary_nullable_for_final_variable_declarations
+      final globalLayersExist = sectionPrefsList
+          .indexWhere((pref) => pref.layers != null && pref.layers!.isNotEmpty);
+      if (globalLayersExist != -1) {
+        final globalLayers = sectionPrefsList[globalLayersExist].layers!;
+        layerPlayersPool.setGlobalLayers(globalLayers);
+      }
+    }
+  }
+
   void toggleDefaultToLayerPlayerVolume(bool value) {
     void setVolume(double volume) {
       if (isPlaying) {
         player.setVolume(activeHandle!, playerVolume);
-        for (SoundHandle handle in activeLayerHandles) {
-          player.setVolume(handle, volume);
+        if (currentLayerPlayerPool?.activeLayerHandles != null) {
+          for (Layer layer in layerPlayersPool.globalLayers) {
+            layerPlayersPool.setGlobalLayerVolume(
+                layer.volume, layer.layerName);
+          }
         }
       }
     }
@@ -814,11 +688,18 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> playLayers() async {
-    activeLayerHandles.clear();
-    log('play layers');
+    // for (LayerPlayerPool pool in layerPlayersPool.globalPools) {
+    //   pool.activeLayerHandles.clear();
+    //   log('play layers, ${pool.activeLayerHandles.length.toString()}');
+    // }
+    log('play layers, ');
 
     if (currentLayerPlayerPool != null) {
+      // currentLayerPlayerPool?.activeLayerHandles.clear();
       for (final pool in currentLayerPlayerPool!.players) {
+        pool.playerVolume = layerPlayersPool.globalLayers
+            .firstWhere((p) => p.layerName == pool.layer)
+            .volume;
         pool.activeHandle = await player.play(pool.audioSource);
         player.setVolume(pool.activeHandle!, pool.playerVolume!);
       }
@@ -826,12 +707,20 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void stopLayers() {
-    if (currentLayerPlayerPool?.activeLayerHandles != null) {
-      for (final SoundHandle handle
-          in currentLayerPlayerPool!.activeLayerHandles) {
-        player.stop(handle);
+    // if (currentLayerPlayerPool?.activeLayerHandles != null) {
+    //   for (final SoundHandle handle
+    //       in currentLayerPlayerPool!.activeLayerHandles) {
+    //     player.stop(handle);
+    //   }
+    // }
+    for (LayerPlayerPool p in layerPlayersPool.globalPools) {
+      if (p.activeLayerHandles.isNotEmpty) {
+        for (final SoundHandle handle in p.activeLayerHandles) {
+          player.stop(handle);
+        }
       }
     }
+    // log('stop layers: $handle');
   }
 
   void play() async {
@@ -842,18 +731,13 @@ class PlaylistProvider extends ChangeNotifier {
     getDuration();
     setGlobalVolume(globalVolume);
 
-    if (currentSection?.layers != null) {
+    if (currentSection?.layers != null && layersEnabled) {
       await playLayers();
+      toggleDefaultToLayerPlayerVolume(true);
     } else {
       stopLayers();
-      layersEnabled = false;
-    }
-
-//set volume
-    if (!layersEnabled) {
-      setPlayerVolume(1);
-    } else {
-      setPlayerVolume(0);
+      toggleDefaultToLayerPlayerVolume(false);
+      // layersEnabled = false;
     }
 
     await playCurrentSection();
@@ -913,6 +797,9 @@ class PlaylistProvider extends ChangeNotifier {
 
   void seek(Duration position) async {
     player.seek(activeHandle!, position);
+    if (currentLayerPlayerPool?.activeLayerHandles != null) {
+      currentLayerPlayerPool!.seek(position);
+    }
     if (autoContinueMarker != null) {
       handleNextSectionIfSeeked(position);
     }
@@ -1030,7 +917,9 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void stop() async {
-    await player.stop(activeHandle!);
+    if (activeHandle != null) {
+      await player.stop(activeHandle!);
+    }
     stopLayers();
     autoContinueTimer?.cancel();
     ticker.stop();
@@ -1230,6 +1119,12 @@ class PlaylistProvider extends ChangeNotifier {
         currentTempo != currentSection?.defaultTempo) {
       await patchPool(tempo);
       currentSection?.userTempo = tempo;
+      if (layersEnabled &&
+          currentSection?.layers != null &&
+          currentLayerPlayerPool?.tempo != tempo) {
+        await setSectionLayersPlayerPool(currentSection!, true);
+        currentLayerPlayerPool?.tempo = tempo;
+      }
     }
     log('tempoDiff: ${tempoDiff.toString()}');
     log('lastUsedTempo: ${lastUsedTempo.toString()}');
@@ -1322,10 +1217,9 @@ class PlaylistProvider extends ChangeNotifier {
 
   void setCurrentSectionByKey(String sectionKey) {
     _currentSectionIndex = playlist.indexWhere(
-      (element) => element.key == sectionKey,
+      (s) => s.key == sectionKey,
     );
-    // currentMovementIndex = sessionMovements
-    //     .indexWhere((el) => el.movementKey == currentSection!.movementKey);
+
     setCurrentSectionAndMovementKey();
     log('currentMovementKey: $currentMovementKey');
     // currentMovement = sessionMovements.firstWhere(
@@ -1357,17 +1251,34 @@ class PlaylistProvider extends ChangeNotifier {
       return null;
     }
     notifyListeners();
-    final SectionPrefs sectionPrefs = SectionPrefs(
-      sectionKey: currentSection!.key,
-      defaultTempo: currentSection!.defaultTempo,
-      userTempo: currentSection!.userTempo,
-      autoContinue: currentSection!.autoContinue,
-    );
+    final SectionPrefs sectionPrefs = constructSectionPrefs(currentSection!);
     setAdjustedMarkerPosition();
 
     persistentController.updateSectionPrefs(
         currentSection!.scoreId, currentSection!.key, sectionPrefs);
     return currentSection!.autoContinue;
+  }
+
+  void updateLayersPrefs() async {
+    final SectionPrefs sectionPrefs = constructSectionPrefs(currentSection!);
+    log('updateLayersPrefs: $sectionPrefs');
+    persistentController.updateSectionPrefs(
+        currentSection!.scoreId, currentSection!.key, sectionPrefs);
+    notifyListeners();
+  }
+
+  SectionPrefs constructSectionPrefs(Section section) {
+    final SectionPrefs sectionPrefs = SectionPrefs(
+      sectionKey: section.key,
+      defaultTempo: section.defaultTempo,
+      userTempo: section.userTempo,
+      autoContinue: section.autoContinue,
+      layers: layerPlayersPool.globalLayers.isNotEmpty
+          ? layerPlayersPool.globalLayers
+          : null,
+    );
+
+    return sectionPrefs;
   }
 
   void clearSession() {

@@ -151,6 +151,7 @@ class PersistentDataController {
 
   Future<SectionPrefs> updateSectionPrefs(
       String scoreId, String sectionKey, SectionPrefs data) {
+    log('updating $sectionKey');
     return writeSectionJsonFile(scoreId, sectionKey, data);
   }
 
@@ -427,13 +428,16 @@ class PersistentDataController {
   }
 
   Future<void> deleteScore(String scoreId) async {
-    final String directory = await getScoreDirectory(scoreId);
+    // final String directory = await getScoreDirectory(scoreId);
+    final String sectionPath = await getSectionsDirectory(scoreId);
+    final String imagePath = await getImagesDirectory(scoreId);
     final String path = await _gphilRootDirectory;
     final scoreFile = File('$path/score_$scoreId.json');
     if (await scoreFile.exists()) {
       scoreFile.deleteSync();
     }
 
-    Directory(directory).deleteSync(recursive: true);
+    Directory(sectionPath).deleteSync(recursive: true);
+    Directory(imagePath).deleteSync(recursive: true);
   }
 }

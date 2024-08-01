@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/models/layer_player.dart';
 import 'package:gphil/models/playlist_provider.dart';
 
 class MixerInfo extends StatelessWidget {
@@ -12,22 +13,7 @@ class MixerInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          alignment: WrapAlignment.start,
-          children: [
-            const Text('globalLayers: '),
-            for (Layer layer in p.layerPlayersPool.globalLayers)
-              Text(layer.layerName),
-          ],
-        ),
         Text('LayerPool length: ${pools.length.toString()}'),
-        Wrap(
-          alignment: WrapAlignment.start,
-          children: [
-            Text('sectionIndex: ${currentPool?.sectionIndex.toString()}, '),
-            Text('sectioKey: ${currentPool?.sectionKey}, '),
-          ],
-        ),
         Wrap(
           children: [
             const Text('poolLayers: '),
@@ -36,14 +22,6 @@ class MixerInfo extends StatelessWidget {
                 Text(layer.layer),
           ],
         ),
-
-        //VOLUMES
-        Wrap(children: [
-          const Text('layerPlayerVolumes: '),
-          if (currentPool != null)
-            for (final pool in currentPool.players)
-              Text('${pool.playerVolume.toString()}, '),
-        ]),
         //LAYERS
         Wrap(children: [
           const Text('layers: '),
@@ -51,6 +29,7 @@ class MixerInfo extends StatelessWidget {
             for (final pool in currentPool.layerChannels)
               Text('${pool.name}, '),
         ]),
+        Text('pool current tempo: ${currentPool?.tempo ?? 'no tempo'}'),
       ],
     );
   }

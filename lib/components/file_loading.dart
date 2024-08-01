@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-class LoadingAudioFiles extends StatelessWidget {
+class LoadingLayerFiles extends StatelessWidget {
   final int filesLoaded;
   final int filesLength;
-  const LoadingAudioFiles(
+  const LoadingLayerFiles(
       {super.key, required this.filesLoaded, required this.filesLength});
 
   @override
@@ -14,21 +15,20 @@ class LoadingAudioFiles extends StatelessWidget {
       builder: (context, provider, child) {
         return Visibility(
           visible: true,
-          child: Padding(
-              padding: const EdgeInsets.all(64),
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Text('loading files...'),
-                  ),
-                  LinearProgressIndicator(
-                    minHeight: 4,
-                    color: const Color.fromARGB(255, 159, 33, 243),
-                    value: filesLoaded / filesLength,
-                  ),
-                ],
-              )),
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text('loading files...'),
+              ),
+              LinearProgressIndicator(
+                minHeight: 4,
+                color: highlightColor,
+                backgroundColor: highlightColor.withOpacity(0.5),
+                value: (filesLoaded / filesLength).toDouble(),
+              ),
+            ],
+          ),
         );
       },
     );

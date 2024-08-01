@@ -14,6 +14,7 @@ import 'package:gphil/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 // import 'package:gphil/src/rust/frb_generated.dart';
 
 void main() async {

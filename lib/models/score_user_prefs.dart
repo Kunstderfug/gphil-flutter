@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:gphil/models/layer_player.dart';
+
 ScoreUserPrefs scoreUserPrefFromJson(String str) =>
     ScoreUserPrefs.fromJson(json.decode(str));
 
@@ -38,31 +40,43 @@ class SectionPrefs {
   final String sectionKey;
   final int defaultTempo;
   final int? userTempo;
+  final int? userLayerTempo;
   final bool? autoContinue;
   final double? sectionVolume;
+  final List<Layer>? layers;
 
   SectionPrefs({
     required this.sectionKey,
     required this.defaultTempo,
     this.userTempo,
+    this.userLayerTempo,
     this.autoContinue,
-    this.sectionVolume = 0.75,
+    this.sectionVolume = 1,
+    this.layers,
   });
 
   factory SectionPrefs.fromJson(Map<String, dynamic> json) => SectionPrefs(
         sectionKey: json["sectionKey"],
         defaultTempo: json["defaultTempo"],
         userTempo: json["userTempo"],
+        userLayerTempo: json["userLayerTempo"],
         autoContinue: json["autoContinue"],
-        sectionVolume: json["sectionVolume"] ?? 0.75,
+        sectionVolume: json["sectionVolume"] ?? 1,
+        layers: List<Layer>.from(json['layers'] != null
+            ? json["layers"]?.map((x) => Layer.fromJson(x))
+            : []),
       );
 
   Map<String, dynamic> toJson() => {
         "sectionKey": sectionKey,
         "defaultTempo": defaultTempo,
         "userTempo": userTempo,
+        "userLayerTempo": userLayerTempo,
         "autoContinue": autoContinue,
         "sectionVolume": sectionVolume,
+        "layers": layers != null
+            ? List<dynamic>.from(layers!.map((x) => x.toJson()))
+            : null,
       };
 }
 

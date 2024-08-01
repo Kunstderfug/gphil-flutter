@@ -3,6 +3,7 @@ import 'package:gphil/components/file_loading.dart';
 import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/movements_area.dart';
+import 'package:gphil/components/performance/one_pedal_mode_switch.dart';
 import 'package:gphil/components/performance/player_area.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/performance/section_auto_continue_switch.dart';
@@ -49,7 +50,17 @@ class PerformanceScreen extends StatelessWidget {
                     children: [
                       const MovementsArea(),
                       const SeparatorLine(height: 48),
-                      SectionAutoContinueSwitch(p: p),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          OnePedalMode(p: p),
+                          SectionAutoContinueSwitch(p: p),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: separatorMd,
+                      ),
                       ConstrainedBox(
                         constraints: const BoxConstraints(minHeight: 130),
                         child: const SectionsArea(),
@@ -73,6 +84,9 @@ class PerformanceScreen extends StatelessWidget {
                     child: Column(
                   children: [
                     const PlayerArea(),
+                    const SizedBox(
+                      height: separatorMd,
+                    ),
                     GlobalMixer(p: p),
                   ],
                 )),
@@ -101,7 +115,7 @@ class PerformanceScreen extends StatelessWidget {
           value: p.currentSection?.autoContinue != null
               ? p.currentSection!.autoContinue!
               : false,
-          opacity: p.currentSection!.autoContinueMarker != null ? 1 : 0.4,
+          opacity: p.currentSection?.autoContinueMarker != null ? 1 : 0.4,
         ),
       ),
       const SectionsArea(),
@@ -128,7 +142,7 @@ class PerformanceScreen extends StatelessWidget {
       return const PlaylistIsEmpty();
     } else {
       return p.isLoading
-          ? LoadingAudioFiles(
+          ? LoadingLayerFiles(
               filesLoaded: p.filesLoaded, filesLength: p.playlist.length)
           : layout;
     }

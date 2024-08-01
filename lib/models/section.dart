@@ -7,8 +7,10 @@ class InitSection {
   SectionImage? sectionImage;
   int? beatsPerBar;
   List<int> tempoRangeFull;
+  List<int>? tempoRangeLayers;
   double? defaultSectionLength;
   int step;
+  int? layerStep;
   int? beatLength;
   Duration? autoContinueMarker;
   int defaultTempo;
@@ -25,8 +27,10 @@ class InitSection {
     this.sectionImage,
     this.beatsPerBar,
     required this.tempoRangeFull,
+    this.tempoRangeLayers,
     this.defaultSectionLength,
     required this.step,
+    this.layerStep,
     this.beatLength,
     this.autoContinueMarker,
     required this.defaultTempo,
@@ -46,8 +50,12 @@ class InitSection {
             : SectionImage.fromJson(json["sectionImage"]),
         beatsPerBar: json["beatsPerBar"],
         tempoRangeFull: List<int>.from(json["tempoRangeFull"].map((x) => x)),
+        tempoRangeLayers: json["tempoRangeLayers"] != null
+            ? List<int>.from(json["tempoRangeLayers"].map((x) => x))
+            : null,
         defaultSectionLength: json["defaultSectionLength"]?.toDouble(),
         step: json["step"],
+        layerStep: json["layerStep"],
         beatLength: json["beatLength"],
         autoContinueMarker: json["autoContinueMarker"] == null
             ? null
@@ -72,6 +80,8 @@ class InitSection {
             : SectionImage.fromJson(sectionImage!.toJson()),
         "beatsPerBar": beatsPerBar,
         "tempoRangeFull": List<dynamic>.from(tempoRangeFull.map((x) => x)),
+        "tempoRangeLayers": tempoRangeLayers,
+        "layerStep": layerStep,
         "defaultSectionLength": defaultSectionLength,
         "step": step,
         "beatLength": beatLength,
@@ -138,6 +148,7 @@ class Section extends InitSection {
   late int sectionIndex;
   late String movementKey;
   double? sectionVolume;
+  int? userLayerTempo;
 
   Section({
     required super.name,
@@ -146,6 +157,8 @@ class Section extends InitSection {
     required super.tempoRangeFull,
     required super.step,
     required super.defaultTempo,
+    super.tempoRangeLayers,
+    super.layerStep,
     super.defaultSectionLength,
     super.metronomeAvailable,
     super.beatsPerBar,
@@ -159,6 +172,7 @@ class Section extends InitSection {
     required this.tempoRange,
     required this.fileList,
     required this.sectionIndex,
+    this.userLayerTempo,
     this.clickDataUrl,
     this.scoreId = '',
     this.movementKey = '',
@@ -171,6 +185,10 @@ class Section extends InitSection {
         movementIndex: json["movementIndex"],
         key: json["_key"],
         tempoRangeFull: List<int>.from(json["tempoRangeFull"].map((x) => x)),
+        tempoRangeLayers: json["tempoRangeLayers"] != null
+            ? List<int>.from(json["tempoRangeLayers"].map((x) => x))
+            : null,
+        layerStep: json["layerStep"],
         step: json["step"],
         defaultTempo: json["defaultTempo"],
         tempoRange: [],
@@ -189,6 +207,7 @@ class Section extends InitSection {
                 milliseconds:
                     convertToDuration(json["autoContinueMarker"].toDouble())),
         userTempo: json["userTempo"],
+        userLayerTempo: json["userLayerTempo"],
         tempoMultiplier: json["tempoMultiplier"],
         sectionVolume: json["sectionVolume"]?.toDouble() ?? 0.8,
         layers:
@@ -202,6 +221,10 @@ class Section extends InitSection {
         "movementIndex": movementIndex,
         "_key": key,
         "tempoRangeFull": List<dynamic>.from(tempoRangeFull.map((x) => x)),
+        "tempoRangeLayers": tempoRangeLayers == null
+            ? null
+            : List<dynamic>.from(tempoRangeLayers!.map((x) => x)),
+        "layerStep": layerStep,
         "step": step,
         "defaultTempo": defaultTempo,
         "tempoRange": List<dynamic>.from(tempoRange.map((x) => x)),
@@ -216,6 +239,7 @@ class Section extends InitSection {
         "autoContinue": autoContinue,
         "autoContinueMarker": autoContinueMarker,
         "userTempo": userTempo,
+        "userLayerTempo": userLayerTempo,
         "tempoMultiplier": tempoMultiplier,
         "sectionVolume": sectionVolume,
         "layers": layers,

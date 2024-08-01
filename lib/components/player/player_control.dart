@@ -38,14 +38,18 @@ class PlayerControl extends StatelessWidget {
       }
 
       return Shortcuts(
-        shortcuts: const <ShortcutActivator, Intent>{
-          SingleActivator(LogicalKeyboardKey.arrowLeft):
-              HandlePreviousSection(),
-          SingleActivator(LogicalKeyboardKey.arrowRight): HandleNextSection(),
-          SingleActivator(LogicalKeyboardKey.enter): StartOrContinue(),
-          SingleActivator(LogicalKeyboardKey.space): Stop(),
-          SingleActivator(LogicalKeyboardKey.pageDown): StartOrContinue(),
-          SingleActivator(LogicalKeyboardKey.pageUp): Stop(),
+        shortcuts: <ShortcutActivator, Intent>{
+          const SingleActivator(LogicalKeyboardKey.arrowLeft):
+              const HandlePreviousSection(),
+          const SingleActivator(LogicalKeyboardKey.arrowRight):
+              const HandleNextSection(),
+          const SingleActivator(LogicalKeyboardKey.enter):
+              const StartOrContinue(),
+          const SingleActivator(LogicalKeyboardKey.space): const Stop(),
+          const SingleActivator(LogicalKeyboardKey.pageDown):
+              const StartOrContinue(),
+          const SingleActivator(LogicalKeyboardKey.pageUp):
+              !p.onePedalMode ? const Stop() : const StartOrContinue(),
         },
         child: Actions(
           actions: {

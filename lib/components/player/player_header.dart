@@ -26,6 +26,7 @@ class PlayerHeader extends StatelessWidget {
             tooltip: 'Back to Score',
             onPressed: () async {
               if (p.isPlaying) {
+                await p.player.disposeAllSources();
                 p.stop();
               }
               s.setSections(p.currentMovementKey!, p.currentSection!.key);

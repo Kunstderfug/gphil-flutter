@@ -29,41 +29,59 @@ class SectionTempos extends StatelessWidget {
       s.setCurrentTempo(tempo);
     }
 
+    bool tempoExists(int tempo) {
+      if (!p.layersEnabled) return true;
+      if (section.tempoRangeLayers == null) return true;
+      return section.tempoRangeLayers?.contains(tempo) ?? false;
+    }
+
+    double setOpacity(int tempo) {
+      if (!p.layersEnabled) return 1.0;
+      if (p.layersEnabled &&
+          section.tempoRangeLayers != null &&
+          !section.tempoRangeLayers!.contains(tempo)) return 0.5;
+      return 1.0;
+    }
+
     return Column(
       children: [
         const Text('Section tempos:'),
-        const SizedBox(height: 16),
+        const SizedBox(height: separatorXs),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 0,
           runSpacing: separatorXs,
           children: [
             for (int tempo in section.tempoRange)
-              TextButton(
-                style: TextButton.styleFrom(
-                  elevation: 0,
-                  animationDuration: const Duration(milliseconds: 200),
-                  backgroundColor: isSelected(tempo)
-                      ? theme.themeData.highlightColor
-                      : theme.themeData.colorScheme.primary,
-                  foregroundColor: theme.themeData.colorScheme.inversePrimary,
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      width: 2,
-                      color: isDefaultTempo(tempo)
-                          ? theme.themeData.highlightColor
-                          : Colors.transparent,
+              Opacity(
+                opacity: setOpacity(tempo),
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    elevation: 0,
+                    animationDuration: const Duration(milliseconds: 200),
+                    backgroundColor: isSelected(tempo)
+                        ? theme.themeData.highlightColor
+                        : theme.themeData.colorScheme.primary,
+                    foregroundColor: theme.themeData.colorScheme.inversePrimary,
+                    shape: CircleBorder(
+                      side: BorderSide(
+                        width: 2,
+                        color: isDefaultTempo(tempo)
+                            ? theme.themeData.highlightColor
+                            : Colors.transparent,
+                      ),
                     ),
                   ),
-                ),
-                onPressed: () => setTempoAndPlay(tempo),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Text(
-                    tempo.toString(),
-                    style: TextStyle(
-                      fontSize: fontSizeSm,
-                      fontWeight: isSelected(tempo) ? FontWeight.bold : null,
+                  onPressed: () =>
+                      tempoExists(tempo) ? setTempoAndPlay(tempo) : null,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Text(
+                      tempo.toString(),
+                      style: TextStyle(
+                        fontSize: fontSizeSm,
+                        fontWeight: isSelected(tempo) ? FontWeight.bold : null,
+                      ),
                     ),
                   ),
                 ),
