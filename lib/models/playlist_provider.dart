@@ -280,7 +280,9 @@ class PlaylistProvider extends ChangeNotifier {
         '$supabaseUrl${sessionScore!.slug}/${section.movementIndex}/${section.name}/STEMS/';
     String fileName =
         '${sessionScore!.pathName}_${section.movementIndex}_${section.name}';
-    return '$pathName/${fileName}_${section.userTempo ?? section.defaultTempo}_$layer.$audioFormat';
+
+    //reading userLayerTempo if exists, otherwise useing the default tempo
+    return '$pathName/${fileName}_${section.userLayerTempo ?? section.defaultTempo}_$layer.$audioFormat';
   }
 
   List<SectionLayer> setLayerAudioUrls(Section section) {
@@ -353,7 +355,6 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void>? setSectionLayersPlayerPool(Section section, bool patch) async {
-    //set global layers for the whole playlist
     final handleLoadLayerFiles =
         <Future>[]; //set of tasks running at the same time
     late MainPlayer mainPlayer;
@@ -407,10 +408,12 @@ class PlaylistProvider extends ChangeNotifier {
           layerFile.path, layerAudioFileName, sectionLayer.layer);
     }
 
+    //SET MAIN PLAYER, NOT DOING ANYTHING RIGHT NOW
     final String audioFileName = getAudioFileNAme(getAudioUrl(section));
     final file = await persistentController.readAudioFile(
         sessionScore!.id, audioFileName, getAudioUrl(section));
     await setMainPlayer(file.path);
+    //
 
     for (final String layer in section.layers!) {
       sectionLayers.add(SectionLayer(
@@ -428,7 +431,7 @@ class PlaylistProvider extends ChangeNotifier {
       final layerPlayerPool = LayerPlayerPool(
           sectionIndex: section.sectionIndex,
           sectionKey: section.key,
-          tempo: section.userTempo ?? section.defaultTempo,
+          tempo: section.userLayerTempo ?? section.defaultTempo,
           layers: sectionLayers,
           mainPlayer: mainPlayer,
           players: layerPlayers);
@@ -454,7 +457,7 @@ class PlaylistProvider extends ChangeNotifier {
         currentSection?.userTempo ?? currentSection?.defaultTempo ?? 0;
   }
 
-  //create array of AudioPlayers for all songs in playlist
+  //create array of AudioPlayers for all sections in playlist
   void initSessionPlayers(String sectionKey) async {
     isLoading = true;
     resetPlayers();
@@ -538,6 +541,15 @@ class PlaylistProvider extends ChangeNotifier {
           continue;
         } else {
           await setSectionLayersPlayerPool(section, false);
+
+          //if tempo selected doesn't exist in tempoRange set it to userLayerTempo or default
+          if (section.tempoRangeLayers != null &&
+              !section.tempoRangeLayers!.contains(section.userTempo)) {
+            final int index = section.tempoRange
+                .indexOf(section.userLayerTempo ?? section.defaultTempo);
+            await patchPoolIfNotInLayersTempoRange(index, section);
+          }
+
           await setGlobalLayers();
         }
       }
@@ -545,6 +557,8 @@ class PlaylistProvider extends ChangeNotifier {
     toggleDefaultToLayerPlayerVolume(layersEnabled);
 
     layerFilesLoading = false;
+    currentTempo =
+        currentSection?.userLayerTempo ?? currentSection?.defaultTempo;
     notifyListeners();
   }
 
@@ -616,6 +630,25 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> patchPoolIfNotInLayersTempoRange(
+      int index, Section section) async {
+    final poolToPatch =
+        playerPool.firstWhere((pool) => pool.sectionKey == section.key);
+
+    if (index == -1) {
+      final audioUrl = section.fileList[index];
+      final audioFileName = audioUrl.split('/').last;
+      log('patchPoolIfNotInLayersTempoRange, audioFileName: $audioFileName');
+      final file = await persistentController.readAudioFile(
+          currentSection!.scoreId, audioFileName, audioUrl);
+      if (file.bytes.isNotEmpty) {
+        poolToPatch.audioSource = await player.loadFile(file.path);
+      } else {
+        poolToPatch.audioSource = await player.loadUrl(audioUrl);
+      }
+    }
+  }
+
   PlayerPool? currentPlayerPool() {
     // log(playerPool.length.toString());
     return playerPool
@@ -665,15 +698,6 @@ class PlaylistProvider extends ChangeNotifier {
     if (isStarted && currentPlaylistDurationBeats.isNotEmpty) {
       setCurrentBeat();
     }
-
-// previous implementation of autocontinue, laggy and not so reliable
-    // if (autoContinueMarker != null &&
-    //     !jumped &&
-    //     currentPosition.inMilliseconds >
-    //         autoContinueMarker! - autoContinueExecutionOffset) {
-    //   log('current position: ${currentPosition.inMilliseconds.toString()}, autoContinueMarker: ${autoContinueMarker.toString()}');
-    //   handleAutoContinue(currentPosition);
-    // }
   }
 
   //isolate test
@@ -762,7 +786,6 @@ class PlaylistProvider extends ChangeNotifier {
     }
     Future.delayed(Duration(milliseconds: autoContinueOffset),
         () => isPlaying ? swapImages() : null);
-    // positionSub = position.listen((position) {});
   }
 
   void handlePlayNextSection() {
@@ -1124,6 +1147,7 @@ class PlaylistProvider extends ChangeNotifier {
           currentLayerPlayerPool?.tempo != tempo) {
         await setSectionLayersPlayerPool(currentSection!, true);
         currentLayerPlayerPool?.tempo = tempo;
+        currentSection?.userLayerTempo = tempo;
       }
     }
     log('tempoDiff: ${tempoDiff.toString()}');
@@ -1236,6 +1260,10 @@ class PlaylistProvider extends ChangeNotifier {
 
   void setCurrentPlaylistTempo() {
     currentTempo = currentSection?.userTempo ?? currentSection?.defaultTempo;
+    if (layersEnabled) {
+      currentTempo =
+          currentLayerPlayerPool?.tempo ?? currentSection?.defaultTempo;
+    }
     getDuration();
     setGuardAndMarker();
   }
@@ -1272,6 +1300,7 @@ class PlaylistProvider extends ChangeNotifier {
       sectionKey: section.key,
       defaultTempo: section.defaultTempo,
       userTempo: section.userTempo,
+      userLayerTempo: section.userLayerTempo,
       autoContinue: section.autoContinue,
       layers: layerPlayersPool.globalLayers.isNotEmpty
           ? layerPlayersPool.globalLayers

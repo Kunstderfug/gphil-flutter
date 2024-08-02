@@ -247,8 +247,15 @@ class ScoreProvider extends ChangeNotifier {
 
   void setCurrentTempo(int tempo) async {
     currentSection.userTempo = tempo;
+
     currentTempo = tempo;
     userTempo = tempo;
+
+    final int? layerTempoIndex =
+        currentSection.tempoRangeLayers?.indexOf(tempo);
+    layerTempoIndex != -1 && layerTempoIndex != null
+        ? currentSection.userLayerTempo = tempo
+        : null;
 
     final String audioFileName = audioUrl.split('/').last;
 
@@ -260,7 +267,8 @@ class ScoreProvider extends ChangeNotifier {
       sectionKey: currentSection.key,
       defaultTempo: currentSection.defaultTempo,
       userTempo: tempo,
-      userLayerTempo: tempo,
+      userLayerTempo:
+          layerTempoIndex != -1 ? tempo : currentSection.defaultTempo,
       autoContinue: currentSection.autoContinue,
     );
 

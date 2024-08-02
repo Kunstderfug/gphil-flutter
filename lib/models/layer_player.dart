@@ -88,8 +88,16 @@ class Layer {
         return 'Flute';
       case 'w':
         return 'Woodwinds';
+      case 'ob':
+        return 'Oboes';
+      case 'cl':
+        return 'Clarinets';
+      case 'bsn':
+        return 'Bassoons';
       case 'b':
         return 'Brass';
+      case 'hn':
+        return 'Horns';
       case 'p':
         return 'Percussion';
       case 's':

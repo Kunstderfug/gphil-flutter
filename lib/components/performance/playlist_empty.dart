@@ -18,36 +18,30 @@ class PlaylistIsEmpty extends StatelessWidget {
           children: [
             Text(
               'Playlist is empty',
-              style: TextStyles().textLg,
+              style: TextStyles().textXl,
             ),
             const SizedBox(height: 16),
-            TextButton(
-              style: TextButton.styleFrom(
-                elevation: 0,
-                backgroundColor: AppColors().backroundColor(context),
-                animationDuration: const Duration(milliseconds: 200),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(32)),
-                ),
+            const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('1. Select a score from the library'),
+                  SizedBox(height: 16),
+                  Text('2. Add movement/movements to the playlist'),
+                  SizedBox(height: 16),
+                  Text('3. Press Start Session'),
+                  SizedBox(height: 16),
+                ]),
+            const SizedBox(width: 300, child: SeparatorLine()),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              icon: const Icon(Icons.arrow_back),
+              label: const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text('back to Library'),
               ),
-              child: SizedBox(
-                width: 140,
-                height: 48,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.arrow_back,
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                    ),
-                    const Spacer(),
-                    Text('back to Library',
-                        style: TextStyle(
-                            color:
-                                Theme.of(context).colorScheme.inversePrimary)),
-                  ],
-                ),
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(highlightColor),
+                foregroundColor: WidgetStatePropertyAll(Colors.white70),
               ),
               onPressed: () => n.setNavigationIndex(0),
             )
