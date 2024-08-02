@@ -1,3 +1,3 @@
 # gphil
 
-A new Flutter project.
+Your Personal Orchestra Assistant

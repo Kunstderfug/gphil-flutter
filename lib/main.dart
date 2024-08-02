@@ -3,7 +3,7 @@
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';
-import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';

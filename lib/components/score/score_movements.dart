@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/score/score_movement.dart';
-import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/providers/score_provider.dart';

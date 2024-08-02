@@ -5,7 +5,7 @@ import 'package:gphil/components/performance/layer_toggle.dart';
 import 'package:gphil/components/performance/main_volume.dart';
 // import 'package:gphil/components/performance/mixer_info.dart';
 import 'package:gphil/models/layer_player.dart';
-import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 
 class GlobalMixer extends StatelessWidget {

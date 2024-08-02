@@ -12,7 +12,7 @@ import 'package:gphil/components/performance/switch.dart';
 import 'package:gphil/components/player/player_header.dart';
 import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/section_tempos.dart';
-import 'package:gphil/models/playlist_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
