@@ -454,7 +454,7 @@ class PlaylistProvider extends ChangeNotifier {
   void setDefaultTempos() {
     lastUsedTempo = currentSection?.defaultTempo ?? 0;
     currentTempo =
-        currentSection?.userTempo ?? currentSection?.defaultTempo ?? 0;
+        currentSection?.userLayerTempo ?? currentSection?.defaultTempo ?? 0;
   }
 
   //create array of AudioPlayers for all sections in playlist
