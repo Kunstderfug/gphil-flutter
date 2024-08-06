@@ -234,6 +234,19 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setSectionMuted(String key) {
+    final Section section =
+        playlist.firstWhere((element) => element.key == key);
+    section.muted = !section.muted;
+    log('muted: ${section.muted}');
+    notifyListeners();
+
+    final SectionPrefs sectionPrefs = constructSectionPrefs(currentSection!);
+
+    persistentController.updateSectionPrefs(
+        currentSection!.scoreId, currentSection!.key, sectionPrefs);
+  }
+
   void setOnePedalMode(bool value) async {
     onePedalMode = value;
     final prefs = await SharedPreferences.getInstance();
@@ -660,10 +673,16 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> playCurrentSection() async {
-    activeHandle = await player.play(currentAudioSource()!);
-    player.setVolume(activeHandle!, playerVolume);
-    log('player volume: ${player.getVolume(activeHandle!)}');
-    notifyListeners();
+    //if the next section is muted, skip it
+    if (currentSection?.muted == true) {
+      playNextSection();
+      log('skipping muted section');
+    } else {
+      activeHandle = await player.play(currentAudioSource()!);
+      player.setVolume(activeHandle!, playerVolume);
+      log('player volume: ${player.getVolume(activeHandle!)}');
+      notifyListeners();
+    }
   }
 
   void getCurrentPosition() {
@@ -970,6 +989,7 @@ class PlaylistProvider extends ChangeNotifier {
   void playNextSection() async {
     if (_currentSectionIndex < playlist.length - 1) {
       _currentSectionIndex++;
+
       setCurrentSectionAndMovementKey();
       jumped = false;
       play();
@@ -1302,6 +1322,7 @@ class PlaylistProvider extends ChangeNotifier {
       userTempo: section.userTempo,
       userLayerTempo: section.userLayerTempo,
       autoContinue: section.autoContinue,
+      muted: section.muted,
       layers: layerPlayersPool.globalLayers.isNotEmpty
           ? layerPlayersPool.globalLayers
           : null,

@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  final bool isDark = prefs.getBool('isDarkMode') ?? false;
+  final bool isDark = prefs.getBool('isDarkMode') ?? true;
   // await RustLib.init();
 
   runApp(

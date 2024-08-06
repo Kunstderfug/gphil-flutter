@@ -16,6 +16,7 @@ class DesktopLayout extends StatelessWidget {
     final n = Provider.of<NavigationProvider>(context);
     final l = Provider.of<LibraryProvider>(context);
     final t = Provider.of<ThemeProvider>(context);
+    final s = Provider.of<ScoreProvider>(context);
 
     bool isPerformanceScreen = n.currentIndex == 1;
     bool isScoreScreen = n.currentIndex == 2;
@@ -57,10 +58,12 @@ class DesktopLayout extends StatelessWidget {
                             )),
                       ],
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ScoreLinks(),
+                        ScoreLinks(
+                            pianoScoreUrl: s.currentScore?.pianoScoreUrl,
+                            fullScoreUrl: s.currentScore?.fullScoreUrl),
                       ],
                     ),
                   ],

@@ -34,7 +34,7 @@ class ScoreSections extends StatelessWidget {
               section: section,
               onTap: () => syncSections(section.key),
               isSelected: s.sectionKey == section.key,
-            )
+            ),
         ],
       );
     });

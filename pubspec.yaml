@@ -1,7 +1,7 @@
 name: gphil
 description: 'Your Personal Orchestra'
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.1
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
@@ -24,6 +24,9 @@ dependencies:
     path: rust_builder
   syncfusion_flutter_sliders: ^26.2.7
   syncfusion_flutter_core: ^26.2.7
+  syncfusion_flutter_pdfviewer: ^26.2.7
+  url_launcher: ^6.3.0
+  desktop_multi_window: ^0.2.0
 
 dev_dependencies:
   flutter_lints: ^4.0.0

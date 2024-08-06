@@ -10,18 +10,30 @@ class SectionAutoContinueSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: separatorLg,
-        child: AutoSwitch(
-          p: p,
-          onToggle: (value) => p.currentSection?.autoContinue != null
-              ? p.setCurrentSectionAutoContinue()
-              : null,
-          label: 'Section auto-continue',
-          value: p.currentSection?.autoContinueMarker != null &&
-                  p.currentSection?.autoContinue != null
-              ? p.currentSection!.autoContinue!
-              : false,
-          opacity: p.currentSection!.autoContinueMarker != null ? 1 : 0.4,
+        height: separatorLg * 2,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            AutoSwitch(
+              p: p,
+              onToggle: (value) => p.setSectionMuted(p.currentSectionKey!),
+              label: 'Section muted',
+              value: p.currentSection?.muted ?? false,
+              opacity: 1,
+            ),
+            AutoSwitch(
+              p: p,
+              onToggle: (value) => p.currentSection?.autoContinue != null
+                  ? p.setCurrentSectionAutoContinue()
+                  : null,
+              label: 'Section auto-continue',
+              value: p.currentSection?.autoContinueMarker != null &&
+                      p.currentSection?.autoContinue != null
+                  ? p.currentSection!.autoContinue!
+                  : false,
+              opacity: p.currentSection!.autoContinueMarker != null ? 1 : 0.4,
+            ),
+          ],
         ));
   }
 }

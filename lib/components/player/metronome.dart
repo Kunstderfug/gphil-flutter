@@ -56,12 +56,10 @@ class _MetronomeState extends State<Metronome>
       width: 200,
       height: 200,
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+          color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
           shape: BoxShape.circle,
           border: Border.all(
-              color: p.isFirstBeat && p.isStarted
-                  ? greenColor
-                  : Colors.transparent,
+              color: p.isFirstBeat && p.isStarted ? greenColor : Colors.white24,
               width: 1)),
       child: Center(
         child: Stack(

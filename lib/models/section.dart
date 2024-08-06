@@ -149,6 +149,7 @@ class Section extends InitSection {
   late String movementKey;
   double? sectionVolume;
   int? userLayerTempo;
+  bool muted;
 
   Section({
     required super.name,
@@ -177,6 +178,7 @@ class Section extends InitSection {
     this.scoreId = '',
     this.movementKey = '',
     this.sectionVolume = 0.8,
+    this.muted = false,
   });
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
@@ -212,6 +214,7 @@ class Section extends InitSection {
         sectionVolume: json["sectionVolume"]?.toDouble() ?? 0.8,
         layers:
             json["layers"] == null ? null : List<String>.from(json["layers"]),
+        muted: json['muted'] ?? false,
       );
 
   @override
@@ -243,5 +246,6 @@ class Section extends InitSection {
         "tempoMultiplier": tempoMultiplier,
         "sectionVolume": sectionVolume,
         "layers": layers,
+        'muted': muted
       };
 }

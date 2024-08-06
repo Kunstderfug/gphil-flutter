@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/theme/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ScoreLinks extends StatelessWidget {
   final String? fullScoreUrl;
@@ -11,14 +12,22 @@ class ScoreLinks extends StatelessWidget {
     this.pianoScoreUrl,
   });
 
+  Future<void> openUrl(String url) async {
+    if (await launchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        fullScoreUrl == null
+        fullScoreUrl != null
             ? TextButton(
-                onPressed: () {},
+                onPressed: () => openUrl(fullScoreUrl ?? ''),
                 child: Text('Full Score',
                     style: TextStyle(
                       fontSize: fontSizeSm,
@@ -29,9 +38,9 @@ class ScoreLinks extends StatelessWidget {
         const SizedBox(width: 16),
         const Text('|'),
         const SizedBox(width: 16),
-        fullScoreUrl == null
+        pianoScoreUrl != null
             ? TextButton(
-                onPressed: () {},
+                onPressed: () => openUrl(pianoScoreUrl ?? ''),
                 child: Text('Piano Score',
                     style: TextStyle(
                       fontSize: fontSizeSm,

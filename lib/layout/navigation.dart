@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/navigation_provider.dart';
-import 'package:gphil/theme/constants.dart';
-import 'package:gphil/theme/dark_mode.dart';
+// import 'package:gphil/theme/constants.dart';
+// import 'package:gphil/theme/dark_mode.dart';
 import 'package:gphil/layout/navigation_item.dart';
 import 'package:provider/provider.dart';
 
@@ -36,11 +36,11 @@ class Navigation extends StatelessWidget {
           )),
 
       //DARK MODE
-      const Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: paddingMd, vertical: paddingXs),
-        child: DarkModeSlider(),
-      ),
+      // const Padding(
+      //   padding:
+      //       EdgeInsets.symmetric(horizontal: paddingMd, vertical: paddingXs),
+      //   child: DarkModeSlider(),
+      // ),
     ]);
   }
 }

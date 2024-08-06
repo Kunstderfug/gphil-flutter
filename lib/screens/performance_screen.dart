@@ -4,6 +4,7 @@ import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/movements_area.dart';
 import 'package:gphil/components/performance/one_pedal_mode_switch.dart';
+// import 'package:gphil/components/performance/pdf_viewer.dart';
 import 'package:gphil/components/performance/player_area.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/performance/section_auto_continue_switch.dart';
@@ -35,63 +36,68 @@ class PerformanceScreen extends StatelessWidget {
 
     Widget laptopBody = ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxLaptopWidth),
-        child: Column(
+        child: Stack(
           children: [
-            PlayerHeader(sectionName: p.currentSection?.name ?? ''),
-            const SizedBox(
-              height: separatorLg,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
               children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      const MovementsArea(),
-                      const SeparatorLine(height: 48),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                PlayerHeader(sectionName: p.currentSection?.name ?? ''),
+                const SizedBox(
+                  height: separatorLg,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
                         children: [
-                          OnePedalMode(p: p),
-                          SectionAutoContinueSwitch(p: p),
+                          const MovementsArea(),
+                          const SeparatorLine(height: 48),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              OnePedalMode(p: p),
+                              SectionAutoContinueSwitch(p: p),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: separatorMd,
+                          ),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(minHeight: 130),
+                            child: const SectionsArea(),
+                          ),
+                          const SizedBox(
+                            height: separatorSm,
+                          ),
+                          if (p.currentSection != null)
+                            SectionTempos(section: p.currentSection!),
+                          const SizedBox(
+                            height: separatorSm,
+                          ),
+                          if (p.currentSection?.sectionImage != null) image
                         ],
                       ),
-                      const SizedBox(
-                        height: separatorMd,
-                      ),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 130),
-                        child: const SectionsArea(),
-                      ),
-                      const SizedBox(
-                        height: separatorSm,
-                      ),
-                      if (p.currentSection != null)
-                        SectionTempos(section: p.currentSection!),
-                      const SizedBox(
-                        height: separatorSm,
-                      ),
-                      if (p.currentSection?.sectionImage != null) image
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  width: separatorXl,
-                ),
-                Expanded(
-                    child: Column(
-                  children: [
-                    const PlayerArea(),
-                    const SizedBox(
-                      height: separatorMd,
                     ),
-                    GlobalMixer(p: p),
+                    const SizedBox(
+                      width: separatorXl,
+                    ),
+                    Expanded(
+                        child: Column(
+                      children: [
+                        const PlayerArea(),
+                        const SizedBox(
+                          height: separatorMd,
+                        ),
+                        GlobalMixer(p: p),
+                      ],
+                    )),
                   ],
-                )),
+                ),
               ],
             ),
+            // const PdfViewer(),
           ],
         ));
 

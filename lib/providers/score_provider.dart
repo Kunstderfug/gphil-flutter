@@ -181,6 +181,7 @@ class ScoreProvider extends ChangeNotifier {
     section.userLayerTempo = sectionPrefs.userLayerTempo;
     section.autoContinue = sectionPrefs.autoContinue;
     section.sectionVolume = sectionPrefs.sectionVolume;
+    section.muted = sectionPrefs.muted ?? false;
     log('updateSectionFromLocalPrefs, ${section.autoContinue}');
   }
 
@@ -341,6 +342,8 @@ class ScoreProvider extends ChangeNotifier {
         id: score.id,
         composer: score.composer,
         setupMovements: [],
+        fullScoreUrl: score.fullScoreUrl,
+        pianoScoreUrl: score.pianoScoreUrl,
         globalLayers: score.globalLayers);
 
     for (InitMovement movement in score.movements) {
@@ -379,6 +382,7 @@ class ScoreProvider extends ChangeNotifier {
             beatLength: section.beatLength,
             tempoMultiplier: section.tempoMultiplier,
             layers: section.layers,
+            muted: false,
             clickDataUrl: getClickDataUrl(
                 score.slug,
                 score.pathName,

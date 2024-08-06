@@ -125,6 +125,8 @@ class Score extends InitScore {
       required super.shortTitle,
       required super.composer,
       required this.setupMovements,
+      required super.fullScoreUrl,
+      required super.pianoScoreUrl,
       required super.globalLayers});
 
   factory Score.fromJson(Map<String, dynamic> json) => Score(
@@ -138,6 +140,8 @@ class Score extends InitScore {
         shortTitle: json["shortTitle"],
         composer: json["composer"],
         globalLayers: json["layers"] ?? [],
+        fullScoreUrl: json["full_score_url"] ?? '',
+        pianoScoreUrl: json["piano_score_url"] ?? '',
         setupMovements: List<Movement>.from(
             json["setupMovements"].map((x) => Movement.fromJson(x))),
       );
