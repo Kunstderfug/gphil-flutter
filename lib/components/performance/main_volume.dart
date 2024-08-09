@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/playlist_provider.dart';
-import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -21,8 +20,8 @@ class MainVolume extends StatelessWidget {
               stepSize: 0.05,
               showTicks: true,
               minorTicksPerInterval: 1,
-              activeColor: greenColor,
-              inactiveColor: greenColor.withOpacity(0.3),
+              activeColor: p.setColor(),
+              inactiveColor: p.setInactiveColor(),
               enableTooltip: true,
               value: p.globalVolume,
               onChanged: (value) => p.setGlobalVolume(value)),

@@ -52,6 +52,13 @@ class _MetronomeState extends State<Metronome>
       }
     }
 
+    Color setColor() {
+      return p.currentSection?.autoContinueMarker != null &&
+              p.currentSection?.autoContinue != false
+          ? greenColor
+          : redColor;
+    }
+
     return Container(
       width: 200,
       height: 200,
@@ -59,8 +66,8 @@ class _MetronomeState extends State<Metronome>
           color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
           shape: BoxShape.circle,
           border: Border.all(
-              color: p.isFirstBeat && p.isStarted ? greenColor : Colors.white24,
-              width: 1)),
+              color: p.isFirstBeat && p.isStarted ? setColor() : Colors.white24,
+              width: 2)),
       child: Center(
         child: Stack(
           fit: StackFit.expand,
@@ -113,7 +120,7 @@ class _MetronomeState extends State<Metronome>
                   width: 20,
                   height: 20,
                   decoration: BoxDecoration(
-                    color: p.isStarted ? greenColor : Colors.transparent,
+                    color: p.isStarted ? setColor() : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
                 ),

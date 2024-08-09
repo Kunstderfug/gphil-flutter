@@ -11,6 +11,7 @@ import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final persistentController = PersistentDataController();
@@ -1305,6 +1306,20 @@ class PlaylistProvider extends ChangeNotifier {
     persistentController.updateSectionPrefs(
         currentSection!.scoreId, currentSection!.key, sectionPrefs);
     return currentSection!.autoContinue;
+  }
+
+  Color setColor() {
+    return currentSection?.autoContinueMarker != null &&
+            currentSection?.autoContinue != false
+        ? greenColor
+        : redColor;
+  }
+
+  Color setInactiveColor() {
+    return currentSection?.autoContinueMarker != null &&
+            currentSection?.autoContinue != false
+        ? greenColor.withOpacity(0.3)
+        : redColor.withOpacity(0.3);
   }
 
   void updateLayersPrefs() async {

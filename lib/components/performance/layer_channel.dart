@@ -25,8 +25,8 @@ class LayerChannelLevel extends StatelessWidget {
             child: SfSliderTheme(
               data: SfSliderThemeData(
                 thumbColor: highlightColor,
-                activeTrackColor: greenColor,
-                inactiveTrackColor: greenColor.withOpacity(0.3),
+                activeTrackColor: p.setColor(),
+                inactiveTrackColor: p.setInactiveColor(),
                 activeTrackHeight: 4,
                 inactiveTrackHeight: 4,
                 thumbRadius: 6,
@@ -42,8 +42,8 @@ class LayerChannelLevel extends StatelessWidget {
                   stepSize: 0.05,
                   showTicks: true,
                   minorTicksPerInterval: 1,
-                  activeColor: greenColor,
-                  inactiveColor: greenColor.withOpacity(0.3),
+                  activeColor: p.setColor(),
+                  inactiveColor: p.setInactiveColor(),
                   enableTooltip: p.layersEnabled,
                   value: layer.volume,
                   onChangeEnd: (value) => p.updateLayersPrefs(),
