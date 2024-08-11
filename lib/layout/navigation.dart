@@ -46,7 +46,7 @@ class AppUpdateProgress extends StatelessWidget {
             AppUpdateCol1(a: a),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: AppVersion(buildNumber: a.currentVersion),
+              child: AppCurrentVersion(buildNumber: a.currentVersion),
             ),
           ]);
     });
@@ -63,64 +63,68 @@ class AppUpdateCol1 extends StatelessWidget {
         ? const Text('Checking for updates')
         : Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Text('Update is available', style: TextStyles().textMd),
-                Text('Version: ${a.onlineVersion}'),
-                const SizedBox(height: 16),
-                const Text('Release notes:',
-                    style: TextStyle(
-                      fontStyle: FontStyle.italic,
-                      decoration: TextDecoration.underline,
-                      decorationStyle: TextDecorationStyle.solid,
-                      decorationThickness: 2,
-                    )),
-                for (final String change in a.appVersionInfo?.changes ?? [])
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(change),
-                  ),
-                const SizedBox(height: 16),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: TextButton(
-                      onPressed: () {
-                        a.progress == null
-                            ? a.updateApp().then((filePath) {
-                                if (filePath != null) {
-                                  // ignore: use_build_context_synchronously
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'File downloaded to: $filePath')),
-                                  );
-                                }
-                              })
-                            : a.cancelUpdate();
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          greenColor,
+            child: a.updateAvailable
+                ? Column(
+                    children: [
+                      Text('Update is available', style: TextStyles().textMd),
+                      Text('Version: ${a.onlineVersion}'),
+                      const SizedBox(height: 16),
+                      const Text('Release notes:',
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            decoration: TextDecoration.underline,
+                            decorationStyle: TextDecorationStyle.solid,
+                            decorationThickness: 2,
+                          )),
+                      for (final String change
+                          in a.appVersionInfo?.changes ?? [])
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(change),
                         ),
-                        foregroundColor: const WidgetStatePropertyAll(
-                          Colors.white,
-                        ),
+                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: TextButton(
+                            onPressed: () {
+                              a.progress == null
+                                  ? a.updateApp().then((filePath) {
+                                      if (filePath != null) {
+                                        // ignore: use_build_context_synchronously
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                              content: Text(
+                                                  'File downloaded to: $filePath')),
+                                        );
+                                      }
+                                    })
+                                  : a.cancelUpdate();
+                            },
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                greenColor,
+                              ),
+                              foregroundColor: const WidgetStatePropertyAll(
+                                Colors.white,
+                              ),
+                            ),
+                            child: a.progress == null
+                                ? const Text('Download update')
+                                : const Text('Cancel update')),
                       ),
-                      child: a.progress == null
-                          ? const Text('Download update')
-                          : const Text('Cancel update')),
-                ),
-                const SizedBox(height: 16),
-                if (a.progress != null)
-                  Text('Downloaded ${a.progress?.toStringAsFixed(0)} MB',
-                      style: TextStyles().textMd),
-                if (a.updateDownloaded)
-                  Text('File downloaded!', style: TextStyles().textMd),
-                if (a.updateAbortedByUser)
-                  Text('Update aborted', style: TextStyles().textMd),
-                const SizedBox(height: 16),
-              ],
-            ),
+                      const SizedBox(height: 16),
+                      if (a.progress != null)
+                        Text('Downloaded ${a.progress?.toStringAsFixed(0)} MB',
+                            style: TextStyles().textMd),
+                      if (a.updateDownloaded)
+                        Text('File downloaded!', style: TextStyles().textMd),
+                      if (a.updateAbortedByUser)
+                        Text('Update aborted', style: TextStyles().textMd),
+                      const SizedBox(height: 16),
+                    ],
+                  )
+                : const SizedBox.shrink(),
           );
   }
 }
@@ -165,8 +169,8 @@ class Nav extends StatelessWidget {
   }
 }
 
-class AppVersion extends StatelessWidget {
-  const AppVersion({super.key, required this.buildNumber});
+class AppCurrentVersion extends StatelessWidget {
+  const AppCurrentVersion({super.key, required this.buildNumber});
   final String buildNumber;
 
   @override

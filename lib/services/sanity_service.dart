@@ -22,7 +22,7 @@ class AppVersionInfo {
     return AppVersionInfo(
       date: json['date'],
       build: json['build'],
-      changes: List<String>.from(json['changes']),
+      changes: List<String>.from(json['changes'] ?? []),
     );
   }
 }
