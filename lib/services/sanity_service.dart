@@ -7,6 +7,26 @@ import 'package:http/http.dart';
 
 final persistentController = PersistentDataController();
 
+class AppVersionInfo {
+  final String date;
+  final String build;
+  final List<String> changes;
+
+  AppVersionInfo({
+    required this.date,
+    required this.build,
+    required this.changes,
+  });
+
+  factory AppVersionInfo.fromJson(Map<String, dynamic> json) {
+    return AppVersionInfo(
+      date: json['date'],
+      build: json['build'],
+      changes: List<String>.from(json['changes']),
+    );
+  }
+}
+
 class SanityService {
   static const String sanityProjectId = 'b8uar5wl';
   static const String projectUrl =
@@ -34,6 +54,21 @@ class SanityService {
 
   static String scoreRevisionQuery(String id) {
     return "*[_type == 'score' && _id == '$id']._rev";
+  }
+
+  //get app version
+  Future<AppVersionInfo?> getOnlineVersion() async {
+    const String query =
+        '$projectUrl*[_type == "app_version"] | order(build desc)[0]';
+    try {
+      final response = await Client().get(Uri.parse(query));
+      if (response.statusCode == 200) {
+        return AppVersionInfo.fromJson(json.decode(response.body)['result']);
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+    return null;
   }
 
   String getImageUrl(String imageRef) {

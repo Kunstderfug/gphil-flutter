@@ -1,8 +1,7 @@
 name: gphil
 description: 'Your Personal Orchestra'
 publish_to: 'none'
-version: 0.1.1
-
+version: 0.1.2
 environment:
   sdk: '>=3.3.0 <4.0.0'
 
@@ -26,6 +25,10 @@ dependencies:
   syncfusion_flutter_core: ^26.2.7
   syncfusion_flutter_pdfviewer: ^26.2.7
   url_launcher: ^6.3.0
+  package_info_plus: ^8.0.2
+  dio: ^5.5.0+1
+  file_picker: ^8.0.0+1
+  # background_downloader: ^8.5.3
   # desktop_multi_window: ^0.2.0
 
 dev_dependencies:
