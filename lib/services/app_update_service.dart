@@ -83,13 +83,14 @@ class AppUpdateService extends ChangeNotifier {
       notifyListeners();
 
       // Define the file name
-      String fileName = 'Gphil.dmg';
+      String fileName = platform == 'macos' ? 'Gphil.dmg' : 'gphil_windows.zip';
       String filePath = '$selectedDirectory/$fileName';
+      log(platform);
 
       await dio.download(
-        platform == 'windows'
-            ? 'https://g-phil.app/app/gphil_windows.zip'
-            : 'https://g-phil.app/app/gphil.dmg',
+        platform == 'macos'
+            ? 'https://g-phil.app/app/gphil.dmgp'
+            : 'https://g-phil.app/app/gphil_windows.zip',
         filePath,
         cancelToken: cancelToken,
         onReceiveProgress: (receivedBytes, totalBytes) {
