@@ -69,20 +69,27 @@ class AppUpdateCol1 extends StatelessWidget {
                       Text('Update is available', style: TextStyles().textMd),
                       Text('Version: ${a.onlineVersion}'),
                       const SizedBox(height: 16),
-                      const Text('Release notes:',
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            decoration: TextDecoration.underline,
-                            decorationStyle: TextDecorationStyle.solid,
-                            decorationThickness: 2,
-                          )),
-                      for (final String change
-                          in a.appVersionInfo?.changes ?? [])
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(change),
-                        ),
-                      const SizedBox(height: 16),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Release notes:',
+                                  style: TextStyle(
+                                    fontStyle: FontStyle.italic,
+                                    decoration: TextDecoration.underline,
+                                    decorationStyle: TextDecorationStyle.solid,
+                                    decorationThickness: 2,
+                                  )),
+                              for (final String change
+                                  in a.appVersionInfo?.changes ?? [])
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(change),
+                                ),
+                              const SizedBox(height: 16),
+                            ]),
+                      ),
                       Align(
                         alignment: Alignment.bottomRight,
                         child: TextButton(
