@@ -107,7 +107,7 @@ class DesktopLayout extends StatelessWidget {
                   ? const Icon(Icons.refresh,
                       size: 32,
                       color: Colors.white,
-                      semanticLabel: 'Refresh page')
+                      semanticLabel: 'Refresh library')
                   : const SizedBox(
                       width: 24,
                       height: 24,

@@ -21,6 +21,7 @@ class InitScore {
   bool? ready;
   String shortTitle;
   String composer;
+  int? completed;
 
   InitScore({
     required this.pathName,
@@ -43,6 +44,7 @@ class InitScore {
     this.ready,
     required this.shortTitle,
     required this.composer,
+    this.completed,
   });
 
   factory InitScore.fromJson(Map<String, dynamic> json) => InitScore(
@@ -69,6 +71,7 @@ class InitScore {
         ready: json["ready"] ?? false,
         shortTitle: json["shortTitle"],
         composer: json["composer"],
+        completed: json["complete"] ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -94,6 +97,7 @@ class InitScore {
         "ready": ready,
         "shortTitle": shortTitle,
         "composer": composer,
+        "complete": completed,
       };
 }
 
@@ -127,6 +131,7 @@ class Score extends InitScore {
       required this.setupMovements,
       required super.fullScoreUrl,
       required super.pianoScoreUrl,
+      super.audioFormat,
       required super.globalLayers});
 
   factory Score.fromJson(Map<String, dynamic> json) => Score(
@@ -139,6 +144,7 @@ class Score extends InitScore {
         id: json["_id"],
         shortTitle: json["shortTitle"],
         composer: json["composer"],
+        audioFormat: json["audio_format"] ?? [],
         globalLayers: json["layers"] ?? [],
         fullScoreUrl: json["full_score_url"] ?? '',
         pianoScoreUrl: json["piano_score_url"] ?? '',

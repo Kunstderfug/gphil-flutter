@@ -15,7 +15,7 @@ class ScoreMovements extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
-    final n = Provider.of<NavigationProvider>(context);
+    final n = Provider.of<NavigationProvider>(context, listen: false);
 
     void startSession() {
       p.buildPlaylist(s.currentScore!);

@@ -14,7 +14,7 @@ enum AudioFormats { mp3, flac, opus }
 
 final String supabaseUrl = SupabaseService().supabaseUrl;
 const String audioFormat = AudioFormat.mp3;
-final persistentController = PersistentDataController();
+final p = PersistentDataController();
 
 class ScoreProvider extends ChangeNotifier {
   late String _currentScoreId;
@@ -166,8 +166,7 @@ class ScoreProvider extends ChangeNotifier {
 
   Future<SectionPrefs?> getSectionPrefs(
       String scoreId, String sectionKey) async {
-    final sectionUserPref =
-        await persistentController.readSectionJsonFile(scoreId, sectionKey);
+    final sectionUserPref = await p.readSectionJsonFile(scoreId, sectionKey);
 
     final currentPrefs =
         sectionUserPref != null ? SectionPrefs.fromJson(sectionUserPref) : null;
@@ -200,7 +199,7 @@ class ScoreProvider extends ChangeNotifier {
 
     //read from persistent storage
 
-    final clickData = await persistentController.readClickJsonFile(
+    final clickData = await p.readClickJsonFile(
         currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
     sectionClickData = clickData;
 
@@ -223,7 +222,7 @@ class ScoreProvider extends ChangeNotifier {
           autoContinue: currentSection.autoContinue);
 
       try {
-        await persistentController.writeSectionJsonFile(
+        await p.writeSectionJsonFile(
             currentScore!.id, currentSection.key, sectionPrefs);
       } catch (e) {
         error = e.toString();
@@ -239,8 +238,8 @@ class ScoreProvider extends ChangeNotifier {
   Future<File?> setImageFle() async {
     sectionImageFile = null;
     sectionImageUrl = null;
-    final imageFile = await persistentController.readImageFile(
-        scoreId, currentSection.sectionImage!.asset.ref);
+    final imageFile =
+        await p.readImageFile(scoreId, currentSection.sectionImage!.asset.ref);
     sectionImageUrl = imageFile?.path;
     sectionImageFile = imageFile;
     return imageFile;
@@ -274,10 +273,9 @@ class ScoreProvider extends ChangeNotifier {
     );
 
     try {
-      await persistentController.writeSectionJsonFile(
+      await p.writeSectionJsonFile(
           currentScore!.id, currentSection.key, sectionPrefs);
-      await persistentController.readAudioFile(
-          scoreId, audioFileName, audioUrl);
+      await p.readAudioFile(scoreId, audioFileName, audioUrl);
     } catch (e) {
       error = e.toString();
     }
@@ -291,7 +289,7 @@ class ScoreProvider extends ChangeNotifier {
     try {
       error = '';
       isLoading = true;
-      InitScore? score = await persistentController.readScoreData(scoreId);
+      InitScore? score = await p.readScoreData(scoreId);
 
       if (score == null) {
         error = 'No score found';
@@ -303,8 +301,7 @@ class ScoreProvider extends ChangeNotifier {
       // scoreId = currentScore!.id;
 
       //check score revision
-      scoreIsUptoDate = await persistentController.checkScoreRevision(
-          scoreId, currentScoreRev);
+      scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
 
       //set movement index
       setMovementIndex(_movementIndex);
@@ -317,16 +314,19 @@ class ScoreProvider extends ChangeNotifier {
   }
 
   Future<void> updateCurrentScore() async {
-    await persistentController.updateScore(_currentScoreId, currentScoreRev);
-    await persistentController.writeScoreRevision(scoreId, currentScoreRev);
-    InitScore? score =
-        await persistentController.readScoreData(_currentScoreId);
-    currentScore = await setupScore(score!);
-    currentSignalScore.value = currentScore;
-    setMovementIndex(_movementIndex);
-
-    scoreIsUptoDate =
-        await persistentController.checkScoreRevision(scoreId, currentScoreRev);
+    isLoading = true;
+    notifyListeners();
+    try {
+      InitScore? score = await p.updateScore(_currentScoreId, currentScoreRev);
+      currentScore = await setupScore(score!);
+      currentSignalScore.value = currentScore;
+      setMovementIndex(_movementIndex);
+      scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
+    } catch (e) {
+      log(e.toString());
+    }
+    isLoading = false;
+    notifyListeners();
   }
 
   Future<Score> setupScore(InitScore score) async {
@@ -466,8 +466,7 @@ class ScoreProvider extends ChangeNotifier {
     }
     Future<void> readAndCheckProgress(
         String audioUrl, String audioFileName) async {
-      final bytes = await persistentController.readAudioFile(
-          scoreId, audioFileName, audioUrl);
+      final bytes = await p.readAudioFile(scoreId, audioFileName, audioUrl);
       if (bytes.bytes.isNotEmpty) totalFiles++;
       progressDownload = totalFiles / audioFilesUrls.length;
       progressDownload == 1 ? progressDownload = 0 : progressDownload;

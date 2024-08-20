@@ -12,6 +12,7 @@ import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/performance_screen.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,10 +27,11 @@ void main() async {
   runApp(
     MultiProvider(providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider(isDark)),
-      ChangeNotifierProvider(create: (_) => PlaylistProvider()),
+      ChangeNotifierProvider(create: (_) => NavigationProvider()),
+      ChangeNotifierProvider(create: (_) => AppConnection()),
       ChangeNotifierProvider(create: (_) => LibraryProvider()),
       ChangeNotifierProvider(create: (_) => ScoreProvider()),
-      ChangeNotifierProvider(create: (_) => NavigationProvider()),
+      ChangeNotifierProvider(create: (_) => PlaylistProvider()),
     ], child: const MyApp()),
   );
 }

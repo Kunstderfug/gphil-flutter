@@ -14,29 +14,28 @@ class ScoreSections extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ScoreProvider>(builder: (context, s, child) {
-      void syncSections(String sectionKey) {
-        final p = context.read<PlaylistProvider>();
-        s.setCurrentSection(sectionKey);
-        if (p.playlist.isNotEmpty &&
-            p.playlist.indexWhere((el) => el.key == sectionKey) == -1 &&
-            s.currentScore?.id == p.sessionScore?.id &&
-            p.currentMovementKey == s.currentMovement.key) {
-          p.setCurrentSectionByKey(sectionKey);
-        }
+    final p = Provider.of<PlaylistProvider>(context);
+    final s = Provider.of<ScoreProvider>(context);
+    void syncSections(String sectionKey) {
+      s.setCurrentSection(sectionKey);
+      if (p.playlist.isNotEmpty &&
+          p.playlist.indexWhere((el) => el.key == sectionKey) == -1 &&
+          s.currentScore?.id == p.sessionScore?.id &&
+          p.currentMovementKey == s.currentMovement.key) {
+        p.setCurrentSectionByKey(sectionKey);
       }
+    }
 
-      return Wrap(
-        runSpacing: isTablet(context) ? 8 : 14,
-        children: [
-          for (Section section in sections)
-            ScoreSection(
-              section: section,
-              onTap: () => syncSections(section.key),
-              isSelected: s.sectionKey == section.key,
-            ),
-        ],
-      );
-    });
+    return Wrap(
+      runSpacing: isTablet(context) ? 8 : 14,
+      children: [
+        for (Section section in sections)
+          ScoreSection(
+            section: section,
+            onTap: () => syncSections(section.key),
+            isSelected: s.sectionKey == section.key,
+          ),
+      ],
+    );
   }
 }

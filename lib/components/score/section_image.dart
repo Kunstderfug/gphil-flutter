@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,8 @@ class SectionImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final a = Provider.of<AppConnection>(context);
+
     return Consumer2<ScoreProvider, ThemeProvider>(
         builder: (context, s, t, child) {
       if (s.currentSection.sectionImage == null) {
@@ -60,10 +63,15 @@ class SectionImage extends StatelessWidget {
                           fit: BoxFit.contain,
                         )
                       : Center(
-                          child: CircularProgressIndicator(
-                            color: Theme.of(context).highlightColor,
-                            strokeWidth: 2,
-                          ),
+                          child: a.appState == AppState.offline
+                              ? const Text(
+                                  'Image is not available, app is offline',
+                                  style: TextStyle(color: Colors.black54),
+                                )
+                              : CircularProgressIndicator(
+                                  color: Theme.of(context).highlightColor,
+                                  strokeWidth: 2,
+                                ),
                         ),
                 ),
               ),

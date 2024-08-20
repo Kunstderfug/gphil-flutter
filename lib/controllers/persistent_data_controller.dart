@@ -3,25 +3,23 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
+import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/services/sanity_service.dart';
 import 'package:http/http.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:connectivity/connectivity.dart';
-
-Future<bool> isOnline() async {
-  var connectivityResult = await (Connectivity().checkConnectivity());
-  if (connectivityResult == ConnectivityResult.mobile ||
-      connectivityResult == ConnectivityResult.wifi) {
-    return true;
-  }
-  return false;
-}
 
 class PersistentDataController {
   final imageFormat = 'png';
+
+  Future<bool> isOnline() async {
+    final result = await InternetConnection().hasInternetAccess;
+    log('isOnline: $result');
+    return result;
+  }
 
   Future<String> get _directoryPath async {
     final Directory directory = await getApplicationDocumentsDirectory();
@@ -280,19 +278,35 @@ class PersistentDataController {
   Future<InitScore?> readScoreData(String scoreId) async {
     final String rootPath = await _gphilRootDirectory;
     final File localScoreJson = File('$rootPath/score_$scoreId.json');
-    final tasks = <Future>[];
     InitScore? scoreJson;
 
     if (await localScoreJson.exists()) {
-      // log('reading score data');
-
       final Map<String, dynamic> scoreData = await Isolate.run(
           () async => await json.decode(await localScoreJson.readAsString()));
       scoreJson = await Isolate.run(() => InitScore.fromJson(scoreData));
+    } else {
+      log('downloading score data');
+      scoreJson = await SanityService().fetchScore(scoreId);
+      if (scoreJson != null) {
+        await writeScoreData(scoreId, scoreJson);
+      }
+    }
 
+    return scoreJson;
+  }
+
+//update score
+  Future<InitScore?> updateScore(String scoreId, String scoreRev) async {
+    final tasks = <Future>[];
+
+    await deleteScore(scoreId);
+    InitScore? scoreJson = await readScoreData(scoreId);
+
+    //get images and sections data
+    if (scoreJson != null) {
       List<InitSection> getAllSections() {
         final allSections = <InitSection>[];
-        for (final movement in scoreJson!.movements) {
+        for (final movement in scoreJson.movements) {
           for (final section in movement.sections) {
             allSections.add(section);
           }
@@ -314,24 +328,9 @@ class PersistentDataController {
       }
 
       await Future.wait(tasks);
-      return scoreJson;
-    } else {
-      log('downloading score data');
-      scoreJson = await SanityService().fetchScore(scoreId);
-      if (scoreJson != null) {
-        await writeScoreData(scoreId, scoreJson);
-        // return score;
-      }
     }
-
-    return scoreJson;
-  }
-
-//update score
-  Future<void> updateScore(String scoreId, String scoreRev) async {
-    await deleteScore(scoreId);
-    await readScoreData(scoreId);
     await writeScoreRevision(scoreId, scoreRev);
+    return scoreJson;
   }
 
 //write json file in the root folder if all scores are up to date
@@ -354,47 +353,23 @@ class PersistentDataController {
     }
   }
 
-//read library
-  Future<List<InitScore>> readLibrary() async {
-    List<InitScore> scores = [];
-    final String path = await _gphilRootDirectory;
-
-    //check if app is online. if no, return local library
-    if (!await isOnline()) {
-      scores = await getLocalLibrary();
-    } else {
-      //check if app is up to date
-      final File statusFile = File('$path/library_status.json');
-      if (await statusFile.exists()) {
-        final Map<String, dynamic> statusData =
-            json.decode(await statusFile.readAsString());
-
-        //if up to date, return the whole library list
-        if (statusData['isUptoDate'] == true) {
-          scores = await getLocalLibrary();
-        }
-      }
-    }
-
-    return scores;
-  }
-
   //get all items from local library
-  Future<List<InitScore>> getLocalLibrary() async {
-    final List<InitScore> scores = [];
+  Future<List<LibraryItem>> getLocalLibrary() async {
+    final List<LibraryItem> library = [];
     final String path = await _gphilRootDirectory;
     final Directory directory = Directory(path);
     if (await directory.exists()) {
       final List<FileSystemEntity> files = directory.listSync();
       for (FileSystemEntity file in files) {
         if (file.path.endsWith('.json')) {
-          final Map<String, dynamic> scoreData = await Isolate.run(() async =>
-              await json.decode(await File(file.path).readAsString()));
-          scores.add(InitScore.fromJson(scoreData));
+          final Map<String, dynamic> scoreData =
+              await json.decode(await File(file.path).readAsString());
+          library.add(LibraryItem.fromJson(scoreData));
+          log('added local score to the library: ${scoreData['id']}');
         }
       }
     }
-    return scores;
+    return library;
   }
 
 //wrire score revision

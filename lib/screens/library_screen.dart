@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/library/library_composer.dart';
 import 'package:gphil/providers/library_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -13,22 +14,29 @@ class LibraryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LibraryProvider>(builder: (context, l, child) {
+    return Consumer2<LibraryProvider, AppConnection>(
+        builder: (context, l, ac, child) {
+      //LOADING STATE
       Widget loading = Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text('L O A D I N G  L I B R A R Y . . .',
-                style: TextStyles().textXl),
-            const SizedBox(
-              height: separatorMd,
-            ),
-            const CircularProgressIndicator(),
-          ],
-        ),
+        child: ac.appState == AppState.offline
+            ? const SizedBox.shrink()
+            : SizedBox(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('L O A D I N G  L I B R A R Y . . .',
+                        style: TextStyles().textXl),
+                    const SizedBox(
+                      height: separatorMd,
+                    ),
+                    const CircularProgressIndicator(),
+                  ],
+                ),
+              ),
       );
 
+      //BODY
       Widget body = SizedBox(
         width: MediaQuery.sizeOf(context).width,
         height: isTablet(context)
@@ -37,11 +45,11 @@ class LibraryScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(
+            SizedBox(
               height: 120,
               child: Text(
-                'W E L C O M E    T O    G P H I L',
-                style: TextStyle(fontSize: fontSizeLg),
+                'W E L C O M E    T O    G P H I L${ac.appState == AppState.offline ? ' (offline)' : ''}',
+                style: const TextStyle(fontSize: fontSizeLg),
               ),
             ),
             SizedBox(
@@ -67,9 +75,7 @@ class LibraryScreen extends StatelessWidget {
       );
       return AnimatedCrossFade(
         duration: const Duration(milliseconds: 200),
-        firstChild: SizedBox(
-          child: loading,
-        ),
+        firstChild: loading,
         secondChild: body,
         crossFadeState:
             l.isLoading ? CrossFadeState.showFirst : CrossFadeState.showSecond,

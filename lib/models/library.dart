@@ -54,7 +54,7 @@ class LibraryItem {
         key: json["key"],
         private: json["private"],
         ready: json["ready"],
-        complete: json["complete"],
+        complete: json["complete"] ?? 0,
         id: json["_id"],
         composer: json["composer"],
       );

@@ -11,6 +11,7 @@ import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -78,6 +79,7 @@ class PlaylistProvider extends ChangeNotifier {
   bool layersEnabled = false;
   bool onePedalMode = false;
   int totalLayerFiles = 0;
+  AppState? appState;
 
   //IMAGES
   File? currentSectionImage;

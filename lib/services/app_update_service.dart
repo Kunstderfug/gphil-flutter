@@ -4,25 +4,31 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+final sanity = SanityService();
+
 class AppUpdateService extends ChangeNotifier {
   String currentVersion = '';
-  String? onlineVersion;
+  String onlineVersion = '';
   AppVersionInfo? appVersionInfo;
   double? progress;
   bool updateDownloaded = false;
   String platform = Platform.operatingSystem;
   CancelToken? cancelToken;
-  bool updateAvailable = false;
   bool updateAbortedByUser = false;
-  bool loading = false;
+  AppState? appState;
+  String error = '';
+  bool updateChecked = false;
+  final ac = AppConnection();
+
+  bool get updateAvailable =>
+      onlineVersion != '' && currentVersion != onlineVersion;
 
   AppUpdateService() {
-    if (updateDownloaded == false) {
-      isAppVersionUpdated();
-    }
+    isAppVersionUpdated();
   }
 
   void reset() {
@@ -33,20 +39,24 @@ class AppUpdateService extends ChangeNotifier {
   }
 
   Future<bool> isAppVersionUpdated() async {
-    try {
-      loading = true;
-      notifyListeners();
-      currentVersion = await getVersionNumber();
-      appVersionInfo = await getAppVersionInfo();
-      onlineVersion = appVersionInfo?.build ?? '';
-      updateAvailable = currentVersion != onlineVersion;
-      loading = false;
-      notifyListeners();
-    } catch (e) {
-      reset();
-      log(e.toString());
+    log('isAppVersionUpdated');
+    if (!updateChecked) {
+      try {
+        appState = AppState.connecting;
+        notifyListeners();
+        currentVersion = await getVersionNumber();
+        appVersionInfo = await getAppVersionInfo();
+        onlineVersion = appVersionInfo?.build ?? '';
+        appState = AppState.idle;
+      } catch (e) {
+        reset();
+        log(e.toString());
+      }
     }
 
+    appState = AppState.idle;
+    updateChecked = true;
+    notifyListeners();
     return currentVersion != onlineVersion;
   }
 
@@ -58,12 +68,24 @@ class AppUpdateService extends ChangeNotifier {
   }
 
   Future<AppVersionInfo?> getAppVersionInfo() async {
-    final sanity = SanityService();
-    final AppVersionInfo? appVersionInfo = await sanity.getOnlineVersion();
-    if (appVersionInfo == null) {
+    try {
+      appState = AppState.connecting;
+      notifyListeners();
+      final AppVersionInfo? appVersionInfo = await sanity.getOnlineVersion();
+      if (appVersionInfo == null) {
+        appState = AppState.genericError;
+        notifyListeners();
+        return null;
+      }
+      appState = AppState.idle;
+      notifyListeners();
+
+      return appVersionInfo;
+    } catch (e) {
+      appState = AppState.genericError;
+      notifyListeners();
       return null;
     }
-    return appVersionInfo;
   }
 
   Future<String?> updateApp() async {
@@ -72,25 +94,27 @@ class AppUpdateService extends ChangeNotifier {
     try {
       // Get the document directory
       String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-
       if (selectedDirectory == null) {
         reset();
         return null;
       }
+      appState = AppState.loading;
       updateDownloaded = false;
       progress = 0;
       updateAbortedByUser = false;
       notifyListeners();
 
       // Define the file name
-      String fileName = platform == 'macos' ? 'Gphil.dmg' : 'gphil_windows.zip';
+      String fileName = platform == 'macos'
+          ? 'Gphil_v$onlineVersion.dmg'
+          : 'gphil_windows.zip';
       String filePath = '$selectedDirectory/$fileName';
       log(platform);
 
       await dio.download(
         platform == 'macos'
-            ? 'https://g-phil.app/app/gphil.dmgp'
-            : 'https://g-phil.app/app/gphil_windows.zip',
+            ? 'https://g-phil.app/app/gphil_v$onlineVersion.dmg'
+            : 'https://g-phil.app/app/gphil_v$onlineVersion.zip',
         filePath,
         cancelToken: cancelToken,
         onReceiveProgress: (receivedBytes, totalBytes) {
@@ -106,12 +130,14 @@ class AppUpdateService extends ChangeNotifier {
       log('File downloaded to: $filePath');
       progress = null;
       updateDownloaded = true;
+      appState = AppState.idle;
       notifyListeners();
       return filePath;
     } catch (e) {
       log('Error downloading file: $e');
       progress = null;
       updateDownloaded = false;
+      appState = AppState.idle;
       notifyListeners();
       return null;
     }

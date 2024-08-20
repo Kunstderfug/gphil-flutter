@@ -1,5 +1,10 @@
+import 'dart:developer';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
 
 class LibraryProvider extends ChangeNotifier {
@@ -8,6 +13,9 @@ class LibraryProvider extends ChangeNotifier {
   String currentScoreId = '';
   String error = '';
   bool _isLoading = false;
+  AppState appState = AppState.idle;
+  Connectivity? connectivity;
+  final p = PersistentDataController();
 
 //!GETTERS
   List<LibraryItem> get library => _library;
@@ -27,8 +35,8 @@ class LibraryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  set isLoading(bool isLoading) {
-    _isLoading = isLoading;
+  set isLoading(bool state) {
+    _isLoading = state;
     notifyListeners();
   }
 
@@ -36,17 +44,27 @@ class LibraryProvider extends ChangeNotifier {
     getLibrary();
   }
 
-  void getLibrary() async {
+  Future<List<LibraryItem>> getLibrary() async {
+    isLoading = true;
+    notifyListeners();
+    final bool online = await p.isOnline();
     try {
-      isLoading = true;
-      library = await SanityService().fetchLibrary();
-      indexedLibrary = libraryIndex(library);
+      if (online) {
+        log('fetching library');
+        library = await SanityService().fetchLibrary();
+        indexedLibrary = libraryIndex(library);
+      } else {
+        log('fetching local library');
+        library = await p.getLocalLibrary();
+        indexedLibrary = libraryIndex(library);
+      }
     } catch (e) {
       error = e.toString();
     } finally {
       isLoading = false;
     }
     notifyListeners();
+    return library;
   }
 
   void setScoreId(String scoreId) {
