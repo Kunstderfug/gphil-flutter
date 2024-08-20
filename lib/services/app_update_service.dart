@@ -107,7 +107,7 @@ class AppUpdateService extends ChangeNotifier {
       // Define the file name
       String fileName = platform == 'macos'
           ? 'Gphil_v$onlineVersion.dmg'
-          : 'gphil_windows.zip';
+          : 'gphil_v$onlineVersion.zip';
       String filePath = '$selectedDirectory/$fileName';
       log(platform);
 
