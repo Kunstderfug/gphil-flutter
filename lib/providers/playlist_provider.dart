@@ -81,6 +81,10 @@ class PlaylistProvider extends ChangeNotifier {
   int totalLayerFiles = 0;
   AppState? appState;
 
+  PlaylistProvider() {
+    appState = AppState.idle;
+  }
+
   //IMAGES
   File? currentSectionImage;
   File? nextSectionImage;
@@ -441,6 +445,9 @@ class PlaylistProvider extends ChangeNotifier {
       handleLoadLayerFiles.add(loadAudioFiles(sectionLayer));
     }
 
+    appState = AppState.loading;
+    notifyListeners();
+
     await Future.wait(handleLoadLayerFiles);
 
     LayerPlayerPool addPlayerPool() {
@@ -465,6 +472,8 @@ class PlaylistProvider extends ChangeNotifier {
     }
 
     addPlayerPool();
+    appState = AppState.idle;
+    notifyListeners();
   }
 
   void setDefaultTempos() {
@@ -626,6 +635,9 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> patchPool(int tempo) async {
+    appState = AppState.loading;
+    notifyListeners();
+
     final currentPool = currentPlayerPool();
     final int? tempoindex = currentSection?.tempoRange.indexOf(tempo);
     if (tempoindex != null) {
@@ -642,6 +654,7 @@ class PlaylistProvider extends ChangeNotifier {
       getDuration();
       // adjust the timing for autoContinue
       setAdjustedMarkerPosition();
+      appState = AppState.idle;
       notifyListeners();
     }
   }

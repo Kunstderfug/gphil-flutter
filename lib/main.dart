@@ -1,5 +1,3 @@
-// The original content is temporarily commented out to allow generating a self-contained demo - feel free to uncomment later.
-
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';

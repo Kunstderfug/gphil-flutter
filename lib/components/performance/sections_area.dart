@@ -3,6 +3,7 @@ import 'package:gphil/components/score/score_section.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -25,7 +26,8 @@ class SectionsArea extends StatelessWidget {
       for (final section in p.currentMovementSections)
         ScoreSection(
             section: section,
-            onTap: () => syncSection(section),
+            onTap: () =>
+                p.appState == AppState.loading ? null : syncSection(section),
             isSelected: p.currentSectionKey == section.key),
     ]);
   }

@@ -10,7 +10,7 @@
 		</data>
 		<key>Resources/Assets.car</key>
 		<data>
-		R8LBAj6Zxitg1yXvcbpoBKzVvV8=
+		472HLC3I1CJAYpqJRla9MXv/wfQ=
 		</data>
 		<key>Resources/Base.lproj/MainMenu.nib</key>
 		<data>
@@ -23,10 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Zxhms0V5lBwQwp+OfZvfjebcV5c=
+			co1NyX8p9zgNO+whxsA2fBBlb4Q=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"671866b34579941c10c29f8e7d9bdf8de6dc5797" or cdhash H"e75195a702e709506e35a89ca01e8ed2635890ba"</string>
+			<string>cdhash H"728d4dc97f29f7380d3bec21c6c0367c10656f84" or cdhash H"5c3a238f48d318c8a5d44b632eff48ca10267bbc"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>
@@ -37,41 +37,32 @@
 			<key>requirement</key>
 			<string>cdhash H"f5ddd982ee0ea1cda523e56394662f62a93f0454" or cdhash H"7bb4f18a48213eb50ef55c500ca836ef25c45cb3"</string>
 		</dict>
-		<key>Frameworks/Reachability.framework</key>
+		<key>Frameworks/connectivity_plus.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			VxYxyu0pcYmCGtPZZngSgLTAl8c=
+			WG/O+aL6TZ53Ly00LoD2PTwHum4=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"571631caed297189821ad3d966781280b4c097c7" or cdhash H"9a5b212ed6b5a12c257c728d54c768da4a7db306"</string>
-		</dict>
-		<key>Frameworks/connectivity_macos.framework</key>
-		<dict>
-			<key>cdhash</key>
-			<data>
-			jgWDShpOONiDgHHCV7XvcL8O3P8=
-			</data>
-			<key>requirement</key>
-			<string>cdhash H"8e05834a1a4e38d8838071c257b5ef70bf0edcff" or cdhash H"4e61b6e351dda0909d97e6d2a04a1ab645683581"</string>
+			<string>cdhash H"586fcef9a2fa4d9e772f2d342e80f63d3c07ba6e" or cdhash H"78f1b11f33b308d723674af8204ace83dee5be18"</string>
 		</dict>
 		<key>Frameworks/device_info_plus.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			sOCmkImEIUjtkUUv9RL1DLD3XC8=
+			/50/blE18uk3Pp0XgvlYS73mvGs=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"b0e0a69089842148ed91452ff512f50cb0f75c2f" or cdhash H"863bc9f8fdd93cfe197936c47353cac8634ba910"</string>
+			<string>cdhash H"ff9d3f6e5135f2e9373e9d1782f9584bbde6bc6b" or cdhash H"a1e59237c05a42f86e31f5069989017915dae9f7"</string>
 		</dict>
 		<key>Frameworks/flutter_soloud.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			Q0dVEshOj4dBpGlxvx1m2HFhXZo=
+			YOO+XuimLDSvI0hsDkoICOQLtTI=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"43475512c84e8f8741a46971bf1d66d871615d9a" or cdhash H"fa4f35b80e2ce5b81b6f69d359ba390d62a9ad4f"</string>
+			<string>cdhash H"60e3be5ee8a62c34af23486c0e4a0808e40bb532" or cdhash H"40e7acb57cd4cddb8189561058d2373d60b97c81"</string>
 		</dict>
 		<key>Frameworks/libswiftAppKit.dylib</key>
 		<dict>
@@ -190,6 +181,15 @@
 			<key>requirement</key>
 			<string>cdhash H"1291840c54eedc74a0c7b25a0aa8a3ea8ba2dd1f" or cdhash H"b4aafa8b6249b471052e42bf7ccb9d0b4f778d9e"</string>
 		</dict>
+		<key>Frameworks/libswiftNetwork.dylib</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			M05QyfqkBz1gER1PGwPOXeitJ+c=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"18df51e1b6d375363db5a4174cd9b376b46d7f7f" or cdhash H"334e50c9faa4073d60111d4f1b03ce5de8ad27e7"</string>
+		</dict>
 		<key>Frameworks/libswiftObjectiveC.dylib</key>
 		<dict>
 			<key>cdhash</key>
@@ -230,46 +230,46 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			KUrWzdWYZs1Z8JSp2O0WSnk3Cxo=
+			O9V+wxQccaaAvrYfjdJjrPhcOus=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"294ad6cdd59866cd59f094a9d8ed164a79370b1a" or cdhash H"7710407b93d377dca7159179c6df70935c3957e3"</string>
+			<string>cdhash H"3bd57ec3141c71a680beb61f8dd263acf85c3aeb" or cdhash H"8dfd2b19a1e4dea93de98ce4bb9371a3e54a1019"</string>
 		</dict>
 		<key>Frameworks/path_provider_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			6+KP52eHmM25W/lqG3oEIA3VGdM=
+			lG+bVADdQ/qN9wLw77CluWD4dIE=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"ebe28fe7678798cdb95bf96a1b7a04200dd519d3" or cdhash H"6bdf5bfaed6a998cae8cce62156c64dffd22f3ec"</string>
+			<string>cdhash H"946f9b5400dd43fa8df702f0efb0a5b960f87481" or cdhash H"d2c3519cbf0f2b0e31a5699242b13b0d1e74de16"</string>
 		</dict>
 		<key>Frameworks/shared_preferences_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			4a7zdGqhq/NQ9WhH91g6uSFo3cw=
+			iwxnryV9iLIJwBncqpPyDN8MFls=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"e1aef3746aa1abf350f56847f7583ab92168ddcc" or cdhash H"c6c05a4b4008004a7a5e285dd4d5ac2c138b88eb"</string>
+			<string>cdhash H"8b0c67af257d88b209c019dcaa93f20cdf0c165b" or cdhash H"c771f2e48604fb40be22fc259ada3522adbd5215"</string>
 		</dict>
 		<key>Frameworks/syncfusion_pdfviewer_macos.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			KWJUofZVin0vCQr5vDCdVfpm5d0=
+			hLU1OL5H3wbZ4IDbjiD4odMIx6E=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"296254a1f6558a7d2f090af9bc309d55fa66e5dd" or cdhash H"605068c62e865f78fee2579d6373535238e45327"</string>
+			<string>cdhash H"84b53538be47df06d9e080db8e20f8a1d308c7a1" or cdhash H"8280547060ed5c609294f3f6f7645d1e8950a03f"</string>
 		</dict>
 		<key>Frameworks/url_launcher_macos.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			lkpCsUHtFHSmXwbh+UWGhxuPBA8=
+			sxv0pN/B+jY/He5/1W3/CROHSCc=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"964a42b141ed1474a65f06e1f94586871b8f040f" or cdhash H"d23c1d50f062dd47ac7ecedefb9125855f0e82c0"</string>
+			<string>cdhash H"b31bf4a4dfc1fa363f1dee7fd56dff0913874827" or cdhash H"c7c0d9ef164b728f5a78f00a362a0a2bfce35977"</string>
 		</dict>
 		<key>Resources/AppIcon.icns</key>
 		<dict>
@@ -282,7 +282,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			8byScryNLkE5rPlFNonAB+iQdTHg6OAcjeZvlqJ690Q=
+			prONf+kk8OhD66LawqX3OCCSsLJ2CiUxei5QI1SpV1o=
 			</data>
 		</dict>
 		<key>Resources/Base.lproj/MainMenu.nib</key>

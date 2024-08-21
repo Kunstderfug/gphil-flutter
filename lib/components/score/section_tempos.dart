@@ -4,6 +4,7 @@ import 'package:gphil/models/section.dart';
 // import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +25,7 @@ class SectionTempos extends StatelessWidget {
 
     bool isDefaultTempo(int tempo) => section.defaultTempo == tempo;
 
-    void setTempoAndPlay(int tempo) {
+    void setTempo(int tempo) {
       p.setUserTempo(tempo);
       s.setCurrentTempo(tempo);
     }
@@ -72,8 +73,11 @@ class SectionTempos extends StatelessWidget {
                       ),
                     ),
                   ),
-                  onPressed: () =>
-                      tempoExists(tempo) ? setTempoAndPlay(tempo) : null,
+                  onPressed: () => tempoExists(tempo)
+                      ? p.appState != AppState.loading
+                          ? setTempo(tempo)
+                          : null
+                      : null,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Text(

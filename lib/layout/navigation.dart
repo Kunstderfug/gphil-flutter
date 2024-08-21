@@ -73,7 +73,7 @@ class AppUpdateCol1 extends StatelessWidget {
             ? const Text('Checking for updates')
             : Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: au.updateAvailable == true
+                child: au.updateAvailable
                     ? Column(
                         children: [
                           Text('Update is available',
@@ -103,34 +103,53 @@ class AppUpdateCol1 extends StatelessWidget {
                                 ]),
                           ),
                           Align(
-                            alignment: Alignment.bottomRight,
-                            child: TextButton(
-                                onPressed: () {
-                                  au.progress == null
-                                      ? au.updateApp().then((filePath) {
-                                          if (filePath != null) {
-                                            // ignore: use_build_context_synchronously
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                  content: Text(
-                                                      'File downloaded to: $filePath')),
-                                            );
+                            alignment: Alignment.bottomCenter,
+                            child: !au.updateDownloaded
+                                ? TextButton.icon(
+                                    icon: const Icon(Icons.download_rounded),
+                                    onPressed: () {
+                                      au.progress == null
+                                          ? au.updateApp().then((filePath) {
+                                              if (filePath != null) {
+                                                // ignore: use_build_context_synchronously
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'File downloaded to: $filePath')),
+                                                );
+                                              }
+                                            })
+                                          : au.cancelUpdate();
+                                    },
+                                    style: ButtonStyle(
+                                      iconColor:
+                                          WidgetStatePropertyAll(greenColor),
+                                      side: WidgetStatePropertyAll(
+                                        BorderSide(
+                                          color: greenColor,
+                                        ),
+                                      ),
+                                      backgroundColor: WidgetStateProperty
+                                          .resolveWith<Color?>(
+                                        (Set<WidgetState> states) {
+                                          if (states
+                                              .contains(WidgetState.hovered)) {
+                                            return greenColor.withOpacity(
+                                                0.2); // Set the background color on hover
                                           }
-                                        })
-                                      : au.cancelUpdate();
-                                },
-                                style: ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    greenColor,
-                                  ),
-                                  foregroundColor: const WidgetStatePropertyAll(
-                                    Colors.white,
-                                  ),
-                                ),
-                                child: au.progress == null
-                                    ? const Text('Download update')
-                                    : const Text('Cancel update')),
+                                          return null; // Use the default button background color
+                                        },
+                                      ),
+                                      foregroundColor:
+                                          const WidgetStatePropertyAll(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                    label: au.progress == null
+                                        ? const Text('Download update')
+                                        : const Text('Cancel update'))
+                                : const SizedBox(),
                           ),
                           const SizedBox(height: 16),
                           if (au.progress != null)
@@ -138,8 +157,21 @@ class AppUpdateCol1 extends StatelessWidget {
                                 'Downloaded ${au.progress?.toStringAsFixed(0)} MB',
                                 style: TextStyles().textMd),
                           if (au.updateDownloaded)
-                            Text('File downloaded!',
-                                style: TextStyles().textMd),
+                            Column(
+                              children: [
+                                Text('File downloaded!',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyles().textMd),
+                                Text(
+                                  'Launch the installer from ${au.downloadPath}. Then restart the app.',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w200,
+                                  ),
+                                )
+                              ],
+                            ),
                           if (au.updateAbortedByUser)
                             Text('Update aborted', style: TextStyles().textMd),
                           const SizedBox(height: 16),

@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
+import 'package:gphil/services/supabase_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 final sanity = SanityService();
@@ -22,6 +23,7 @@ class AppUpdateService extends ChangeNotifier {
   AppState? appState;
   String error = '';
   bool updateChecked = false;
+  String downloadPath = '';
   final ac = AppConnection();
 
   bool get updateAvailable =>
@@ -89,6 +91,7 @@ class AppUpdateService extends ChangeNotifier {
   }
 
   Future<String?> updateApp() async {
+    final url = SupabaseService().supabaseUrl;
     final dio = Dio();
     cancelToken = CancelToken();
     try {
@@ -98,6 +101,7 @@ class AppUpdateService extends ChangeNotifier {
         reset();
         return null;
       }
+      downloadPath = selectedDirectory;
       appState = AppState.loading;
       updateDownloaded = false;
       progress = 0;
@@ -106,15 +110,15 @@ class AppUpdateService extends ChangeNotifier {
 
       // Define the file name
       String fileName = platform == 'macos'
-          ? 'Gphil_v$onlineVersion.dmg'
-          : 'gphil_v$onlineVersion.zip';
+          ? 'Gphil_v${onlineVersion}_installer.dmg'
+          : 'gphil_v${onlineVersion}_installer.zip';
       String filePath = '$selectedDirectory/$fileName';
       log(platform);
 
       await dio.download(
         platform == 'macos'
-            ? 'https://g-phil.app/app/gphil_v$onlineVersion.dmg'
-            : 'https://g-phil.app/app/gphil_v$onlineVersion.zip',
+            ? '$url/app_release/Gphil_v$onlineVersion.dmg'
+            : '$url/app_release/Gphil_v$onlineVersion.zip',
         filePath,
         cancelToken: cancelToken,
         onReceiveProgress: (receivedBytes, totalBytes) {

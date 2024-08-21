@@ -21,19 +21,31 @@ class SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
+    return TextButton.icon(
       iconAlignment: IconAlignment.start,
       icon: Icon(
         icon,
       ),
       style: ButtonStyle(
-          minimumSize: const WidgetStatePropertyAll(Size(180, 40)),
-          iconColor: WidgetStatePropertyAll(iconColor),
-          side: WidgetStatePropertyAll(
-            BorderSide(
-              color: borderColor,
-            ),
-          )),
+        backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.hovered)) {
+              return borderColor
+                  .withOpacity(0.2); // Set the background color on hover
+            }
+            return null; // Use the default button background color
+          },
+        ),
+        foregroundColor:
+            WidgetStatePropertyAll(Theme.of(context).colorScheme.onSurface),
+        minimumSize: const WidgetStatePropertyAll(Size(180, 40)),
+        iconColor: WidgetStatePropertyAll(iconColor),
+        side: WidgetStatePropertyAll(
+          BorderSide(
+            color: borderColor,
+          ),
+        ),
+      ),
       onPressed: () => callback(url),
       label: Text(
         label,
