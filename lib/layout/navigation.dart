@@ -153,8 +153,7 @@ class AppUpdateCol1 extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           if (au.progress != null)
-                            Text(
-                                'Downloaded ${au.progress?.toStringAsFixed(0)} MB',
+                            Text('Downloaded ${au.progress}',
                                 style: TextStyles().textMd),
                           if (au.updateDownloaded)
                             Column(
@@ -163,7 +162,7 @@ class AppUpdateCol1 extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                     style: TextStyles().textMd),
                                 Text(
-                                  'Launch the installer from ${au.downloadPath}. Then restart the app.',
+                                  'Quit the app and launch the GPhil installer: ${au.filePath}. Then restart the app.',
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 14,

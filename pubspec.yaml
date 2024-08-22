@@ -46,6 +46,7 @@ flutter:
   assets:
     - assets/images/
     - fonts/
+    - shorebird.yaml
 
   fonts:
     - family: Roboto

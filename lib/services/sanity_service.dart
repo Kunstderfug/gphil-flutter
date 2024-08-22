@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
@@ -11,17 +12,20 @@ class AppVersionInfo {
   final String date;
   final String build;
   final List<String> changes;
+  bool? test;
 
   AppVersionInfo({
     required this.date,
     required this.build,
     required this.changes,
+    this.test,
   });
 
   factory AppVersionInfo.fromJson(Map<String, dynamic> json) {
     return AppVersionInfo(
       date: json['date'],
       build: json['build'],
+      test: json['test'] ?? false,
       changes: List<String>.from(json['changes'] ?? []),
     );
   }
@@ -31,6 +35,12 @@ class SanityService {
   static const String sanityProjectId = 'b8uar5wl';
   static const String projectUrl =
       'https://b8uar5wl.api.sanity.io/v2023-05-03/data/query/production?query=';
+
+  String queryVersion() {
+    const query =
+        '*[_type == "app_version" ${kDebugMode ? '' : '&& test != true'}] | order(build desc)[0]';
+    return query;
+  }
 
   //set query for library
   static String queryLibrary() {
@@ -58,12 +68,15 @@ class SanityService {
 
   //get app version
   Future<AppVersionInfo?> getOnlineVersion() async {
-    const String query =
-        '$projectUrl*[_type == "app_version"] | order(build desc)[0]';
+    final String query = queryVersion();
+    final queryRequest = Uri.encodeQueryComponent(query);
     try {
-      final response = await Client().get(Uri.parse(query));
+      final response = await Client().get(Uri.parse(projectUrl + queryRequest));
       if (response.statusCode == 200) {
+        log('online version: ${json.decode(response.body)['result']}');
         return AppVersionInfo.fromJson(json.decode(response.body)['result']);
+      } else {
+        log('Sanity Error: ${response.statusCode} ${response.body}');
       }
     } catch (e) {
       log('Error: $e');

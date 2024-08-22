@@ -19,6 +19,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  prefs.setBool('updateChecked', false);
   final bool isDark = prefs.getBool('isDarkMode') ?? true;
   // await RustLib.init();
 
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Provider.of<ThemeProvider>(context);
     return MaterialApp(
+      title: 'GPhil Project',
       debugShowCheckedModeBanner: false,
       home: const ResponsiveLayout(
           tabletLayout: TabletLayout(), desktopLayout: DesktopLayout()),
