@@ -11,6 +11,7 @@ import 'package:gphil/screens/performance_screen.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/services/app_state.dart';
+import 'package:gphil/services/app_update_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,7 +20,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  prefs.setBool('updateChecked', false);
   final bool isDark = prefs.getBool('isDarkMode') ?? true;
   // await RustLib.init();
 
@@ -28,6 +28,7 @@ void main() async {
       ChangeNotifierProvider(create: (_) => ThemeProvider(isDark)),
       ChangeNotifierProvider(create: (_) => NavigationProvider()),
       ChangeNotifierProvider(create: (_) => AppConnection()),
+      ChangeNotifierProvider(create: (_) => AppUpdateService()),
       ChangeNotifierProvider(create: (_) => LibraryProvider()),
       ChangeNotifierProvider(create: (_) => ScoreProvider()),
       ChangeNotifierProvider(create: (_) => PlaylistProvider()),

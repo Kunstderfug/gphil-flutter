@@ -35,11 +35,6 @@ class AppUpdateService extends ChangeNotifier {
       onlineVersion != '' && currentVersion != onlineVersion;
 
   AppUpdateService() {
-    prefs.then((value) {
-      updateChecked = value.getBool('updateChecked') ?? false;
-      notifyListeners();
-    });
-
     isAppVersionUpdated();
   }
 
@@ -51,9 +46,6 @@ class AppUpdateService extends ChangeNotifier {
   }
 
   Future<bool> isAppVersionUpdated() async {
-    log('isAppVersionUpdated');
-    updateChecked =
-        await prefs.then((value) => value.getBool('updateChecked') ?? false);
     if (!updateChecked) {
       log('Update checked: $updateChecked');
       try {
@@ -68,10 +60,7 @@ class AppUpdateService extends ChangeNotifier {
         reset();
         log(e.toString());
       }
-      prefs.then((value) {
-        value.setBool('updateChecked', true);
-        updateChecked = true;
-      });
+      updateChecked = true;
       notifyListeners();
     }
 

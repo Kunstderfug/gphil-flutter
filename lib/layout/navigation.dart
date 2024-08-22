@@ -30,10 +30,7 @@ class AppUpdate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AppUpdateService(),
-      child: const AppUpdateProgress(),
-    );
+    return const AppUpdateProgress();
   }
 }
 
