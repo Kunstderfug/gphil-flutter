@@ -49,6 +49,10 @@ class ScoreProvider extends ChangeNotifier {
   List<Movement> get currentMovements => _currentScore!.setupMovements;
   List<Section> get currentSections => _currentSections;
   Section get currentSection => _currentSection;
+  List<Section> get allSections => _currentScore!.setupMovements
+      .map((Movement movement) => {...movement.setupSections})
+      .expand((element) => element)
+      .toList();
   Movement get currentMovement => _currentMovement;
   String? get sectionImageUrl => _sectionImageUrl;
   File? get sectionImageFile => _sectionImageFile;
@@ -181,7 +185,7 @@ class ScoreProvider extends ChangeNotifier {
     section.autoContinue = sectionPrefs.autoContinue;
     section.sectionVolume = sectionPrefs.sectionVolume;
     section.muted = sectionPrefs.muted ?? false;
-    log('updateSectionFromLocalPrefs, ${section.autoContinue}');
+    log('updateSectionFromLocalPrefs, $sectionPrefs');
   }
 
   void setSections(String movementKey, String sectionKey) {
@@ -195,7 +199,7 @@ class ScoreProvider extends ChangeNotifier {
     currentSection =
         _currentSections.firstWhere((section) => section.key == sectionKey);
     currentSignalSection.value = currentSection;
-    currentTempo = currentSection.defaultTempo;
+    currentTempo = currentSection.userTempo ?? currentSection.defaultTempo;
 
     //read from persistent storage
 
@@ -459,7 +463,7 @@ class ScoreProvider extends ChangeNotifier {
     final requests = <Future>[];
     int totalFiles = 0;
 
-    for (Section section in sections) {
+    for (Section section in allSections) {
       for (String audioUrl in section.fileList) {
         audioFilesUrls.add(audioUrl);
       }

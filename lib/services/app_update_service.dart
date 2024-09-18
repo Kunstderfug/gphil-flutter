@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
 import 'package:gphil/services/supabase_service.dart';
@@ -19,7 +19,6 @@ class AppUpdateService extends ChangeNotifier {
   AppVersionInfo? appVersionInfo;
   String? progress;
   bool updateDownloaded = false;
-  String platform = Platform.operatingSystem;
   CancelToken? cancelToken;
   bool updateAbortedByUser = false;
   AppState? appState;
@@ -33,6 +32,8 @@ class AppUpdateService extends ChangeNotifier {
 
   bool get updateAvailable =>
       onlineVersion != '' && currentVersion != onlineVersion;
+
+  String get platform => kIsWeb ? 'web' : Platform.operatingSystem;
 
   AppUpdateService() {
     isAppVersionUpdated();
@@ -119,9 +120,10 @@ class AppUpdateService extends ChangeNotifier {
       notifyListeners();
 
       // Define the file name
+
       String file = platform == 'macos' ? '$fileName.dmg' : '$fileName.exe';
       filePath = '$selectedDirectory/$file';
-      log(platform);
+      // log(platform);
 
       await dio.download(
         platform == 'macos'

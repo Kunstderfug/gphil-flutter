@@ -120,8 +120,9 @@ class PlaylistProvider extends ChangeNotifier {
   bool _isPlaying = false;
   bool jumped = false;
   Ticker ticker = Ticker((elapsed) {});
-  double globalVolume = 1;
-  double playerVolume = 1;
+  double globalVolume = 1.0;
+  double playerVolume = 1.0;
+  double volumeMultiplier = 2.0;
   final GlobalLayerPlayerPool layerPlayersPool = GlobalLayerPlayerPool(
     globalLayers: [],
   );
@@ -327,7 +328,10 @@ class PlaylistProvider extends ChangeNotifier {
     final loadAudioFiles = <Future>[];
     final audioUrls = <AudioUrl>[];
     final audioFilesUrls = <AudioUrl>[];
-    await player.init();
+    await player.init(bufferSize: 256);
+    player.setVisualizationEnabled(true);
+    player.setFftSmoothing(0.93);
+    setGlobalVolume(globalVolume);
 
     for (Section section in playlist) {
       final audioUrl = getAudioUrl(section);
@@ -478,8 +482,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   void setDefaultTempos() {
     lastUsedTempo = currentSection?.defaultTempo ?? 0;
-    currentTempo =
-        currentSection?.userLayerTempo ?? currentSection?.defaultTempo ?? 0;
+    currentTempo = currentSection?.userTempo ?? currentSection?.defaultTempo;
   }
 
   //create array of AudioPlayers for all sections in playlist
@@ -528,7 +531,7 @@ class PlaylistProvider extends ChangeNotifier {
     globalVolume = value;
     notifyListeners();
     if (player.isInitialized) {
-      player.setGlobalVolume(globalVolume);
+      player.setGlobalVolume(globalVolume * volumeMultiplier);
     }
   }
 
@@ -613,7 +616,7 @@ class PlaylistProvider extends ChangeNotifier {
   void toggleDefaultToLayerPlayerVolume(bool value) {
     void setVolume(double volume) {
       if (isPlaying) {
-        player.setVolume(activeHandle!, playerVolume);
+        player.setVolume(activeHandle!, playerVolume * volumeMultiplier);
         if (currentLayerPlayerPool?.activeLayerHandles != null) {
           for (Layer layer in layerPlayersPool.globalLayers) {
             layerPlayersPool.setGlobalLayerVolume(
@@ -695,10 +698,11 @@ class PlaylistProvider extends ChangeNotifier {
       log('skipping muted section');
     } else {
       activeHandle = await player.play(currentAudioSource()!);
-      player.setVolume(activeHandle!, playerVolume);
+      // player.setVolume(activeHandle!, playerVolume * volumeMultiplier);
       log('player volume: ${player.getVolume(activeHandle!)}');
-      notifyListeners();
     }
+    isPlaying = true;
+    notifyListeners();
   }
 
   void getCurrentPosition() {
@@ -719,7 +723,7 @@ class PlaylistProvider extends ChangeNotifier {
     if (position.inMilliseconds >=
             autoContinueMarker! - autoContinueExecutionOffset &&
         position.inMilliseconds - 20 < autoContinueMarker! + 20) {
-      jumped = true;
+      // jumped = true;
       ticker.stop();
       ticker.dispose();
       stopMetronome();
@@ -782,51 +786,10 @@ class PlaylistProvider extends ChangeNotifier {
     // log('stop layers: $handle');
   }
 
-  void play() async {
-    ticker.stop();
-    jumped = false;
-    currentPosition = Duration.zero;
-    notifyListeners();
-    getDuration();
-    setGlobalVolume(globalVolume);
-
-    if (currentSection?.layers != null && layersEnabled) {
-      await playLayers();
-      toggleDefaultToLayerPlayerVolume(true);
-    } else {
-      stopLayers();
-      toggleDefaultToLayerPlayerVolume(false);
-      // layersEnabled = false;
-    }
-
-    await playCurrentSection();
-    isPlaying = true;
-    // getPositionStream(); //test position Stream
-    startMetronome();
-    handleStartPlayback();
-    initImagesOrder();
-    setAdjustedMarkerPosition();
-    imageProgress = true;
-    notifyListeners();
-
-    //simplified implementation of autocontinue
-    if (autoContinueMarker != null) {
-      autoContinueTimer = Timer(
-          Duration(
-              milliseconds: autoContinueMarker! - autoContinueExecutionOffset),
-          () {
-        //Timer will be cancelled on stop or seek
-        handlePlayNextSection();
-      });
-    }
-    Future.delayed(Duration(milliseconds: autoContinueOffset),
-        () => isPlaying ? swapImages() : null);
-  }
-
   void handlePlayNextSection() {
     //only when autoContinue switch in section is on
     if (currentSection!.autoContinue == true) {
-      jumped = true;
+      // jumped = true;
       log('currentPosition: ${currentPosition.inMilliseconds.toString()}, autoContinueMarker: ${autoContinueMarker.toString()}');
       ticker.stop();
       ticker.dispose();
@@ -946,6 +909,50 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> play() async {
+    ticker.stop();
+    // jumped = false;
+    currentPosition = Duration.zero;
+    notifyListeners();
+    getDuration();
+    setGlobalVolume(globalVolume);
+
+    if (currentSection?.layers != null && layersEnabled) {
+      await playLayers();
+      toggleDefaultToLayerPlayerVolume(true);
+    } else {
+      stopLayers();
+      toggleDefaultToLayerPlayerVolume(false);
+      // layersEnabled = false;
+    }
+
+    await playCurrentSection();
+    isPlaying = true;
+    // getPositionStream(); //test position Stream
+    startMetronome();
+    handleStartPlayback();
+    initImagesOrder();
+    setAdjustedMarkerPosition();
+    imageProgress = true;
+    notifyListeners();
+    // log('isPlaying: $isPlaying');
+
+    //simplified implementation of autocontinue
+    if (autoContinueMarker != null) {
+      autoContinueTimer = Timer(
+          Duration(
+              milliseconds: autoContinueMarker! - autoContinueExecutionOffset),
+          () {
+        //Timer will be cancelled on stop or seek
+        handlePlayNextSection();
+      });
+    }
+
+    //swap images to the next one in 5000ms
+    Future.delayed(Duration(milliseconds: autoContinueOffset),
+        () => isPlaying ? swapImages() : null);
+  }
+
 // pause a song
   void pause() {
     log('pausing');
@@ -974,7 +981,7 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
-  void stop() async {
+  Future<void> stop() async {
     if (activeHandle != null) {
       await player.stop(activeHandle!);
     }
@@ -991,33 +998,45 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> skip() async {
+    if (activeHandle != null) {
+      await player.stop(activeHandle!);
+    }
+    stopLayers();
+    autoContinueTimer?.cancel();
+    ticker.stop();
+    ticker.dispose();
+    currentPosition = Duration.zero;
+    stopMetronome();
+    initImagesOrder();
+    imageProgress = false;
+    // positionSub?.cancel();
+    notifyListeners();
+  }
+
 //play next song
-  void playPreviousSection() {
+  Future<void> playPreviousSection() async {
     _currentSectionIndex = (_currentSectionIndex - 1) % playlist.length;
     setCurrentSectionAndMovementKey();
     jumped = false;
-    play();
+    await play();
     // setCurrentSectionImage();
     setAdjustedMarkerPosition();
   }
 
 // play previous song
-  void playNextSection() async {
-    if (_currentSectionIndex < playlist.length - 1) {
-      _currentSectionIndex++;
-
-      setCurrentSectionAndMovementKey();
-      jumped = false;
-      play();
-    }
-    // setCurrentSectionImage();
+  Future<void> playNextSection() async {
+    _currentSectionIndex++;
+    setCurrentSectionAndMovementKey();
+    // jumped = false;
+    await play();
   }
 
-  void skipToNextSection() {
+  Future<void> skipToNextSection() async {
     if (_currentSectionIndex < playlist.length - 1) {
       if (isPlaying) {
-        stop();
-        playNextSection();
+        await skip();
+        await playNextSection();
       } else {
         _currentSectionIndex++;
         setCurrentSectionAndMovementKey();
@@ -1026,11 +1045,11 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
-  void skipToPreviousSection() {
+  Future<void> skipToPreviousSection() async {
     if (_currentSectionIndex > 0) {
       if (isPlaying) {
-        stop();
-        playPreviousSection();
+        await skip();
+        await playPreviousSection();
       } else {
         _currentSectionIndex--;
         setCurrentSectionAndMovementKey();

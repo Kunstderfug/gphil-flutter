@@ -11,6 +11,7 @@ import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/performance/section_auto_continue_switch.dart';
 import 'package:gphil/components/performance/sections_area.dart';
 import 'package:gphil/components/performance/switch.dart';
+import 'package:gphil/components/player/audio_data.dart';
 import 'package:gphil/components/player/player_header.dart';
 import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/section_tempos.dart';
@@ -88,11 +89,13 @@ class PerformanceScreen extends StatelessWidget {
                   height: separatorMd,
                 ),
                 GlobalMixer(p: p),
+                const SizedBox(
+                    width: 600, height: 100, child: AudioDataWidget())
               ],
             ),
           ),
         ],
-      )
+      ),
     ];
 
     Widget laptopBody = ConstrainedBox(

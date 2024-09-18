@@ -112,14 +112,6 @@ class SectionImageAsset {
       };
 }
 
-int convertToDuration(double duration) {
-  return (duration * 1000).round();
-}
-
-double convertToDouble(int duration) {
-  return duration / 1000;
-}
-
 class SectionImage {
   final String type;
   SectionImageAsset asset;
@@ -248,4 +240,12 @@ class Section extends InitSection {
         "layers": layers,
         'muted': muted
       };
+}
+
+int convertToDuration(double duration) {
+  return (duration * 1000).round();
+}
+
+double convertToDouble(int duration) {
+  return duration / 1000;
 }

@@ -16,12 +16,12 @@ class Navigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(child: Nav()),
-          Flexible(flex: 1, child: AppUpdate()),
-        ]);
+    final au = Provider.of<AppUpdateService>(context);
+    return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+      const Flexible(child: Nav()),
+      if (au.platform == 'macos' || au.platform == 'windows')
+        const Flexible(flex: 2, child: AppUpdate()),
+    ]);
   }
 }
 
