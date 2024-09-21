@@ -33,6 +33,7 @@ class LibraryItemCard extends StatelessWidget {
             l.setScoreId(libraryItem.id);
             await s.getScore(libraryItem.id);
             n.setNavigationIndex(2);
+            l.addToRecentlyAccessed(libraryItem);
           },
           child: Stack(alignment: Alignment.bottomLeft, children: [
             if (libraryItem.complete < 100)

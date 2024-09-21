@@ -16,11 +16,15 @@ class LibraryProvider extends ChangeNotifier {
   AppState appState = AppState.idle;
   Connectivity? connectivity;
   final p = PersistentDataController();
+  // recent scores
+  final List<LibraryItem> _recentlyAccessedItems = [];
 
 //!GETTERS
+
   List<LibraryItem> get library => _library;
   bool get isLoading => _isLoading;
   LibraryIndex get indexedLibrary => _indexedLibrary;
+  List<LibraryItem> get recentlyAccessedItems => _recentlyAccessedItems;
 
 //!SETTERS
   set library(List<LibraryItem> library) {
@@ -69,6 +73,21 @@ class LibraryProvider extends ChangeNotifier {
 
   void setScoreId(String scoreId) {
     currentScoreId = scoreId;
+    notifyListeners();
+  }
+
+  void addToRecentlyAccessed(LibraryItem score) {
+    // Remove the score if it's already in the list
+    _recentlyAccessedItems.remove(score);
+
+    // Add the score to the beginning of the list
+    _recentlyAccessedItems.insert(0, score);
+
+    // Keep only the 5 most recent items
+    if (_recentlyAccessedItems.length > 10) {
+      _recentlyAccessedItems.removeRange(10, _recentlyAccessedItems.length);
+    }
+
     notifyListeners();
   }
 }
