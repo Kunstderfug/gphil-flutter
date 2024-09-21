@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub/
 /build/
 /APP_RELEASE
+/APP_ARCHIVE
+/RUST_DISABLED
+Icon?
 
 # Symbolication related
 app.*.symbols

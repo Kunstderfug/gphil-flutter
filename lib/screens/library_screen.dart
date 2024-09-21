@@ -9,7 +9,7 @@ class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
 
   int gridCount(double pixels) {
-    return (pixels / 600).ceil();
+    return (pixels / 500).ceil();
   }
 
   @override
@@ -59,7 +59,7 @@ class LibraryScreen extends StatelessWidget {
                   crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
                   crossAxisSpacing: separatorMd,
                   mainAxisSpacing: separatorLg,
-                  childAspectRatio: 4 / 3,
+                  childAspectRatio: 7 / 5,
                 ),
                 itemCount: l.indexedLibrary.composers.length,
                 itemBuilder: (context, index) {
