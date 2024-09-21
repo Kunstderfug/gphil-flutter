@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeProvider extends ChangeNotifier {
   bool _isDarkMode = true;
-  ThemeData _themeData = lightMode;
+  ThemeData _themeData = darkMode;
 
   ThemeProvider(bool dark) {
     _isDarkMode = dark;
