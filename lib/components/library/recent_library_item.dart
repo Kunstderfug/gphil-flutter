@@ -29,21 +29,20 @@ class RecentLibraryitem extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Row(
         children: [
+          Text(
+            item.composer,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white,
+            ),
+          ),
           Text(item.shortTitle,
               style: const TextStyle(
                 fontSize: 18,
                 color: Colors.white,
               )), // Larger font size for title
-          Text(item.composer,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.white,
-              )), // Smaller font size for composer
-          // Smaller font size for composer
         ],
       ),
     );

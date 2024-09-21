@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/library/library_composer.dart';
+import 'package:gphil/components/library/library_section.dart';
 import 'package:gphil/components/library/recent_items.dart';
+import 'package:gphil/components/library/recently_updated_items.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
@@ -8,10 +9,6 @@ import 'package:provider/provider.dart';
 
 class LibraryScreen extends StatelessWidget {
   const LibraryScreen({super.key});
-
-  int gridCount(double pixels) {
-    return (pixels / 500).ceil();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,53 +37,31 @@ class LibraryScreen extends StatelessWidget {
       //BODY
       Widget body = SizedBox(
         width: MediaQuery.sizeOf(context).width,
-        height: isTablet(context)
-            ? MediaQuery.sizeOf(context).height - 156
-            : MediaQuery.sizeOf(context).height,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 60,
-                child: Text(
-                  'W E L C O M E    T O    G P H I L${ac.appState == AppState.offline ? ' (offline)' : ''}',
-                  style: const TextStyle(fontSize: fontSizeLg),
-                ),
+        height: MediaQuery.sizeOf(context).height - 110,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: 60,
+              child: Text(
+                'W E L C O M E    T O    G P H I L${ac.appState == AppState.offline ? ' (offline)' : ''}',
+                style: const TextStyle(fontSize: fontSizeXl),
               ),
-              const SizedBox(height: separatorMd),
-              const RecentLibraryItems(),
-              const SizedBox(height: separatorMd),
-              const Text('L I B R A R Y',
-                  style: TextStyle(fontSize: fontSizeLg)),
-              SizedBox(
-                height: MediaQuery.sizeOf(context).height - 300,
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount:
-                        gridCount(MediaQuery.sizeOf(context).width - 100),
-                    crossAxisSpacing: separatorMd,
-                    mainAxisSpacing: separatorLg,
-                    childAspectRatio:
-                        gridCount(MediaQuery.sizeOf(context).width - 100) < 5
-                            ? 4 / 3
-                            : 7 / 5,
-                  ),
-                  itemCount: l.indexedLibrary.composers.length,
-                  itemBuilder: (context, index) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: LibraryComposer(
-                        composerName: l.indexedLibrary.composers[index].name,
-                        composerScores:
-                            l.indexedLibrary.composers[index].scores,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: separatorMd),
+            const Text('L I B R A R Y', style: TextStyle(fontSize: fontSizeLg)),
+            const SeparatorLine(),
+            const SizedBox(height: separatorMd),
+            LibrarySection(l: l),
+            const SeparatorLine(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: RecentlyUpdatedItems(l: l)),
+                Expanded(child: RecentLibraryItems(l: l)),
+              ],
+            ),
+          ],
         ),
       );
       return AnimatedCrossFade(

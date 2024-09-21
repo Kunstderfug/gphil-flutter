@@ -6,6 +6,8 @@ import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
+// Import SharedPreferences
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LibraryProvider extends ChangeNotifier {
   final List<LibraryItem> _library = [];
@@ -18,6 +20,12 @@ class LibraryProvider extends ChangeNotifier {
   final p = PersistentDataController();
   // recent scores
   final List<LibraryItem> _recentlyAccessedItems = [];
+  final List<LibraryItem> _recentlyUpdatedItems = [];
+
+  // Call loadRecentlyAccessedItems in the constructor
+  LibraryProvider() {
+    getLibrary();
+  }
 
 //!GETTERS
 
@@ -25,7 +33,7 @@ class LibraryProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   LibraryIndex get indexedLibrary => _indexedLibrary;
   List<LibraryItem> get recentlyAccessedItems => _recentlyAccessedItems;
-
+  List<LibraryItem> get recentlyUpdatedItems => _recentlyUpdatedItems;
 //!SETTERS
   set library(List<LibraryItem> library) {
     _library.clear();
@@ -44,10 +52,6 @@ class LibraryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  LibraryProvider() {
-    getLibrary();
-  }
-
   Future<List<LibraryItem>> getLibrary() async {
     isLoading = true;
     notifyListeners();
@@ -57,10 +61,13 @@ class LibraryProvider extends ChangeNotifier {
         log('fetching library');
         library = await SanityService().fetchLibrary();
         indexedLibrary = libraryIndex(library);
+        getRecentlyUpdatedItems(library);
+        loadRecentlyAccessedItems(library);
       } else {
         log('fetching local library');
         library = await p.getLocalLibrary();
         indexedLibrary = libraryIndex(library);
+        loadRecentlyAccessedItems(library);
       }
     } catch (e) {
       error = e.toString();
@@ -76,7 +83,7 @@ class LibraryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addToRecentlyAccessed(LibraryItem score) {
+  Future<void> addToRecentlyAccessed(LibraryItem score) async {
     // Remove the score if it's already in the list
     _recentlyAccessedItems.remove(score);
 
@@ -84,11 +91,43 @@ class LibraryProvider extends ChangeNotifier {
     _recentlyAccessedItems.insert(0, score);
 
     // Keep only the 5 most recent items
-    if (_recentlyAccessedItems.length > 10) {
-      _recentlyAccessedItems.removeRange(10, _recentlyAccessedItems.length);
+    if (_recentlyAccessedItems.length > 5) {
+      _recentlyAccessedItems.removeRange(5, _recentlyAccessedItems.length);
     }
 
+    await saveRecentlyAccessedItems(_recentlyAccessedItems);
+
     notifyListeners();
+  }
+
+  List<LibraryItem> getRecentlyUpdatedItems(List<LibraryItem> items) {
+    List<LibraryItem> sortedItems = List.from(items);
+    sortedItems.sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+    _recentlyUpdatedItems.clear();
+    _recentlyUpdatedItems.addAll(sortedItems.take(5).toList());
+    return _recentlyUpdatedItems;
+  }
+
+  // Method to load recently accessed items from SharedPreferences
+  Future<void> loadRecentlyAccessedItems(List<LibraryItem> libraryItems) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? items = prefs.getStringList('recentlyAccessedItems');
+    if (items != null && items.isNotEmpty) {
+      _recentlyAccessedItems.clear();
+
+      _recentlyAccessedItems.addAll(items.map(
+          (item) => libraryItems.firstWhere((element) => element.id == item)));
+      notifyListeners();
+    }
+  }
+
+  // Method to save recently accessed items to SharedPreferences
+  Future<void> saveRecentlyAccessedItems(List<LibraryItem> items) async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String> ids =
+        _recentlyAccessedItems.map((item) => item.id).toList();
+    log('saving recently accessed items: $ids');
+    await prefs.setStringList('recentlyAccessedItems', ids);
   }
 }
 

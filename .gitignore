@@ -30,10 +30,10 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-/build/
-/APP_RELEASE
-/APP_ARCHIVE
-/RUST_DISABLED
+build/
+APP_RELEASE/
+APP_ARCHIVE/
+RUST_DISABLED/
 Icon?
 
 # Symbolication related

@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.bin</key>
 		<data>
-		jwKi46KIn7kn6qDWeEmRrmvvA7A=
+		5NgoTitGajdqtCmns0Jpk93SS8M=
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<data>
-		IJfEfQTgcvPltSI/cQfjTLPcCaw=
+		Ahpj/NYc0DFBPGKRM/UpxM0xnfY=
 		</data>
 		<key>Resources/flutter_assets/FontManifest.json</key>
 		<data>
@@ -22,7 +22,7 @@
 		</data>
 		<key>Resources/flutter_assets/NOTICES.Z</key>
 		<data>
-		srRt0P0q1uVpHBcGurn2RbiDa7s=
+		Q7NyVHGDN2zQ/Xuhv4XcOhVfIlw=
 		</data>
 		<key>Resources/flutter_assets/assets/images/10_test.png</key>
 		<data>
@@ -228,6 +228,18 @@
 		<data>
 		Bvk+P1ykE1PGRdktwgwDyz6AOqM=
 		</data>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js</key>
+		<data>
+		UisVyYTje8KC5aR/chsGPj0x8u0=
+		</data>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.wasm</key>
+		<data>
+		9TAlDOxybHW0WI98WyZ0JMbqo2I=
+		</data>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/worker.dart.js</key>
+		<data>
+		g4/ixqd4zopekIXbEyLgijX+nHg=
+		</data>
 		<key>Resources/flutter_assets/packages/syncfusion_flutter_pdfviewer/assets/fonts/RobotoMono-Regular.ttf</key>
 		<data>
 		wloHLJYkCrj8KIth7fK7Ezqql10=
@@ -270,14 +282,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			tWDPnHSHxB6PCARvkL4noWyIm9fF8eGUDSoz6zvRp2o=
+			5FzG745oxSAUxrWWHiO4Mn01VV04TG+k1vgqH7p0BxE=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			UqVSugem7aSjLGP1/JT/Eh0e9TWS7ItyRP8AMsqr3sg=
+			F89NYdBuICK85Z7gXJqGdRlTX5y0dqSxO7/6NJ4mPrA=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/FontManifest.json</key>
@@ -291,7 +303,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			nYCmYav8rhD8gf1TUvZQ5SSgA1B0elmNHWPqf5nl9ro=
+			YY/gxt3ZOifapfMWQgmiAeNyiEAgwf15fPk7CTK8ktc=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/assets/images/10_test.png</key>
@@ -649,6 +661,27 @@
 			<key>hash2</key>
 			<data>
 			Z8RP6Rg7AC553ef2l34piGYcmj5KPF/OloeH79vtgjw=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			Aw0BT2K+1c0csn5FUEyV5k+CojNYSDP1hanFoLB3Jjo=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/libflutter_soloud_plugin.wasm</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			PWG2OTd4khwDr5dy5BgfgRX02nbFJeUGLOj4KnYVTmM=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/packages/flutter_soloud/web/worker.dart.js</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			UOe/b4y7SEUZG/vhuRKj3tM9DTits4V47r9C0fEqfC0=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/packages/syncfusion_flutter_pdfviewer/assets/fonts/RobotoMono-Regular.ttf</key>
