@@ -56,16 +56,23 @@ class LibraryScreen extends StatelessWidget {
               height: MediaQuery.sizeOf(context).height - 230,
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
+                  crossAxisCount:
+                      gridCount(MediaQuery.sizeOf(context).width - 100),
                   crossAxisSpacing: separatorMd,
                   mainAxisSpacing: separatorLg,
-                  childAspectRatio: 7 / 5,
+                  childAspectRatio:
+                      gridCount(MediaQuery.sizeOf(context).width - 100) < 5
+                          ? 4 / 3
+                          : 7 / 5,
                 ),
                 itemCount: l.indexedLibrary.composers.length,
                 itemBuilder: (context, index) {
-                  return LibraryComposer(
-                    composerName: l.indexedLibrary.composers[index].name,
-                    composerScores: l.indexedLibrary.composers[index].scores,
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: LibraryComposer(
+                      composerName: l.indexedLibrary.composers[index].name,
+                      composerScores: l.indexedLibrary.composers[index].scores,
+                    ),
                   );
                 },
               ),

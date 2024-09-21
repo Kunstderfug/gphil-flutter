@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';
+
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
@@ -9,7 +11,6 @@ import 'package:gphil/screens/home_screen.dart';
 import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/performance_screen.dart';
 import 'package:gphil/providers/theme_provider.dart';
-import 'package:flutter/material.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
 import 'package:provider/provider.dart';
@@ -53,12 +54,7 @@ class MyApp extends StatelessWidget {
         '/playlist': (context) => const HomeScreen(),
       },
       theme: t.themeData,
-      themeAnimationStyle: AnimationStyle(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.decelerate,
-        reverseCurve: Curves.easeInOutCubic,
-        reverseDuration: const Duration(milliseconds: 200),
-      ),
+      themeMode: ThemeMode.dark,
     );
   }
 }
