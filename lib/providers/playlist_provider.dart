@@ -394,9 +394,9 @@ class PlaylistProvider extends ChangeNotifier {
       if (layerFile.bytes.isNotEmpty) {
         layerFilesDownloaded++;
         notifyListeners();
+        await setLayerPlayerPool(
+            layerFile.path, layerAudioFileName, sectionLayer.layer);
       }
-      await setLayerPlayerPool(
-          layerFile.path, layerAudioFileName, sectionLayer.layer);
     }
 
     //SET MAIN PLAYER, NOT DOING ANYTHING RIGHT NOW
