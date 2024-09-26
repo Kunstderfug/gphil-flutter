@@ -6,6 +6,7 @@ import 'package:gphil/components/performance/main_volume.dart';
 // import 'package:gphil/components/performance/mixer_info.dart';
 import 'package:gphil/models/layer_player.dart';
 import 'package:gphil/providers/playlist_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 
 class GlobalMixer extends StatelessWidget {
@@ -59,10 +60,25 @@ class GlobalMixer extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(
+          height: separatorMd,
+        ),
+        Opacity(
+          opacity: p.layersEnabled ? 1 : 0.3,
+          child: Align(
+              alignment: Alignment.topRight,
+              child: TextButton(
+                onPressed: p.layersEnabled ? p.resetMixer : null,
+                child: const Text(
+                  'Reset Mixer',
+                  style: TextStyle(fontSize: fontSizeMd, color: Colors.white),
+                ),
+              )),
+        ),
         SizedBox(
           height: separatorXl,
           width: 500,
-          child: p.layerFilesLoading
+          child: p.appState == AppState.loading
               ? LoadingLayerFiles(
                   filesLoaded: p.layerPlayersPool.globalPools.length,
                   filesLength: p.playlist.where((s) => s.layers != null).length)
@@ -73,8 +89,3 @@ class GlobalMixer extends StatelessWidget {
     );
   }
 }
-
-// p.layerPlayersPool.globalPools.length /
-//                         p.playlist.where((s) => s.layers != null).length >
-//                     1
-//                 ? 

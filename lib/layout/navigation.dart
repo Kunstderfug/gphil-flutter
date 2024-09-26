@@ -45,7 +45,7 @@ class AppUpdateProgress extends StatelessWidget {
       AppUpdateCol1(au: au, ac: ac),
       Padding(
         padding: const EdgeInsets.all(8.0),
-        child: AppCurrentVersion(buildNumber: au.currentVersion),
+        child: AppCurrentVersion(buildNumber: au.localBuild),
       ),
     ]);
   }
@@ -75,7 +75,7 @@ class AppUpdateCol1 extends StatelessWidget {
                         children: [
                           Text('Update is available',
                               style: TextStyles().textMd),
-                          Text('Version: ${au.onlineVersion}'),
+                          Text('Version: ${au.onlineBuild}'),
                           const SizedBox(height: 16),
                           Align(
                             alignment: Alignment.topLeft,

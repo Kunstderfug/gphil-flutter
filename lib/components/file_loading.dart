@@ -12,14 +12,16 @@ class LoadingLayerFiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<PlaylistProvider>(
-      builder: (context, provider, child) {
+      builder: (context, p, child) {
         return Visibility(
           visible: true,
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text('loading files...'),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(p.filesDownloading
+                    ? 'getting files ready...'
+                    : 'loading files...'),
               ),
               LinearProgressIndicator(
                 minHeight: 4,

@@ -16,11 +16,12 @@ import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/section_tempos.dart';
 import 'package:gphil/components/social_button.dart';
 import 'package:gphil/providers/playlist_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class PerformanceScreen extends StatelessWidget {
-  final double windowSize = 600;
+  final double imageSize = 600;
   const PerformanceScreen({super.key});
 
   @override
@@ -28,11 +29,11 @@ class PerformanceScreen extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     Widget image = Stack(alignment: Alignment.topLeft, children: [
-      SectionImage(imageFile: p.currentSectionImage, width: windowSize),
+      SectionImage(imageFile: p.currentSectionImage, width: imageSize),
       // if (p.isPlaying)
       Positioned(
         top: sizeXs,
-        child: ImageProgress(windowSize: windowSize),
+        child: ImageProgress(windowSize: imageSize),
       )
     ]);
 
@@ -83,7 +84,9 @@ class PerformanceScreen extends StatelessWidget {
           Expanded(
             child: Column(
               children: [
-                const PlayerArea(),
+                Opacity(
+                    opacity: p.appState == AppState.loading ? 0.5 : 1,
+                    child: const PlayerArea()),
                 const SizedBox(
                   height: separatorMd,
                 ),

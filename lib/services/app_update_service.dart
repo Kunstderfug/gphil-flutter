@@ -14,8 +14,8 @@ final sanity = SanityService();
 final prefs = SharedPreferences.getInstance();
 
 class AppUpdateService extends ChangeNotifier {
-  String currentVersion = '';
-  String onlineVersion = '';
+  String localBuild = '';
+  String onlineBuild = '';
   AppVersionInfo? appVersionInfo;
   String? progress;
   bool updateDownloaded = false;
@@ -30,8 +30,7 @@ class AppUpdateService extends ChangeNotifier {
   String downloadError = '';
   final ac = AppConnection();
 
-  bool get updateAvailable =>
-      onlineVersion != '' && currentVersion != onlineVersion;
+  bool get updateAvailable => onlineBuild != '' && localBuild != onlineBuild;
 
   String get platform => kIsWeb ? 'web' : Platform.operatingSystem;
 
@@ -52,9 +51,9 @@ class AppUpdateService extends ChangeNotifier {
       try {
         appState = AppState.connecting;
         notifyListeners();
-        currentVersion = await getVersionNumber();
+        localBuild = await getVersionNumber();
         appVersionInfo = await getAppVersionInfo();
-        onlineVersion = appVersionInfo?.build ?? '';
+        onlineBuild = appVersionInfo?.build ?? '';
         appState = AppState.idle;
         notifyListeners();
       } catch (e) {
@@ -68,7 +67,14 @@ class AppUpdateService extends ChangeNotifier {
     appState = AppState.idle;
     updateChecked = true;
     notifyListeners();
-    return currentVersion != onlineVersion;
+    return compareVersions(onlineBuild, localBuild);
+  }
+
+  bool compareVersions(String online, String local) {
+    String replace(String str) => str.replaceAll(".", "").replaceAll('0', '');
+    int onlineBuild = int.parse(replace(online));
+    int localBuild = int.parse(replace(local));
+    return onlineBuild > localBuild;
   }
 
   Future<String> getVersionNumber() async {
@@ -103,7 +109,7 @@ class AppUpdateService extends ChangeNotifier {
   Future<String?> updateApp() async {
     final url = SupabaseService().supabaseUrl;
     final dio = Dio();
-    fileName = 'GPhil_v${onlineVersion}_installer';
+    fileName = 'GPhil_v${onlineBuild}_installer';
     cancelToken = CancelToken();
     try {
       // Get the document directory
@@ -127,8 +133,8 @@ class AppUpdateService extends ChangeNotifier {
 
       await dio.download(
         platform == 'macos'
-            ? '$url/app_release/GPhil_v$onlineVersion.dmg'
-            : '$url/app_release/GPhil_v$onlineVersion.exe',
+            ? '$url/app_release/GPhil_v$onlineBuild.dmg'
+            : '$url/app_release/GPhil_v$onlineBuild.exe',
         filePath,
         cancelToken: cancelToken,
         onReceiveProgress: (receivedBytes, totalBytes) {

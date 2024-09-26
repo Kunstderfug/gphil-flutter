@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:gphil/components/player/metronome.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -55,13 +56,15 @@ class PlayerControl extends StatelessWidget {
           actions: {
             HandlePreviousSection:
                 CallbackAction<HandlePreviousSection>(onInvoke: (intent) {
-              p.skipToPreviousSection();
-              syncProviders();
+              if (p.appState != AppState.loading) {
+                p.skipToPreviousSection();
+                syncProviders();
+              }
               return null;
             }),
             StartOrContinue:
                 CallbackAction<StartOrContinue>(onInvoke: (intent) async {
-              if (!p.isPlaying) {
+              if (!p.isPlaying && p.appState != AppState.loading) {
                 p.play();
               } else {
                 if (!p.doublePressGuard) {
@@ -69,6 +72,7 @@ class PlayerControl extends StatelessWidget {
                   syncProviders();
                 }
               }
+
               return null;
             }),
             Stop: CallbackAction<Stop>(onInvoke: (intent) {
@@ -77,8 +81,10 @@ class PlayerControl extends StatelessWidget {
             }),
             HandleNextSection:
                 CallbackAction<HandleNextSection>(onInvoke: (intent) {
-              p.skipToNextSection();
-              syncProviders();
+              if (p.appState != AppState.loading) {
+                p.skipToNextSection();
+                syncProviders();
+              }
               return null;
             }),
           },
@@ -93,8 +99,10 @@ class PlayerControl extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                         iconSize: iconSizeXl,
-                        onPressed: () => p.currentSectionIndex =
-                            (p.currentSectionIndex - 1) % p.playlist.length,
+                        onPressed: () => !p.layerFilesDownloading
+                            ? p.currentSectionIndex =
+                                (p.currentSectionIndex - 1) % p.playlist.length
+                            : null,
                         icon: const Icon(Icons.skip_previous)),
                   ),
 
@@ -107,7 +115,9 @@ class PlayerControl extends StatelessWidget {
                         IconButton(
                             padding: const EdgeInsets.all(0),
                             tooltip: 'Play/Pause',
-                            onPressed: p.pauseOrResume,
+                            onPressed: !p.layerFilesDownloading
+                                ? p.pauseOrResume
+                                : null,
                             icon: const RepaintBoundary(
                               child: Metronome(),
                             )),
@@ -119,8 +129,10 @@ class PlayerControl extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                         iconSize: iconSizeXl,
-                        onPressed: () => p.currentSectionIndex =
-                            (p.currentSectionIndex + 1) % p.playlist.length,
+                        onPressed: () => !p.layerFilesDownloading
+                            ? p.currentSectionIndex =
+                                (p.currentSectionIndex + 1) % p.playlist.length
+                            : null,
                         icon: const Icon(Icons.skip_next)),
                   ),
                 ],

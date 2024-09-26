@@ -79,9 +79,9 @@ class LayerPlayer extends PlayerPool {
 
 class Layer {
   final String layerName;
-  double volume;
+  double layerVolume;
 
-  Layer({required this.layerName, this.volume = 1.0});
+  Layer({required this.layerName, this.layerVolume = 1.0});
   String get fullName {
     switch (layerName) {
       case 'f':
@@ -115,19 +115,19 @@ class Layer {
   }
 
   void setVolume(double value) {
-    volume = value;
+    layerVolume = value;
     // log('global volume: $volume, layer: $layerName');
   }
 
   factory Layer.fromJson(Map<String, dynamic> json) {
     return Layer(
       layerName: json['layerName'],
-      volume: json['volume'],
+      layerVolume: json['volume'],
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'layerName': layerName, 'volume': volume};
+    return {'layerName': layerName, 'volume': layerVolume};
   }
 }
 
@@ -149,14 +149,14 @@ class LayerPlayerPool {
   final String sectionKey;
   int tempo;
   final List<SectionLayer> layers;
-  MainPlayer mainPlayer;
+  MainPlayer? mainPlayer;
   List<LayerPlayer> players;
   LayerPlayerPool(
       {required this.sectionIndex,
       required this.sectionKey,
       required this.tempo,
       required this.layers,
-      required this.mainPlayer,
+      this.mainPlayer,
       required this.players});
 
   List<SoundHandle> get activeLayerHandles => players
@@ -213,7 +213,7 @@ class LayerPlayerPool {
   void setChannelSoloOrMuted(String layer, bool value) {
     for (LayerPlayer player in players) {
       if (player.layer == layer) {
-        player.playerVolume = value ? 1.0 : 0.0;
+        player.playerVolume = value ? player.playerVolume : 0.0;
         player.isActive = value ? true : false;
         player.isMuted = value ? false : true;
       }
@@ -225,6 +225,12 @@ class LayerPlayerPool {
       player.playerVolume = 1.0;
       player.isActive = true;
       player.isMuted = false;
+    }
+  }
+
+  void disposePoolSources() {
+    for (LayerPlayer layerPlayer in players) {
+      layerPlayer.player.disposeSource(layerPlayer.audioSource);
     }
   }
 }
@@ -253,6 +259,16 @@ class GlobalLayerPlayerPool {
       if (player.layer == layer) {
         player.setPlayerVolume(volume);
       }
+    }
+  }
+
+  void resetVolume(double value, LayerPlayerPool pool) {
+    for (Layer l in globalLayers) {
+      l.setVolume(value);
+    }
+
+    for (LayerPlayer player in pool.players) {
+      player.setPlayerVolume(value);
     }
   }
 

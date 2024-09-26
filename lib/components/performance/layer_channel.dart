@@ -45,7 +45,7 @@ class LayerChannelLevel extends StatelessWidget {
                   activeColor: p.setColor(),
                   inactiveColor: p.setInactiveColor(),
                   enableTooltip: p.layersEnabled,
-                  value: layer.volume,
+                  value: layer.layerVolume,
                   onChangeEnd: (value) => p.updateLayersPrefs(),
                   onChanged: (value) => p.layersEnabled
                       ? p.setGlobalLayerVolume(value, layer.layerName)

@@ -16,7 +16,7 @@ class SectionAutoContinueSwitch extends StatelessWidget {
           children: [
             AutoSwitch(
               p: p,
-              onToggle: (value) => p.setSectionMuted(p.currentSectionKey!),
+              onToggle: (value) => p.setSectionSkipped(p.currentSectionKey!),
               label: p.currentSection?.muted == true
                   ? 'Section skipped'
                   : 'Skip section',
