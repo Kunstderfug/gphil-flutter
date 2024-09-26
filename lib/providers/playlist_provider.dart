@@ -974,7 +974,7 @@ class PlaylistProvider extends ChangeNotifier {
       toggleMainOrLayerVolume(true);
     } else {
       await stopLayers();
-      toggleMainOrLayerVolume(false);
+      // toggleMainOrLayerVolume(false);
       layersEnabled = false;
     }
 
