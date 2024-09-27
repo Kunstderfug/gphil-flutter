@@ -73,7 +73,7 @@ class SanityService {
     try {
       final response = await Client().get(Uri.parse(projectUrl + queryRequest));
       if (response.statusCode == 200) {
-        log('online version: ${json.decode(response.body)['result']}');
+        // log('online version: ${json.decode(response.body)['result']}');
         return AppVersionInfo.fromJson(json.decode(response.body)['result']);
       } else {
         log('Sanity Error: ${response.statusCode} ${response.body}');

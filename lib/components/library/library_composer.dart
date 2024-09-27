@@ -16,7 +16,7 @@ class LibraryComposer extends StatelessWidget {
       children: [
         Text(
           composerName.toUpperCase(),
-          style: TextStyles().textMd,
+          style: TextStyles().textLg,
         ),
         const SizedBox(height: separatorSm),
         SizedBox(

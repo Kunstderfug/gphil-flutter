@@ -79,7 +79,7 @@ class AppUpdateService extends ChangeNotifier {
 
   Future<String> getVersionNumber() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    log(packageInfo.version);
+    // log(packageInfo.version);
 
     return packageInfo.version;
   }

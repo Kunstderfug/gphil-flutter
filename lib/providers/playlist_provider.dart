@@ -127,7 +127,7 @@ class PlaylistProvider extends ChangeNotifier {
   Ticker ticker = Ticker((elapsed) {});
   double globalVolume = 1.0;
   double mainPlayerVolume = 1.0;
-  // double volumeMultiplier = 2.0;
+  double volumeMultiplier = 2.0;
   final GlobalLayerPlayerPool layerPlayersPool = GlobalLayerPlayerPool(
     globalLayers: [],
   );
@@ -744,7 +744,7 @@ class PlaylistProvider extends ChangeNotifier {
     globalVolume = value;
     notifyListeners();
     if (player.isInitialized) {
-      player.setGlobalVolume(globalVolume);
+      player.setGlobalVolume(globalVolume * volumeMultiplier);
     }
   }
 

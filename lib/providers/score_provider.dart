@@ -1,7 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
@@ -202,38 +202,39 @@ class ScoreProvider extends ChangeNotifier {
     currentTempo = currentSection.userTempo ?? currentSection.defaultTempo;
 
     //read from persistent storage
+    if (!kIsWeb) {
+      final clickData = await p.readClickJsonFile(
+          currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
+      sectionClickData = clickData;
 
-    final clickData = await p.readClickJsonFile(
-        currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
-    sectionClickData = clickData;
+      final currentPrefs =
+          await getSectionPrefs(currentScore!.id, currentSection.key);
 
-    final currentPrefs =
-        await getSectionPrefs(currentScore!.id, currentSection.key);
+      if (currentPrefs != null) {
+        currentSection.userTempo = currentPrefs.userTempo;
+        userTempo = currentPrefs.userTempo;
+        currentSection.autoContinue = currentPrefs.autoContinue;
+        currentMovement.setupSections[sectionIndex] = currentSection;
+        currentSections = _currentSections;
+        log('setCurrentSection, ${currentSection.autoContinue}');
+      } else {
+        //write to persistent storage
+        final sectionPrefs = SectionPrefs(
+            sectionKey: currentSection.key,
+            defaultTempo: currentTempo,
+            userTempo: currentSection.userTempo,
+            autoContinue: currentSection.autoContinue);
 
-    if (currentPrefs != null) {
-      currentSection.userTempo = currentPrefs.userTempo;
-      userTempo = currentPrefs.userTempo;
-      currentSection.autoContinue = currentPrefs.autoContinue;
-      currentMovement.setupSections[sectionIndex] = currentSection;
-      currentSections = _currentSections;
-      log('setCurrentSection, ${currentSection.autoContinue}');
-    } else {
-      //write to persistent storage
-      final sectionPrefs = SectionPrefs(
-          sectionKey: currentSection.key,
-          defaultTempo: currentTempo,
-          userTempo: currentSection.userTempo,
-          autoContinue: currentSection.autoContinue);
-
-      try {
-        await p.writeSectionJsonFile(
-            currentScore!.id, currentSection.key, sectionPrefs);
-      } catch (e) {
-        error = e.toString();
+        try {
+          await p.writeSectionJsonFile(
+              currentScore!.id, currentSection.key, sectionPrefs);
+        } catch (e) {
+          error = e.toString();
+        }
       }
-    }
-    if (currentSection.sectionImage != null) {
-      await setImageFle();
+      if (currentSection.sectionImage != null) {
+        await setImageFle();
+      }
     }
 
     return currentSection;
@@ -293,7 +294,9 @@ class ScoreProvider extends ChangeNotifier {
     try {
       error = '';
       isLoading = true;
-      InitScore? score = await p.readScoreData(scoreId);
+      InitScore? score = !kIsWeb
+          ? await p.readScoreData(scoreId)
+          : await p.getWebScoreData(scoreId);
 
       if (score == null) {
         error = 'No score found';
@@ -302,10 +305,10 @@ class ScoreProvider extends ChangeNotifier {
       currentScore = await setupScore(score);
       currentSignalScore.value = currentScore;
 
-      // scoreId = currentScore!.id;
-
       //check score revision
-      scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
+      if (!kIsWeb) {
+        scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
+      }
 
       //set movement index
       setMovementIndex(_movementIndex);
@@ -412,12 +415,14 @@ class ScoreProvider extends ChangeNotifier {
           AudioFormat.mp3,
         );
 
-        final SectionPrefs? localPrefs =
-            await getSectionPrefs(newSection.scoreId, newSection.key);
-        if (localPrefs != null) {
-          await updateSectionFromLocalPrefs(localPrefs, newSection);
-        } else {
-          log('local prefs not found');
+        if (!kIsWeb) {
+          final SectionPrefs? localPrefs =
+              await getSectionPrefs(newSection.scoreId, newSection.key);
+          if (localPrefs != null) {
+            await updateSectionFromLocalPrefs(localPrefs, newSection);
+          } else {
+            log('local prefs not found');
+          }
         }
         newMovement.setupSections.add(newSection);
         newMovement.sections = [];

@@ -21,6 +21,9 @@ class Navigation extends StatelessWidget {
       const Flexible(child: Nav()),
       if (au.platform == 'macos' || au.platform == 'windows')
         const Flexible(flex: 2, child: AppUpdate()),
+      const SeparatorLine(
+        height: 2,
+      ),
     ]);
   }
 }
@@ -188,7 +191,7 @@ class Nav extends StatelessWidget {
     return Column(children: [
       //logo
       SizedBox(
-        height: 145,
+        height: 182,
         child: DrawerHeader(
             child: Center(
           child: ClipOval(
@@ -207,13 +210,6 @@ class Nav extends StatelessWidget {
             icon: screen['icon'] as IconData,
             index: nScreens.indexOf(screen),
           )),
-
-      //DARK MODE
-      // const Padding(
-      //   padding:
-      //       EdgeInsets.symmetric(horizontal: paddingMd, vertical: paddingXs),
-      //   child: DarkModeSlider(),
-      // ),
     ]);
   }
 }

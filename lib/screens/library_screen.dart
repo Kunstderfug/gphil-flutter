@@ -37,7 +37,7 @@ class LibraryScreen extends StatelessWidget {
       //BODY
       Widget body = SizedBox(
         width: MediaQuery.sizeOf(context).width,
-        height: MediaQuery.sizeOf(context).height - 110,
+        height: MediaQuery.sizeOf(context).height - 140,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

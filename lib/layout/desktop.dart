@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/score/score_links.dart';
 import 'package:gphil/layout/drawer.dart';
+import 'package:gphil/layout/status_bar.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
@@ -98,6 +99,7 @@ class DesktopLayout extends StatelessWidget {
           ],
         ),
       ]),
+      bottomNavigationBar: const StatusBar(),
       floatingActionButton: isLibraryScreen
           ? FloatingActionButton(
               backgroundColor: highlightColor.withOpacity(0.7),

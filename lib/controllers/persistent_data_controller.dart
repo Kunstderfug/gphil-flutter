@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
@@ -11,6 +11,7 @@ import 'package:gphil/services/sanity_service.dart';
 import 'package:http/http.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PersistentDataController {
   final imageFormat = 'png';
@@ -265,33 +266,70 @@ class PersistentDataController {
     }
   }
 
+// Method to retrieve score data from SharedPreferences
+  Future<InitScore?> getWebScoreData(String scoreId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String scoreKey = 'score_$scoreId';
+    final String? scoreDataString = prefs.getString(scoreKey);
+    if (scoreDataString != null && scoreDataString.isNotEmpty) {
+      log('getWebScoreData: ${scoreDataString.substring(0, 100)}');
+      final Map<String, dynamic> scoreData = jsonDecode(scoreDataString);
+      return InitScore.fromJson(scoreData);
+    } else {
+      log('getWebScoreData: fetching from web');
+      final InitScore? score = await SanityService().fetchScore(scoreId);
+      if (score != null) {
+        log('getWebScoreData: saving to web, $score');
+        await saveWebScoreData(score);
+        return score;
+      }
+    }
+    return null;
+  }
+
+  // Method to save score data to SharedPreferences
+  Future<void> saveWebScoreData(InitScore score) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String scoreKey = 'score_${score.id}';
+
+    final Map<String, dynamic> scoreData = score.toJson();
+
+    await prefs.setString(scoreKey, jsonEncode(scoreData));
+    log('Saved score data for: ${score.shortTitle}');
+  }
+
   //save score data
   Future<void> writeScoreData(String scoreId, InitScore data) async {
-    final String path = await _gphilRootDirectory;
-    final File scoreFile = File('$path/score_$scoreId.json');
+    if (!kIsWeb) {
+      final String path = await _gphilRootDirectory;
+      final File scoreFile = File('$path/score_$scoreId.json');
 
-    log('writeScoreData ${data.id}');
-    await scoreFile.writeAsString(json.encode(data));
+      log('writeScoreData ${data.id}');
+      await scoreFile.writeAsString(json.encode(data));
+    }
   }
 
   //read score data
   Future<InitScore?> readScoreData(String scoreId) async {
-    final String rootPath = await _gphilRootDirectory;
-    final File localScoreJson = File('$rootPath/score_$scoreId.json');
     InitScore? scoreJson;
+    if (!kIsWeb) {
+      final String rootPath = await _gphilRootDirectory;
+      final File localScoreJson = File('$rootPath/score_$scoreId.json');
 
-    if (await localScoreJson.exists()) {
-      final Map<String, dynamic> scoreData = await Isolate.run(
-          () async => await json.decode(await localScoreJson.readAsString()));
-      scoreJson = await Isolate.run(() => InitScore.fromJson(scoreData));
-    } else {
-      log('downloading score data');
-      scoreJson = await SanityService().fetchScore(scoreId);
-      if (scoreJson != null) {
-        await writeScoreData(scoreId, scoreJson);
+      if (await localScoreJson.exists()) {
+        final Map<String, dynamic> scoreData = await Isolate.run(
+            () async => await json.decode(await localScoreJson.readAsString()));
+        scoreJson = await Isolate.run(() => InitScore.fromJson(scoreData));
+      } else {
+        log('downloading score data');
+        scoreJson = await SanityService().fetchScore(scoreId);
+        if (scoreJson != null) {
+          await writeScoreData(scoreId, scoreJson);
+        }
       }
+    } else {
+      scoreJson = await getWebScoreData(scoreId);
     }
-
     return scoreJson;
   }
 
