@@ -11,11 +11,11 @@ ThemeData darkMode = ThemeData(
     ),
     listTileTheme: ListTileThemeData(
       iconColor: Colors.grey.shade300,
-      selectedTileColor: Colors.purple.shade800,
+      // selectedTileColor: Colors.purple.shade800,
       selectedColor: Colors.grey.shade200,
     ),
     hoverColor: Colors.purple.shade900,
-    highlightColor: Colors.purple.shade800,
+    highlightColor: Color.fromARGB(255, 86, 0, 170),
     fontFamily: 'Roboto',
     textTheme: TextTheme(
       titleLarge: TextStyle(color: Colors.grey.shade400),

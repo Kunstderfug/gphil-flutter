@@ -45,17 +45,18 @@ class SectionPrefs {
   final double? sectionVolume;
   final List<Layer>? layers;
   final bool? muted;
+  final bool? looped;
 
-  SectionPrefs({
-    required this.sectionKey,
-    required this.defaultTempo,
-    this.userTempo,
-    this.userLayerTempo,
-    this.autoContinue,
-    this.sectionVolume = 1,
-    this.layers,
-    this.muted,
-  });
+  SectionPrefs(
+      {required this.sectionKey,
+      required this.defaultTempo,
+      this.userTempo,
+      this.userLayerTempo,
+      this.autoContinue,
+      this.sectionVolume = 1,
+      this.layers,
+      this.muted,
+      this.looped});
 
   factory SectionPrefs.fromJson(Map<String, dynamic> json) => SectionPrefs(
         sectionKey: json["sectionKey"],
@@ -65,6 +66,7 @@ class SectionPrefs {
         autoContinue: json["autoContinue"],
         sectionVolume: json["sectionVolume"] ?? 1,
         muted: json['muted'] ?? false,
+        looped: json['looped'] ?? false,
         layers: List<Layer>.from(json['layers'] != null
             ? json["layers"]?.map((x) => Layer.fromJson(x))
             : []),
@@ -78,6 +80,7 @@ class SectionPrefs {
         "autoContinue": autoContinue,
         "sectionVolume": sectionVolume,
         "muted": muted,
+        "looped": looped,
         "layers": layers != null
             ? List<dynamic>.from(layers!.map((x) => x.toJson()))
             : null,

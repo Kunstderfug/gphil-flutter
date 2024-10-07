@@ -18,9 +18,12 @@ class Navigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final au = Provider.of<AppUpdateService>(context);
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      const Flexible(child: Nav()),
+      const SizedBox(
+        height: 360,
+        child: Nav(),
+      ),
       if (au.platform == 'macos' || au.platform == 'windows')
-        const Flexible(flex: 2, child: AppUpdate()),
+        const Expanded(child: AppUpdate()),
       const SeparatorLine(
         height: 2,
       ),
@@ -48,7 +51,7 @@ class AppUpdateProgress extends StatelessWidget {
       AppUpdateCol1(au: au, ac: ac),
       Padding(
         padding: const EdgeInsets.all(8.0),
-        child: AppCurrentVersion(buildNumber: au.localBuild),
+        child: AppCurrentVersion(),
       ),
     ]);
   }
@@ -187,7 +190,7 @@ class Nav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final n = Provider.of<NavigationProvider>(context);
-    final nScreens = n.navigationScreens;
+    final screens = n.navigationScreens;
     return Column(children: [
       //logo
       SizedBox(
@@ -205,18 +208,17 @@ class Nav extends StatelessWidget {
       ),
 
       //NAVIGATION
-      ...nScreens.getRange(0, 2).map((screen) => NavigationItem(
+      ...screens.getRange(0, 2).map((screen) => NavigationItem(
             title: screen['title'] as String,
             icon: screen['icon'] as IconData,
-            index: nScreens.indexOf(screen),
+            index: screens.indexOf(screen),
           )),
     ]);
   }
 }
 
 class AppCurrentVersion extends StatelessWidget {
-  const AppCurrentVersion({super.key, required this.buildNumber});
-  final String buildNumber;
+  const AppCurrentVersion({super.key});
 
   void callback(String url) async {
     await launchUrl(Uri.parse(url));
@@ -228,8 +230,8 @@ class AppCurrentVersion extends StatelessWidget {
       children: [
         const SocialButton(
             label: 'Support Project',
-            icon: Icons.favorite,
-            url: 'https://donate.stripe.com/eVa7tYccjd0a8488ww',
+            icon: Icons.paypal,
+            url: 'https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ',
             iconColor: highlightColor,
             borderColor: highlightColor),
         const SizedBox(height: 16),
@@ -246,9 +248,6 @@ class AppCurrentVersion extends StatelessWidget {
             url: 'https://discord.gg/DMDvB6NFJu',
             iconColor: Colors.red.shade900,
             borderColor: Colors.red.shade900),
-        const SeparatorLine(),
-        const Text('GPhil Project'),
-        Text('Version: $buildNumber'),
       ],
     );
   }
@@ -260,10 +259,6 @@ class AppUpdateInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(appVersionInfo.build),
-      ],
-    );
+    return Text(appVersionInfo.build);
   }
 }

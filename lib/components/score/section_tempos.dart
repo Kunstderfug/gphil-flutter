@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/models/section.dart';
-// import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:gphil/services/app_state.dart';
@@ -15,10 +13,9 @@ class SectionTempos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<ThemeProvider>(context);
+    final t = Provider.of<ThemeProvider>(context);
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
-    final n = Provider.of<NavigationProvider>(context);
     bool isSelected(int tempo) {
       return p.playlist.isNotEmpty && p.currentSectionKey == section.key
           ? p.currentTempo == tempo
@@ -28,8 +25,12 @@ class SectionTempos extends StatelessWidget {
     bool isDefaultTempo(int tempo) => section.defaultTempo == tempo;
 
     void setTempo(int tempo) {
-      p.setUserTempo(tempo);
-      s.setCurrentTempo(tempo);
+      //TODO need work for syncing section between providers
+      if (p.currentMovementKey != null && p.currentSectionKey != null) {
+        p.tempoForAllSectionsEnabled
+            ? p.setTempoForAllSections(tempo)
+            : p.setUserTempo(tempo, p.currentSection!);
+      }
     }
 
     bool tempoExists(int tempo) {
@@ -46,60 +47,51 @@ class SectionTempos extends StatelessWidget {
       return 1.0;
     }
 
-    return Column(
-      children: [
-        Text(
-          'S E C T I O N  T E M P O S',
-          style: TextStyle(
-            fontSize: n.currentIndex == 1 ? fontSizeLg : fontSizeMd,
+    return Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: paddingMd),
+            child: Text('Tempos: ', style: TextStyle(fontSize: fontSizeMd)),
           ),
-        ),
-        const SizedBox(height: separatorXs),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 0,
-          runSpacing: separatorXs,
-          children: [
-            for (int tempo in section.tempoRange)
-              Opacity(
-                opacity: setOpacity(tempo),
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    elevation: 0,
-                    animationDuration: const Duration(milliseconds: 200),
-                    backgroundColor: isSelected(tempo)
-                        ? theme.themeData.highlightColor
-                        : theme.themeData.colorScheme.primary,
-                    foregroundColor: theme.themeData.colorScheme.inversePrimary,
-                    shape: CircleBorder(
-                      side: BorderSide(
-                        width: 2,
-                        color: isDefaultTempo(tempo)
-                            ? theme.themeData.highlightColor
-                            : Colors.transparent,
-                      ),
-                    ),
-                  ),
-                  onPressed: () => tempoExists(tempo)
-                      ? p.appState != AppState.loading
-                          ? setTempo(tempo)
-                          : null
-                      : null,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Text(
-                      tempo.toString(),
-                      style: TextStyle(
-                        fontSize: fontSizeSm,
-                        fontWeight: isSelected(tempo) ? FontWeight.bold : null,
-                      ),
+          for (int tempo in section.tempoRange)
+            Opacity(
+              opacity: setOpacity(tempo),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  elevation: 0,
+                  animationDuration: const Duration(milliseconds: 200),
+                  backgroundColor: isSelected(tempo)
+                      ? t.themeData.highlightColor
+                      : t.themeData.colorScheme.primary,
+                  foregroundColor: t.themeData.colorScheme.inversePrimary,
+                  shape: CircleBorder(
+                    side: BorderSide(
+                      width: 2,
+                      color: isDefaultTempo(tempo)
+                          ? t.themeData.highlightColor
+                          : Colors.transparent,
                     ),
                   ),
                 ),
-              )
-          ],
-        ),
-      ],
-    );
+                onPressed: () => tempoExists(tempo)
+                    ? p.appState != AppState.loading
+                        ? setTempo(tempo)
+                        : null
+                    : null,
+                child: Padding(
+                  padding: const EdgeInsets.all(paddingMd),
+                  child: Text(
+                    tempo.toString(),
+                    style: TextStyle(
+                      fontSize: fontSizeSm,
+                      fontWeight: isSelected(tempo) ? FontWeight.bold : null,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ]);
   }
 }

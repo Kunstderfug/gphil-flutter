@@ -8,7 +8,7 @@ import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:gphil/services/supabase_service.dart';
-import 'package:signals/signals.dart';
+// import 'package:signals/signals.dart';
 
 enum AudioFormats { mp3, flac, opus }
 
@@ -133,7 +133,7 @@ class ScoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //METHODS
+//METHODS
 
   void setCurrentScoreIdAndRevision(String id, String rev) {
     _currentScoreId = id;
@@ -178,16 +178,6 @@ class ScoreProvider extends ChangeNotifier {
     return currentPrefs;
   }
 
-  Future<void> updateSectionFromLocalPrefs(
-      SectionPrefs sectionPrefs, Section section) async {
-    section.userTempo = sectionPrefs.userTempo;
-    section.userLayerTempo = sectionPrefs.userLayerTempo;
-    section.autoContinue = sectionPrefs.autoContinue;
-    section.sectionVolume = sectionPrefs.sectionVolume;
-    section.muted = sectionPrefs.muted ?? false;
-    log('updateSectionFromLocalPrefs, $sectionPrefs');
-  }
-
   void setSections(String movementKey, String sectionKey) {
     setCurrentMovement(movementKey);
     setCurrentSections();
@@ -198,43 +188,11 @@ class ScoreProvider extends ChangeNotifier {
         _currentSections.indexWhere((section) => section.key == sectionKey);
     currentSection =
         _currentSections.firstWhere((section) => section.key == sectionKey);
-    currentSignalSection.value = currentSection;
     currentTempo = currentSection.userTempo ?? currentSection.defaultTempo;
 
     //read from persistent storage
-    if (!kIsWeb) {
-      final clickData = await p.readClickJsonFile(
-          currentScore!.id, currentSection.key, currentSection.clickDataUrl!);
-      sectionClickData = clickData;
-
-      final currentPrefs =
-          await getSectionPrefs(currentScore!.id, currentSection.key);
-
-      if (currentPrefs != null) {
-        currentSection.userTempo = currentPrefs.userTempo;
-        userTempo = currentPrefs.userTempo;
-        currentSection.autoContinue = currentPrefs.autoContinue;
-        currentMovement.setupSections[sectionIndex] = currentSection;
-        currentSections = _currentSections;
-        log('setCurrentSection, ${currentSection.autoContinue}');
-      } else {
-        //write to persistent storage
-        final sectionPrefs = SectionPrefs(
-            sectionKey: currentSection.key,
-            defaultTempo: currentTempo,
-            userTempo: currentSection.userTempo,
-            autoContinue: currentSection.autoContinue);
-
-        try {
-          await p.writeSectionJsonFile(
-              currentScore!.id, currentSection.key, sectionPrefs);
-        } catch (e) {
-          error = e.toString();
-        }
-      }
-      if (currentSection.sectionImage != null) {
-        await setImageFle();
-      }
+    if (!kIsWeb && currentSection.sectionImage != null) {
+      await setImageFle();
     }
 
     return currentSection;
@@ -248,42 +206,6 @@ class ScoreProvider extends ChangeNotifier {
     sectionImageUrl = imageFile?.path;
     sectionImageFile = imageFile;
     return imageFile;
-  }
-
-  void setCurrentTempo(int tempo) async {
-    currentSection.userTempo = tempo;
-
-    currentTempo = tempo;
-    userTempo = tempo;
-
-    final int? layerTempoIndex =
-        currentSection.tempoRangeLayers?.indexOf(tempo);
-    layerTempoIndex != -1 && layerTempoIndex != null
-        ? currentSection.userLayerTempo = tempo
-        : null;
-
-    final String audioFileName = audioUrl.split('/').last;
-
-    //update sections array with new data
-    currentMovement.setupSections[sectionIndex] = currentSection;
-    currentSections = _currentSections;
-
-    final sectionPrefs = SectionPrefs(
-      sectionKey: currentSection.key,
-      defaultTempo: currentSection.defaultTempo,
-      userTempo: tempo,
-      userLayerTempo:
-          layerTempoIndex != -1 ? tempo : currentSection.defaultTempo,
-      autoContinue: currentSection.autoContinue,
-    );
-
-    try {
-      await p.writeSectionJsonFile(
-          currentScore!.id, currentSection.key, sectionPrefs);
-      await p.readAudioFile(scoreId, audioFileName, audioUrl);
-    } catch (e) {
-      error = e.toString();
-    }
   }
 
   Future<void> getScore(String scoreId) async {
@@ -303,7 +225,6 @@ class ScoreProvider extends ChangeNotifier {
         return;
       }
       currentScore = await setupScore(score);
-      currentSignalScore.value = currentScore;
 
       //check score revision
       if (!kIsWeb) {
@@ -326,7 +247,6 @@ class ScoreProvider extends ChangeNotifier {
     try {
       InitScore? score = await p.updateScore(_currentScoreId, currentScoreRev);
       currentScore = await setupScore(score!);
-      currentSignalScore.value = currentScore;
       setMovementIndex(_movementIndex);
       scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
     } catch (e) {
@@ -390,6 +310,8 @@ class ScoreProvider extends ChangeNotifier {
             tempoMultiplier: section.tempoMultiplier,
             layers: section.layers,
             muted: false,
+            looped: false,
+            updateRequired: section.updateRequired,
             clickDataUrl: getClickDataUrl(
                 score.slug,
                 score.pathName,
@@ -415,15 +337,15 @@ class ScoreProvider extends ChangeNotifier {
           AudioFormat.mp3,
         );
 
-        if (!kIsWeb) {
-          final SectionPrefs? localPrefs =
-              await getSectionPrefs(newSection.scoreId, newSection.key);
-          if (localPrefs != null) {
-            await updateSectionFromLocalPrefs(localPrefs, newSection);
-          } else {
-            log('local prefs not found');
-          }
-        }
+        // if (!kIsWeb) {
+        //   final SectionPrefs? localPrefs =
+        //       await getSectionPrefs(newSection.scoreId, newSection.key);
+        //   if (localPrefs != null) {
+        //     await updateSectionFromLocalPrefs(localPrefs, newSection);
+        //   } else {
+        //     log('local prefs not found');
+        //   }
+        // }
         newMovement.setupSections.add(newSection);
         newMovement.sections = [];
 
@@ -503,10 +425,3 @@ class AudioFormat {
   static const String opus = 'opus';
   static const String flac = 'flac';
 }
-
-//TEST SIGNALS
-Signal<Score?> currentSignalScore = signal(null);
-Signal<Section?> currentSignalSection = signal(null);
-final currentScoreId = computed(() => currentSignalScore.value?.id);
-final currentScoreTitle = computed(() => currentSignalScore.value?.shortTitle);
-final currentSectionKey = computed(() => currentSignalSection.value?.key);

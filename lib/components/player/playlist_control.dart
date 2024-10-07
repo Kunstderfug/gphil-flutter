@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/playlist_provider.dart';
+import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class PlaylistControl extends StatelessWidget {
@@ -14,7 +15,7 @@ class PlaylistControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlaylistProvider>(builder: (context, provider, child) {
+    return Consumer<PlaylistProvider>(builder: (context, p, child) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25.0),
         child: Row(
@@ -22,20 +23,44 @@ class PlaylistControl extends StatelessWidget {
           children: [
             //start time
             Text(
-              convertDuration(provider.currentPosition),
+              convertDuration(p.currentPosition),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),
 
             // mark in a loop icon
-            IconButton(onPressed: () {}, icon: const Icon(Icons.start_sharp)),
+            Opacity(
+              opacity: !p.performanceMode ? 1 : 0.3,
+              child: IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () =>
+                      !p.performanceMode ? p.toggleSectionLooped() : null,
+                  icon: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: p.isSectionLooped
+                            ? p.setColor()
+                            : Colors.transparent),
+                    padding: const EdgeInsets.all(paddingMd),
+                    child: const Icon(Icons.loop),
+                  )),
+            ),
 
-            //repeat icon
-            IconButton(onPressed: () {}, icon: const Icon(Icons.stop_rounded)),
+            //stop icon
+            IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => p.stop(),
+                icon: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: p.isPlaying ? p.setColor() : Colors.transparent),
+                  padding: const EdgeInsets.all(paddingMd),
+                  child: const Icon(Icons.stop),
+                )),
 
             //end time
             Text(
-              convertDuration(provider.duration),
+              convertDuration(p.duration),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.inversePrimary),
             ),

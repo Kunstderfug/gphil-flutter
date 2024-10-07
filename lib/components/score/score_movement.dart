@@ -31,7 +31,7 @@ class ScoreMovement extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRad().bRadiusXl,
                 color: isSelected
-                    ? Theme.of(context).highlightColor.withOpacity(1)
+                    ? AppColors().highLightColor(context)
                     : Colors.transparent,
               ),
               child: Padding(
@@ -47,7 +47,7 @@ class ScoreMovement extends StatelessWidget {
           IconButton(
               style: ButtonStyle(
                 backgroundColor: p.containsMovement(movement.key)
-                    ? WidgetStateProperty.all(Theme.of(context).highlightColor)
+                    ? WidgetStateProperty.all(greenColor)
                     : WidgetStateProperty.all(Colors.transparent),
                 shape: WidgetStateProperty.all(const CircleBorder()),
               ),
@@ -65,7 +65,7 @@ class ScoreMovement extends StatelessWidget {
                 p.containsMovement(movement.key) ? Icons.check : Icons.add,
                 color: p.containsMovement(movement.key)
                     ? Theme.of(context).colorScheme.inversePrimary
-                    : Theme.of(context).highlightColor,
+                    : greenColor,
               )),
         ],
       ),

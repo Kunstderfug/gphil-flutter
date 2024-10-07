@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/providers/navigation_provider.dart';
-import 'package:gphil/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 double scale(BuildContext context) => isHiDPI(context) ? 1.25 : 1.0;
@@ -54,9 +53,10 @@ const fontSize3Xl = 64.0;
 const fontSize4Xl = 96.0;
 
 //colors
-final greenColor = Colors.green.shade600;
+// final greenColor = Color(0xFF008B76);
+final greenColor = AppColors.darkGreen;
 final redColor = Colors.red.shade800;
-const highlightColor = Color.fromARGB(255, 157, 0, 255);
+const highlightColor = Color.fromARGB(255, 86, 0, 170);
 
 double appBarHeight(BuildContext context) {
   if (isTablet(context)) {
@@ -86,6 +86,42 @@ class AppColors {
 
   Color foregroundColor(BuildContext context) =>
       Theme.of(context).colorScheme.inversePrimary;
+
+  static Color greenColor = Colors.green.shade600;
+  static const Color mutedGreen = Color.fromARGB(255, 191, 255, 0);
+  static const Color deepJungleGreen = Color(0xFF006D5B);
+  static const Color pineGreen = Color(0xFF00796B);
+  static const Color persianGreen = Color(0xFF00897B);
+  static const Color teal = Color(0xFF009688);
+  static const Color keppel = Color(0xFF26A69A);
+  static const Color deepTeal = Color(0xFF004D40);
+  static const Color tropicalRainForest = Color(0xFF00695C);
+  static const Color bottleGreen = Color(0xFF00796B);
+  static const Color blueStone = Color(0xFF00838F);
+  static const Color midnightGreen = Color(0xFF006064);
+  static const Color emeraldGreen = Color(0xFF50C878);
+  static const Color forestGreen = Color(0xFF1B5E20);
+  static const Color darkGreen = Color(0xFF2E7D32);
+  static const Color green = Color(0xFF388E3C);
+  static const Color mediumGreen = Color(0xFF43A047);
+  static const Color lightGreen = Color(0xFF4CAF50);
+  static const Color limeGreen = Color(0xFF66BB6A);
+  static Color limeGreen1 = Color(0xFF00FF00);
+  static const Color paleGreen = Color(0xFF81C784);
+  static const Color tealGreen = Color(0xFF00695C);
+  static const Color deepGreen = Color(0xFF004D40);
+  static const Color deepGreenTeal = Color.fromARGB(255, 22, 104, 88);
+
+  static const Color tyrianPurple = Color(0xFF4A0E4E);
+  static const Color indigoPurple = Color(0xFF5E2D79);
+  static const Color purple = Color(0xFF7B1FA2);
+  static const Color deepPurple = Color(0xFF8E24AA);
+  static const Color mediumPurple = Color(0xFF9C27B0);
+  static const Color orchidPurple = Color(0xFFAB47BC);
+  static const Color lightPurple = Color(0xFFBA68C8);
+  static const Color royalPurple = Color(0xFF6A1B9A);
+  static const Color deepViolet = Color(0xFF4A148C);
+  static const Color lavender = Color(0xFFD1C4E9);
 }
 
 class ElevatedButtonStyles {
@@ -195,18 +231,23 @@ class BackButton extends StatelessWidget {
 }
 
 class SeparatorLine extends StatelessWidget {
-  const SeparatorLine({super.key, this.height = separatorMd});
+  const SeparatorLine(
+      {super.key,
+      this.height = separatorMd,
+      this.color = Colors.grey,
+      this.opacity = 0.2});
   final double height;
+  final Color color;
+  final double opacity;
   @override
   Widget build(BuildContext context) {
-    final theme = Provider.of<ThemeProvider>(context);
     return SizedBox(
       height: height,
       child: Center(
         child: Container(
           height: separatorThickness,
           decoration: BoxDecoration(
-            color: theme.themeData.highlightColor,
+            color: color.withOpacity(opacity),
           ),
         ),
       ),
@@ -244,8 +285,18 @@ class BottomBar extends StatelessWidget {
   }
 }
 
+ButtonStyle buttonStyle(Color color, BuildContext context) =>
+    TextButton.styleFrom(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(32)),
+      ),
+      side: BorderSide(color: color),
+      backgroundColor: Colors.transparent,
+      foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+    );
+
 double imageWidth(BuildContext context) {
   return MediaQuery.sizeOf(context).width <= 899 ? 500 : 600;
 }
 
-double maxLaptopWidth = 1512; //mackbook pro 14 inch
+double maxLaptopWidth = 2560;

@@ -3,10 +3,10 @@ import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-class LoadingLayerFiles extends StatelessWidget {
+class LoadingFiles extends StatelessWidget {
   final int filesLoaded;
   final int filesLength;
-  const LoadingLayerFiles(
+  const LoadingFiles(
       {super.key, required this.filesLoaded, required this.filesLength});
 
   @override
@@ -24,9 +24,9 @@ class LoadingLayerFiles extends StatelessWidget {
                     : 'loading files...'),
               ),
               LinearProgressIndicator(
-                minHeight: 4,
-                color: highlightColor,
-                backgroundColor: highlightColor.withOpacity(0.5),
+                minHeight: 2,
+                color: greenColor,
+                backgroundColor: greenColor.withOpacity(0.5),
                 value: (filesLoaded / filesLength).toDouble(),
               ),
             ],

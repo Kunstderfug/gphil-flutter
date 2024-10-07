@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/layout/navigation.dart';
+// import 'package:gphil/layout/navigation.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  final Widget child;
+  const MyDrawer({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class MyDrawer extends StatelessWidget {
         ),
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      child: const Navigation(),
+      child: child,
     );
   }
 }

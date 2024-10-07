@@ -12,14 +12,6 @@ class ShowPrompt extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
     final s = Provider.of<ScoreProvider>(context);
 
-    final ButtonStyle buttonStyle = TextButton.styleFrom(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(32)),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-    );
-
     Widget clearSession = ElevatedButton.icon(
       iconAlignment: IconAlignment.end,
       label: Padding(
@@ -33,12 +25,12 @@ class ShowPrompt extends StatelessWidget {
           ),
         ),
       ),
-      style: buttonStyle,
+      style: buttonStyle(redColor, context),
       onPressed: () {
         p.clearSession();
         p.addMovement(s.currentScore!, p.movementToAdd!, s.currentSection.key);
       },
-      icon: Icon(Icons.check, color: greenColor),
+      icon: Icon(Icons.check, color: redColor),
     );
 
     Widget closePrompt = ElevatedButton.icon(
@@ -53,43 +45,76 @@ class ShowPrompt extends StatelessWidget {
             ),
           ),
         ),
-        style: buttonStyle,
+        style: buttonStyle(greenColor, context),
         onPressed: () => p.closePrompt(),
-        icon: Icon(Icons.close_sharp, color: redColor));
+        icon: Icon(Icons.close_sharp, color: greenColor));
+
+    Widget content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'Replace a concerto?',
+          style: TextStyles().textLg,
+        ),
+        const SizedBox(height: separatorXs),
+        Text(
+          'You already have a score in your session',
+          textAlign: TextAlign.center,
+          style: TextStyles().textMd,
+        ),
+        const SizedBox(height: separatorXs),
+        Text(
+          '${p.sessionComposer} - ${p.sessionScore?.shortTitle}',
+          textAlign: TextAlign.start,
+          style: TextStyles().textMd,
+        ),
+        const SizedBox(height: separatorXl),
+        Text(
+          'Would you like to replace it?',
+          textAlign: TextAlign.center,
+          style: TextStyles().textLg,
+        ),
+      ],
+    );
 
     return AnimatedOpacity(
       opacity: p.showPrompt ? 0.97 : 0,
       duration: const Duration(milliseconds: 300),
-      child: AlertDialog(
+      child: Dialog(
         alignment: Alignment.topCenter,
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        contentPadding: const EdgeInsets.all(paddingXl * 1.5),
-        iconColor: highlightColor,
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'You already have a score in your session',
-              textAlign: TextAlign.center,
-              style: TextStyles().textLg,
+        child: Container(
+          width: 600,
+          height: 340,
+          padding: const EdgeInsets.all(paddingXl),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).colorScheme.onPrimary,
+                Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+              ],
             ),
-            const SizedBox(height: separatorXs),
-            Text(
-              '${p.sessionComposer} - ${p.sessionScore?.shortTitle}',
-              textAlign: TextAlign.start,
-              style: TextStyles().textMd,
-            ),
-            const SizedBox(height: separatorXl),
-            Text(
-              'Would you like to replace it?',
-              textAlign: TextAlign.center,
-              style: TextStyles().textLg,
-            ),
-            // const SeparatorLine(),
-          ],
+            borderRadius: BorderRadius.circular(16),
+            // border: Border.all(color: redColor),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              content,
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    clearSession,
+                    closePrompt,
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [clearSession, closePrompt],
       ),
     );
   }

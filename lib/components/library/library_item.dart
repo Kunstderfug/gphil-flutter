@@ -26,7 +26,7 @@ class LibraryItemCard extends StatelessWidget {
       child: SizedBox(
         height: sizeXl,
         child: InkWell(
-          hoverColor: Theme.of(context).highlightColor,
+          hoverColor: highlightColor,
           borderRadius: BorderRadius.circular(32),
           onTap: () async {
             s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);

@@ -27,9 +27,7 @@ class NavigationItem extends StatelessWidget {
           size: iconSizeSm,
         ),
         selected: isSelected,
-        selectedTileColor: isSelected
-            ? AppColors().highLightColor(context)
-            : Colors.transparent,
+        selectedTileColor: isSelected ? highlightColor : Colors.transparent,
         onTap: () {
           n.setNavigationIndex(index);
         },

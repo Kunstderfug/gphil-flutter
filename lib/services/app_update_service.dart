@@ -53,7 +53,7 @@ class AppUpdateService extends ChangeNotifier {
         notifyListeners();
         localBuild = await getVersionNumber();
         appVersionInfo = await getAppVersionInfo();
-        onlineBuild = appVersionInfo?.build ?? '';
+        onlineBuild = appVersionInfo?.build ?? localBuild;
         appState = AppState.idle;
         notifyListeners();
       } catch (e) {

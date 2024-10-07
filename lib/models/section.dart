@@ -17,6 +17,7 @@ class InitSection {
   int? userTempo;
   int? tempoMultiplier;
   List<String>? layers;
+  bool? updateRequired;
 
   InitSection({
     this.metronomeAvailable,
@@ -37,6 +38,7 @@ class InitSection {
     this.userTempo,
     this.tempoMultiplier,
     this.layers,
+    this.updateRequired,
   });
 
   factory InitSection.fromJson(Map<String, dynamic> json) => InitSection(
@@ -67,6 +69,7 @@ class InitSection {
         tempoMultiplier: json["tempoMultiplier"],
         layers:
             json["layers"] == null ? null : List<String>.from(json["layers"]),
+        updateRequired: json["updateRequired"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -92,6 +95,7 @@ class InitSection {
         "userTempo": userTempo,
         "tempoMultiplier": tempoMultiplier,
         "layers": layers,
+        "updateRequired": updateRequired,
       };
 }
 
@@ -142,36 +146,38 @@ class Section extends InitSection {
   double? sectionVolume;
   int? userLayerTempo;
   bool muted;
+  late bool looped;
 
-  Section({
-    required super.name,
-    required super.movementIndex,
-    required super.key,
-    required super.tempoRangeFull,
-    required super.step,
-    required super.defaultTempo,
-    super.tempoRangeLayers,
-    super.layerStep,
-    super.defaultSectionLength,
-    super.metronomeAvailable,
-    super.beatsPerBar,
-    super.beatLength,
-    super.autoContinue,
-    super.autoContinueMarker,
-    super.sectionImage,
-    super.userTempo,
-    super.tempoMultiplier,
-    super.layers,
-    required this.tempoRange,
-    required this.fileList,
-    required this.sectionIndex,
-    this.userLayerTempo,
-    this.clickDataUrl,
-    this.scoreId = '',
-    this.movementKey = '',
-    this.sectionVolume = 0.8,
-    this.muted = false,
-  });
+  Section(
+      {required super.name,
+      required super.movementIndex,
+      required super.key,
+      required super.tempoRangeFull,
+      required super.step,
+      required super.defaultTempo,
+      super.tempoRangeLayers,
+      super.layerStep,
+      super.defaultSectionLength,
+      super.metronomeAvailable,
+      super.beatsPerBar,
+      super.beatLength,
+      super.autoContinue,
+      super.autoContinueMarker,
+      super.sectionImage,
+      super.userTempo,
+      super.tempoMultiplier,
+      super.layers,
+      super.updateRequired,
+      required this.tempoRange,
+      required this.fileList,
+      required this.sectionIndex,
+      this.userLayerTempo,
+      this.clickDataUrl,
+      this.scoreId = '',
+      this.movementKey = '',
+      this.sectionVolume = 0.8,
+      this.muted = false,
+      this.looped = false});
 
   factory Section.fromJson(Map<String, dynamic> json) => Section(
         metronomeAvailable: json["metronomeAvailable"],
@@ -207,6 +213,7 @@ class Section extends InitSection {
         layers:
             json["layers"] == null ? null : List<String>.from(json["layers"]),
         muted: json['muted'] ?? false,
+        updateRequired: json["updateRequired"],
       );
 
   @override
@@ -238,7 +245,8 @@ class Section extends InitSection {
         "tempoMultiplier": tempoMultiplier,
         "sectionVolume": sectionVolume,
         "layers": layers,
-        'muted': muted
+        'muted': muted,
+        "updateRequired": updateRequired,
       };
 }
 

@@ -1,0 +1,54 @@
+// Static tasks configuration.
+//
+// Example:
+[
+  {
+    "label": "Flutter run",
+    "command": "flutter run -d macos",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter run profile",
+    "command": "flutter run -d macos --profile",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter run web",
+    "command": "flutter run -d chrome --web-port=8080",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter build macOS",
+    "command": "flutter build macos --release",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter build web",
+    "command": "flutter build web --release && netlify deploy 'build/web' --prod",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter pub upgrade",
+    "command": "flutter pub upgrade --major-versions",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  },
+  {
+    "label": "Flutter pub outdated",
+    "command": "flutter pub outdated",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false,
+    "reveal": "always"
+  }
+]

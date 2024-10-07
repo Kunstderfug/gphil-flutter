@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/components/performance/performance_mode.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
@@ -15,70 +16,31 @@ class PlayerHeader extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
     final s = Provider.of<ScoreProvider>(context, listen: false);
 
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          //back button
-          IconButton(
-            iconSize: iconSizeXs,
-            padding: const EdgeInsets.all(paddingSm),
-            tooltip: 'Back to Score',
-            onPressed: () async {
-              if (p.isPlaying) {
-                await p.player.disposeAllSources();
-                p.stop();
-              }
-              s.setSections(p.currentMovementKey!, p.currentSection!.key);
-              s.setCurrentSection(p.currentSection!.key);
-              n.setNavigationIndex(2);
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+      //back button
+      IconButton(
+        iconSize: iconSizeXs,
+        padding: const EdgeInsets.all(paddingSm),
+        tooltip: 'Back to Score',
+        onPressed: () async {
+          if (p.isPlaying) {
+            p.stop();
+            await p.player.disposeAllSources();
+          }
+          if (s.currentScore!.id != p.sessionScore!.id) {
+            await s.getScore(p.sessionScore!.id);
+          }
+          s.setSections(p.currentMovementKey!, p.currentSection!.key);
+          s.setCurrentSectionByKey(
+              p.currentMovementKey!, p.currentSection!.key);
+          // s.setCurrentTempo(p.currentTempo!);
+          n.setNavigationIndex(2);
+        },
+        icon: const Icon(Icons.arrow_back),
+      ),
 
-          //song name
-          SizedBox(
-            height: 48,
-            width: 600,
-            child: p.currentSection!.autoContinueMarker != null &&
-                    p.currentSection!.autoContinue != null
-                ? Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      Text(
-                        sectionName,
-                        style: TextStyles().textLg,
-                      ),
-                      Positioned(
-                        top: 28,
-                        child: Text(
-                          p.currentSection!.autoContinue! != false
-                              ? "Auto-continue"
-                              : "Auto-continue disabled",
-                          style: TextStyle(
-                              fontSize: fontSizeMd,
-                              color: p.currentSection!.autoContinue! != false
-                                  ? greenColor
-                                  : Colors.grey.shade700),
-                        ),
-                      ),
-                    ],
-                  )
-                : Text(
-                    sectionName,
-                    textAlign: TextAlign.center,
-                    style: TextStyles().textXl,
-                  ),
-          ),
-
-          //menu button
-          IconButton(
-            iconSize: iconSizeXs,
-            padding: const EdgeInsets.all(paddingSm),
-            tooltip: 'Menu (for the future actions)',
-            onPressed: () {},
-            icon: const Icon(Icons.menu),
-          ),
-        ]);
+      //Performance mode switch
+      PerformanceMode(p: p),
+    ]);
   }
 }

@@ -27,7 +27,7 @@ class SectionImage extends StatelessWidget {
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 500),
               decoration: BoxDecoration(
                   color: Colors.grey[300], borderRadius: BorderRad().bRadiusMd),
               child: Center(

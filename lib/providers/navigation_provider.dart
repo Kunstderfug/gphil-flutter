@@ -6,6 +6,9 @@ import 'package:gphil/screens/performance_screen.dart';
 class NavigationProvider extends ChangeNotifier {
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
+  bool get isPerformanceScreen => _currentIndex == 1 ? true : false;
+  bool get isScoreScreen => _currentIndex == 2 ? true : false;
+  bool get isLibraryScreen => _currentIndex == 0 ? true : false;
 
   final _navigationScreens = <Map<String, Object>>[
     {
@@ -14,7 +17,7 @@ class NavigationProvider extends ChangeNotifier {
       'screen': const LibraryScreen()
     },
     {
-      'title': 'P E R F O R M A N C E',
+      'title': 'P R A C T I C E',
       'icon': Icons.piano,
       'screen': const PerformanceScreen()
     },

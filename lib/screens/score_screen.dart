@@ -3,7 +3,6 @@ import 'package:gphil/components/library/score_navigation.dart';
 import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/score_movements.dart';
 import 'package:gphil/components/score/score_sections.dart';
-import 'package:gphil/components/score/section_tempos.dart';
 import 'package:gphil/components/score/show_prompt.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/providers/playlist_provider.dart';
@@ -11,6 +10,7 @@ import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
+// import 'package:gphil/providers/global_providers.dart';
 
 final persistentController = PersistentDataController();
 
@@ -142,7 +142,9 @@ class MvtSections extends StatelessWidget {
                           SectionImage(
                               imageFile: s.sectionImageFile, width: 250),
                           const SizedBox(height: separatorXs),
-                          SectionTempos(section: s.currentSection),
+                          Text(
+                              'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
+                              style: Theme.of(context).textTheme.titleMedium),
                         ],
                       ),
                     ),

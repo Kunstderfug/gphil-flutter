@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/models/playlist_classes.dart';
 import 'package:gphil/providers/playlist_provider.dart';
-import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -9,18 +9,15 @@ class MovementsArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
 
     List<Widget> movements = [
       for (SessionMovement movement in p.sessionMovements)
         IconButton(
+            padding: EdgeInsets.zero,
             onPressed: () {
               p.setMovementIndexByKey(movement.movementKey);
-              s.setCurrentSectionByKey(
-                  movement.movementKey, p.currentSectionKey!);
             },
-            padding: EdgeInsets.zero,
             hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
             icon: Container(
               padding: const EdgeInsets.symmetric(
@@ -28,7 +25,7 @@ class MovementsArea extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.all(Radius.circular(32)),
                 color: movement.movementKey == p.currentMovementKey
-                    ? Theme.of(context).colorScheme.secondary
+                    ? Theme.of(context).highlightColor
                     : Colors.transparent,
               ),
               child: Text(

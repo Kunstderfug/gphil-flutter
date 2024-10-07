@@ -4,17 +4,43 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:gphil/models/library.dart';
+import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
+import 'package:gphil/providers/score_provider.dart';
+import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/sanity_service.dart';
 import 'package:http/http.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PersistentDataController {
+class PersistentDataController with ChangeNotifier {
   final imageFormat = 'png';
+  AppState? appState;
+  String _message = "";
+  String _error = "";
+  final s = ScoreProvider();
+
+  String get message => _message;
+  String get error => _error;
+
+  set message(String value) {
+    _message = value;
+    notifyListeners();
+  }
+
+  set error(String value) {
+    _error = value;
+    notifyListeners();
+  }
+
+  void reset() {
+    _message = "";
+    _error = "";
+    notifyListeners();
+  }
 
   Future<bool> isOnline() async {
     final result = await InternetConnection().hasInternetAccess;
@@ -39,6 +65,7 @@ class PersistentDataController {
     return directory.path;
   }
 
+//DATA PATHS
   Future<String> getScoreDirectory(String scoreId) async {
     final String path = await _gphilRootDirectory;
     Directory directory = Directory('$path/$scoreId');
@@ -50,7 +77,6 @@ class PersistentDataController {
     return directory.path;
   }
 
-  //AUDIO DATA PATH
   Future<String> getAudioDirectory(String scoreId) async {
     final String directory = await getScoreDirectory(scoreId);
 
@@ -111,13 +137,13 @@ class PersistentDataController {
     return File('$path/$imageId');
   }
 
-//AUDIO FILE
   Future<File> audioFile(
       String scoreId, String audioFileName, String audioFormat) async {
     final path = await getAudioDirectory(scoreId);
     return File('$path/$audioFileName.$audioFormat');
   }
 
+//READ & WRITE DATA
   Future<Map<String, dynamic>?> readSectionJsonFile(
       String scoreId, String sectionKey) async {
     String fileContent;
@@ -154,7 +180,6 @@ class PersistentDataController {
     return writeSectionJsonFile(scoreId, sectionKey, data);
   }
 
-  //write click data
   Future<List<ClickData>> writeClickJsonFile(
       String scoreId, String sectionKey, List<ClickData> data) async {
     File file = await jsonClickFile(scoreId, sectionKey);
@@ -165,7 +190,6 @@ class PersistentDataController {
     return data;
   }
 
-  //read click file
   Future<List<ClickData>> readClickJsonFile(
       String scoreId, String sectionKey, String clickUrl) async {
     String fileContent;
@@ -227,7 +251,6 @@ class PersistentDataController {
     }
   }
 
-//write audio file
   Future<bool> writeAudioFile(
       String scoreId, String audioFileName, Uint8List byteList) async {
     final String path = await getAudioDirectory(scoreId);
@@ -236,66 +259,42 @@ class PersistentDataController {
     return true;
   }
 
-  //read audio file
   Future<({Uint8List bytes, String path})> readAudioFile(
       String scoreId, String audioFileName, String audioUrl) async {
     Uint8List byteList = Uint8List(0);
     final String path = await getAudioDirectory(scoreId);
     final String fullPath = '$path/$audioFileName';
     final File file = File(fullPath);
+
+    // reset();
     if (await file.exists() && await file.length() > 0) {
+      message = "Loading $audioFileName";
       byteList = await file.readAsBytes();
       return (bytes: byteList, path: fullPath);
     } else {
       try {
+        message = "Downloading $audioFileName";
         Response response = await Client().get(
           Uri.parse(audioUrl),
         );
         if (response.statusCode == 200) {
           byteList = response.bodyBytes;
+          message = "";
           await writeAudioFile(scoreId, audioFileName, byteList);
           return (bytes: byteList, path: fullPath);
         } else {
+          error = 'Failed to download audio file';
           throw Exception('Failed to download audio file');
         }
       } catch (e) {
+        error = e.toString();
         log(e.toString());
+      } finally {
+        // message = "";
       }
 
       return (bytes: byteList, path: fullPath);
     }
-  }
-
-// Method to retrieve score data from SharedPreferences
-  Future<InitScore?> getWebScoreData(String scoreId) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String scoreKey = 'score_$scoreId';
-    final String? scoreDataString = prefs.getString(scoreKey);
-    if (scoreDataString != null && scoreDataString.isNotEmpty) {
-      log('getWebScoreData: ${scoreDataString.substring(0, 100)}');
-      final Map<String, dynamic> scoreData = jsonDecode(scoreDataString);
-      return InitScore.fromJson(scoreData);
-    } else {
-      log('getWebScoreData: fetching from web');
-      final InitScore? score = await SanityService().fetchScore(scoreId);
-      if (score != null) {
-        log('getWebScoreData: saving to web, $score');
-        await saveWebScoreData(score);
-        return score;
-      }
-    }
-    return null;
-  }
-
-  // Method to save score data to SharedPreferences
-  Future<void> saveWebScoreData(InitScore score) async {
-    final prefs = await SharedPreferences.getInstance();
-    final String scoreKey = 'score_${score.id}';
-
-    final Map<String, dynamic> scoreData = score.toJson();
-
-    await prefs.setString(scoreKey, jsonEncode(scoreData));
-    log('Saved score data for: ${score.shortTitle}');
   }
 
   //save score data
@@ -333,42 +332,97 @@ class PersistentDataController {
     return scoreJson;
   }
 
-//update score
+  List<Section> getSectionsToUpdate(Score score) {
+    final sectionsToUpdate = <Section>[];
+    for (final Movement movement in score.setupMovements) {
+      for (final Section section in movement.setupSections) {
+        if (section.updateRequired != null) sectionsToUpdate.add(section);
+      }
+    }
+    return sectionsToUpdate;
+  }
+
+  Future<List<String>> getAudioFilesToUpdate(List<Section> sections) async {
+    final audioFilesToUpdate = <String>[];
+    for (final section in sections) {
+      final audioFileNames =
+          section.fileList.map((e) => getAudioFileNAme(e)).toList();
+      audioFilesToUpdate.addAll(audioFileNames);
+    }
+    return audioFilesToUpdate;
+  }
+
+  //update score
   Future<InitScore?> updateScore(String scoreId, String scoreRev) async {
     final tasks = <Future>[];
 
-    await deleteScore(scoreId);
-    InitScore? scoreJson = await readScoreData(scoreId);
+    try {
+      message = "Updating score...";
+      await deleteScore(scoreId);
+      InitScore? scoreJson = await readScoreData(scoreId);
 
-    //get images and sections data
-    if (scoreJson != null) {
-      List<InitSection> getAllSections() {
-        final allSections = <InitSection>[];
-        for (final movement in scoreJson.movements) {
-          for (final section in movement.sections) {
-            allSections.add(section);
+      //get images and sections data
+      if (scoreJson != null) {
+        Future<void> getImageFile(String scoreId, String imageRef) async {
+          await readImageFile(scoreId, imageRef);
+        }
+
+        final Score score = await s.setupScore(scoreJson);
+        final sections = getSectionsToUpdate(score);
+
+        for (final section in sections) {
+          await deleteAudio(scoreId, section.name);
+          if (section.sectionImage != null) {
+            String imageRef = section.sectionImage!.asset.ref;
+            tasks.add(getImageFile(scoreId, imageRef));
           }
         }
-        return allSections;
+
+        await Future.wait(tasks);
       }
-
-      Future<void> getImageFile(String scoreId, String imageRef) async {
-        await readImageFile(scoreId, imageRef);
-      }
-
-      final sections = getAllSections();
-
-      for (final section in sections) {
-        if (section.sectionImage != null) {
-          String imageRef = section.sectionImage!.asset.ref;
-          tasks.add(getImageFile(scoreId, imageRef));
-        }
-      }
-
-      await Future.wait(tasks);
+      await writeScoreRevision(scoreId, scoreRev);
+      return scoreJson;
+    } catch (e) {
+      error = e.toString();
+      log(e.toString());
+      return null;
+    } finally {
+      message = "";
+      // error = "";
     }
-    await writeScoreRevision(scoreId, scoreRev);
-    return scoreJson;
+  }
+
+//WEB DATA
+  // Method to retrieve score data from SharedPreferences
+  Future<InitScore?> getWebScoreData(String scoreId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String scoreKey = 'score_$scoreId';
+    final String? scoreDataString = prefs.getString(scoreKey);
+    if (scoreDataString != null && scoreDataString.isNotEmpty) {
+      log('getWebScoreData: ${scoreDataString.substring(0, 100)}');
+      final Map<String, dynamic> scoreData = jsonDecode(scoreDataString);
+      return InitScore.fromJson(scoreData);
+    } else {
+      log('getWebScoreData: fetching from web');
+      final InitScore? score = await SanityService().fetchScore(scoreId);
+      if (score != null) {
+        log('getWebScoreData: saving to web, $score');
+        await saveWebScoreData(score);
+        return score;
+      }
+    }
+    return null;
+  }
+
+  // Method to save score data to SharedPreferences
+  Future<void> saveWebScoreData(InitScore score) async {
+    final prefs = await SharedPreferences.getInstance();
+    final String scoreKey = 'score_${score.id}';
+
+    final Map<String, dynamic> scoreData = score.toJson();
+
+    await prefs.setString(scoreKey, jsonEncode(scoreData));
+    log('Saved score data for: ${score.shortTitle}');
   }
 
 //write json file in the root folder if all scores are up to date
@@ -442,15 +496,45 @@ class PersistentDataController {
 
   Future<void> deleteScore(String scoreId) async {
     // final String directory = await getScoreDirectory(scoreId);
-    final String sectionPath = await getSectionsDirectory(scoreId);
+    // final String sectionPath = await getSectionsDirectory(scoreId);
     final String imagePath = await getImagesDirectory(scoreId);
+    final String clickPath = await getClicksDirectory(scoreId);
+    // final String audioPath = await getAudioDirectory(scoreId);
     final String path = await _gphilRootDirectory;
     final scoreFile = File('$path/score_$scoreId.json');
     if (await scoreFile.exists()) {
       scoreFile.deleteSync();
     }
 
-    Directory(sectionPath).deleteSync(recursive: true);
+    // Directory(sectionPath).deleteSync(recursive: true);
     Directory(imagePath).deleteSync(recursive: true);
+    Directory(clickPath).deleteSync(recursive: true);
   }
+
+  Future<void> deleteAudio(String scoreId, String sectionName) async {
+    final String path = await getAudioDirectory(scoreId);
+    Directory directory = Directory(path);
+    List<FileSystemEntity> entities = await directory.list().toList();
+
+    try {
+      // Filter and print matching files
+      for (final entity in entities) {
+        if (entity is File) {
+          if (entity.path.contains(sectionName)) {
+            log('Matching file: $sectionName');
+            final File file = File(entity.path);
+            if (await file.exists()) {
+              await file.delete();
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log('Error reading directory: $e');
+    }
+  }
+}
+
+String getAudioFileNAme(String audioUrl) {
+  return audioUrl.split('/').last;
 }

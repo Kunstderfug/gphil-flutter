@@ -14,11 +14,11 @@ class PlaylistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<PlaylistProvider>(builder: (context, provider, child) {
+    return Consumer<PlaylistProvider>(builder: (context, p, child) {
       //get the playlist
 
-      if (provider.isLoading) {
-        return LoadingLayerFiles(
+      if (p.isLoading) {
+        return LoadingFiles(
             filesLoaded: p.filesLoaded, filesLength: p.playlist.length);
       }
 
@@ -31,9 +31,9 @@ class PlaylistScreen extends StatelessWidget {
             crossAxisSpacing: 16,
             childAspectRatio: 3 / 1,
           ),
-          itemCount: provider.playlist.length,
+          itemCount: p.playlist.length,
           itemBuilder: (context, index) {
-            final Section section = provider.playlist[index];
+            final Section section = p.playlist[index];
             return PlaylistTile(section: section, sectionIndex: index);
           },
         ),
@@ -41,5 +41,3 @@ class PlaylistScreen extends StatelessWidget {
     });
   }
 }
-
-// set up grid view
