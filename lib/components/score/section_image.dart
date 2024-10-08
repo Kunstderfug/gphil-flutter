@@ -66,7 +66,7 @@ class SectionImage extends StatelessWidget {
                 ),
               )
             : Container(
-                constraints: BoxConstraints(maxWidth: imageWidth(context)),
+                // constraints: BoxConstraints(maxWidth: imageWidth(context)),
                 child: AspectRatio(
                   aspectRatio: 16 / 9,
                   child: Container(

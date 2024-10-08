@@ -15,42 +15,41 @@ class LayerChannelLevel extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Opacity(
-          opacity: 1,
-          child: SizedBox(
-            height: 260,
-            width: 100,
-            child: SfSliderTheme(
-              data: SfSliderThemeData(
-                thumbColor: highlightColor,
-                activeTrackColor: p.setColor(),
-                inactiveTrackColor: p.setInactiveColor(),
-                activeTrackHeight: 4,
-                inactiveTrackHeight: 4,
-                thumbRadius: 6,
-                thumbStrokeColor: p.layersEnabled ? greenColor : null,
-                thumbStrokeWidth: 1,
-                tooltipBackgroundColor: p.layersEnabled ? highlightColor : null,
-                tooltipTextStyle: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            // maxWidth: 90,
+            maxHeight: 260,
+          ),
+          child: SfSliderTheme(
+            data: SfSliderThemeData(
+              thumbColor: highlightColor,
+              activeTrackColor: p.setColor(),
+              inactiveTrackColor: p.setInactiveColor(),
+              activeTrackHeight: 4,
+              inactiveTrackHeight: 4,
+              thumbRadius: 6,
+              thumbStrokeColor: p.layersEnabled ? greenColor : null,
+              thumbStrokeWidth: 1,
+              tooltipBackgroundColor: p.layersEnabled ? highlightColor : null,
+              tooltipTextStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
               ),
-              child: SfSlider.vertical(
-                  interval: 0.5,
-                  stepSize: 0.05,
-                  showTicks: true,
-                  minorTicksPerInterval: 1,
-                  activeColor: p.setColor(),
-                  inactiveColor: p.setInactiveColor(),
-                  enableTooltip: p.layersEnabled,
-                  value: layer.layerVolume,
-                  onChangeEnd: (value) => p.updateLayersPrefs(),
-                  onChanged: (value) => p.layersEnabled
-                      ? p.setGlobalLayerVolume(value, layer.layerName)
-                      : null),
             ),
+            child: SfSlider.vertical(
+                interval: 0.5,
+                stepSize: 0.05,
+                showTicks: true,
+                minorTicksPerInterval: 1,
+                activeColor: p.setColor(),
+                inactiveColor: p.setInactiveColor(),
+                enableTooltip: p.layersEnabled,
+                value: layer.layerVolume,
+                onChangeEnd: (value) => p.updateLayersPrefs(),
+                onChanged: (value) => p.layersEnabled
+                    ? p.setGlobalLayerVolume(value, layer.layerName)
+                    : null),
           ),
         ),
         Text(layer.fullName),

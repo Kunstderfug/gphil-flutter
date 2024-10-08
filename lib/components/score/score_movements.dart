@@ -18,11 +18,6 @@ class ScoreMovements extends StatelessWidget {
     final n = Provider.of<NavigationProvider>(context, listen: false);
 
     void startSession() {
-      if (p.playlist.isNotEmpty && p.containsMovement(s.currentMovement.key)) {
-        n.setNavigationIndex(1);
-        return;
-      }
-
       p.buildPlaylist(s.currentScore!);
       p.loadClickFiles(p.playlist);
       p.initSessionPlayers(p.playlist.first.key);

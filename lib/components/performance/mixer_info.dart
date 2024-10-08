@@ -13,6 +13,8 @@ class MixerInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     // final LayerPlayerPool? currentPool = p.currentLayerPlayerPool;
     // final pools = p.layerPlayersPool.globalPools;
+
+    //Loaded files
     List<Widget> info = [
       SingleChildScrollView(
         child: Column(
@@ -24,6 +26,8 @@ class MixerInfo extends StatelessWidget {
           ],
         ),
       ),
+
+      //Players volume ans section info
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,18 +40,26 @@ class MixerInfo extends StatelessWidget {
                 'Layers volume: ${p.currentLayerPlayerPool!.layerChannels[0].player!.playerVolume}'),
           Text('is Playing: ${p.isPlaying}'),
           Text('Loop Stropped: ${p.loopStropped}'),
+          Text(
+              'Current Section: ${p.currentSection?.name ?? ''}, ${p.currentSectionKey}'),
         ],
       ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Layers Pool tempos'),
-          SeparatorLine(height: separatorSm),
-          if (p.currentLayerPlayerPool != null)
-            for (LayerPlayerPool pool in p.layerPlayersPool.globalPools)
-              Text('Pool tempo: ${pool.tempo}'),
-        ],
+
+      //Pool tempos
+      SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Layers Pool tempos'),
+            SeparatorLine(height: separatorSm),
+            if (p.currentLayerPlayerPool != null)
+              for (LayerPlayerPool pool in p.layerPlayersPool.globalPools)
+                Text('Pool tempo: ${pool.tempo}'),
+          ],
+        ),
       ),
+
+      //Current Pool
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

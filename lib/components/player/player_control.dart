@@ -23,6 +23,18 @@ class Stop extends Intent {
   const Stop();
 }
 
+class Loop extends Intent {
+  const Loop();
+}
+
+class PerfMode extends Intent {
+  const PerfMode();
+}
+
+class Skip extends Intent {
+  const Skip();
+}
+
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
 
@@ -38,6 +50,8 @@ class PlayerControl extends StatelessWidget {
         p.setCurrentSectionByKey(sectionKey);
       }
 
+      double iconSize = iconSizeLg;
+
       return Shortcuts(
         shortcuts: <ShortcutActivator, Intent>{
           const SingleActivator(LogicalKeyboardKey.arrowLeft):
@@ -51,6 +65,9 @@ class PlayerControl extends StatelessWidget {
               const StartOrContinue(),
           const SingleActivator(LogicalKeyboardKey.pageUp):
               !p.onePedalMode ? const Stop() : const StartOrContinue(),
+          const SingleActivator(LogicalKeyboardKey.keyL): const Loop(),
+          const SingleActivator(LogicalKeyboardKey.keyP): const PerfMode(),
+          const SingleActivator(LogicalKeyboardKey.keyS): const Skip(),
         },
         child: Actions(
           actions: {
@@ -69,7 +86,7 @@ class PlayerControl extends StatelessWidget {
               } else {
                 if (!p.doublePressGuard) {
                   p.playNextSection();
-                  syncProviders();
+                  // syncProviders();
                 }
               }
 
@@ -83,60 +100,68 @@ class PlayerControl extends StatelessWidget {
                 CallbackAction<HandleNextSection>(onInvoke: (intent) {
               if (p.appState != AppState.loading) {
                 p.skipToNextSection();
-                syncProviders();
+                // syncProviders();
               }
+              return null;
+            }),
+            Loop: CallbackAction<Loop>(onInvoke: (intent) {
+              p.toggleSectionLooped();
+              return null;
+            }),
+            Skip: CallbackAction<Skip>(onInvoke: (intent) {
+              p.toggleSectionSkipped(p.currentSectionKey!);
+              return null;
+            }),
+            PerfMode: CallbackAction<PerfMode>(onInvoke: (intent) {
+              p.setPerformanceMode = !p.performanceMode;
               return null;
             }),
           },
           child: Focus(
             autofocus: true,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  //previous button
-                  Expanded(
-                    child: IconButton(
-                        iconSize: iconSizeXl,
-                        onPressed: () => !p.layerFilesDownloading
-                            ? p.currentSectionIndex =
-                                (p.currentSectionIndex - 1) % p.playlist.length
-                            : null,
-                        icon: const Icon(Icons.skip_previous)),
-                  ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                //previous button
+                Expanded(
+                  child: IconButton(
+                      iconSize: iconSize,
+                      onPressed: () => !p.layerFilesDownloading
+                          ? p.currentSectionIndex =
+                              (p.currentSectionIndex - 1) % p.playlist.length
+                          : null,
+                      icon: const Icon(Icons.skip_previous)),
+                ),
 
-                  //play button
-                  Expanded(
-                    flex: 2,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        IconButton(
-                            padding: const EdgeInsets.all(0),
-                            tooltip: 'Play/Pause',
-                            onPressed: !p.layerFilesDownloading
-                                ? p.pauseOrResume
-                                : null,
-                            icon: const RepaintBoundary(
-                              child: Metronome(),
-                            )),
-                      ],
-                    ),
+                //play button
+                Expanded(
+                  flex: 2,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      IconButton(
+                          padding: const EdgeInsets.all(0),
+                          tooltip: 'Play/Pause',
+                          onPressed:
+                              !p.layerFilesDownloading ? p.pauseOrResume : null,
+                          icon: const RepaintBoundary(
+                            child: Metronome(),
+                          )),
+                    ],
                   ),
+                ),
 
-                  //next button
-                  Expanded(
-                    child: IconButton(
-                        iconSize: iconSizeXl,
-                        onPressed: () => !p.layerFilesDownloading
-                            ? p.currentSectionIndex =
-                                (p.currentSectionIndex + 1) % p.playlist.length
-                            : null,
-                        icon: const Icon(Icons.skip_next)),
-                  ),
-                ],
-              ),
+                //next button
+                Expanded(
+                  child: IconButton(
+                      iconSize: iconSize,
+                      onPressed: () => !p.layerFilesDownloading
+                          ? p.currentSectionIndex =
+                              (p.currentSectionIndex + 1) % p.playlist.length
+                          : null,
+                      icon: const Icon(Icons.skip_next)),
+                ),
+              ],
             ),
           ),
         ),

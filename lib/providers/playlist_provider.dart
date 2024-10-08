@@ -76,6 +76,8 @@ class PlaylistProvider extends ChangeNotifier {
   bool isLoading = false;
   bool layerFilesLoading = false;
   List<String> currentlyLoadedFiles = [];
+  List<WebAudioUrl> webAudioUrls = [];
+  List<AudioUrl> audioFilesUrls = [];
   int messageDismissTime = 2000;
   int errorDismissTime = 4000;
   String message = "";
@@ -239,6 +241,14 @@ class PlaylistProvider extends ChangeNotifier {
   bool get layersHasBeenEnabled => layersEnabledOnce > 0;
   bool get performanceMode => _performanceMode;
   bool get isSectionLooped => currentSection?.looped ?? false;
+  bool get isSkippingActive {
+    if (currentSection?.muted == true && !performanceMode) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool get isLoopingActive {
     if (currentSection?.looped == true && !performanceMode) {
       return true;
@@ -326,7 +336,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
 // SET MODES
-  void setSectionSkipped(String key) async {
+  void toggleSectionSkipped(String key) async {
     final Section section =
         playlist.firstWhere((element) => element.key == key);
     section.muted = !section.muted;
@@ -338,7 +348,11 @@ class PlaylistProvider extends ChangeNotifier {
   void toggleSectionLooped() async {
     if (currentSection != null) {
       currentSection!.looped = !currentSection!.looped;
+      if (currentSection!.looped) {
+        currentSection!.muted = false;
+      }
       notifyListeners();
+      if (isLoopingActive && isPlaying) handleLooping(currentPosition);
       await saveSectionPrefs(currentSection!);
     }
   }
@@ -356,8 +370,16 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setSectionsColorized(bool value) {
+  void setSectionsColorized(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('sectionsColorized', value);
     sectionsColorized = value;
+    notifyListeners();
+  }
+
+  void getSectionsColorized() async {
+    final prefs = await SharedPreferences.getInstance();
+    sectionsColorized = prefs.getBool('sectionsColorized') ?? false;
     notifyListeners();
   }
 
@@ -417,105 +439,212 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
-  Future<void>? setSectionLayersPlayerPool(Section section, bool patch,
+  Future<void> setSectionLayersPlayerPool(Section section, bool patch,
       [int? tempo]) async {
-    final handleLoadLayerFiles =
-        <Future>[]; //set of tasks running at the same time
-    final layerPlayers = <LayerPlayer>[];
-    final sectionLayers = <SectionLayer>[];
-
-    //initialize player if for some reason it's not
     if (!player.isInitialized) {
       await player.init();
     }
 
-    //dispose all audio sources for layersPool if patch is true
+    if (patch) {
+      await _disposeExistingPool(section);
+    }
+
+    final sectionLayers = _createSectionLayers(section);
+    final layerPlayers = await _loadLayerPlayers(section, sectionLayers);
+
+    _addOrUpdatePlayerPool(section, sectionLayers, layerPlayers, patch, tempo);
+  }
+
+  Future<void> _disposeExistingPool(Section section) async {
+    final index = layerPlayersPool.globalPools
+        .indexWhere((pool) => pool.sectionKey == section.key);
+    if (index != -1) {
+      final poolToDispose = layerPlayersPool.globalPools[index];
+      poolToDispose.disposePoolSources();
+    }
+  }
+
+  List<SectionLayer> _createSectionLayers(Section section) {
+    return section.layers
+            ?.map((layer) => SectionLayer(
+                layer: layer, audioUrl: getAudioLayerUrl(section, layer)))
+            .toList() ??
+        [];
+  }
+
+  Future<List<LayerPlayer>> _loadLayerPlayers(
+      Section section, List<SectionLayer> sectionLayers) async {
+    final layerPlayers = <LayerPlayer>[];
+    setMessage("Loading files...");
+
+    for (final sectionLayer in sectionLayers) {
+      await _loadAndAddLayerPlayer(section, sectionLayer, layerPlayers);
+    }
+
+    setMessage("Ready");
+    return layerPlayers;
+  }
+
+  Future<void> _loadAndAddLayerPlayer(Section section,
+      SectionLayer sectionLayer, List<LayerPlayer> layerPlayers) async {
+    final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
+    log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
+
+    final layerFile = await persistentController.readAudioFile(
+        sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
+
+    if (layerFile.bytes.isNotEmpty) {
+      layerFilesDownloaded++;
+      notifyListeners();
+      await _addLayerPlayer(section, layerFile.path, layerAudioFileName,
+          sectionLayer.layer, layerPlayers);
+    }
+  }
+
+  Future<void> _addLayerPlayer(
+      Section section,
+      String filePath,
+      String audioFileName,
+      String layer,
+      List<LayerPlayer> layerPlayers) async {
+    try {
+      AudioSource audioSource = await player.loadFile(filePath);
+      currentlyLoadedFiles.add(audioFileName);
+      notifyListeners();
+      layerPlayers.add(
+        LayerPlayer(
+            sectionIndex: section.sectionIndex,
+            sectionKey: section.key,
+            audioSource: audioSource,
+            layer: layer,
+            player: player),
+      );
+      layerFilesLoaded++;
+      totalLayerFiles++;
+      notifyListeners();
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  void _addOrUpdatePlayerPool(Section section, List<SectionLayer> sectionLayers,
+      List<LayerPlayer> layerPlayers, bool patch, int? tempo) {
+    final layerPlayerPool = LayerPlayerPool(
+        sectionIndex: section.sectionIndex,
+        sectionKey: section.key,
+        tempo: tempo ?? section.userLayerTempo ?? section.defaultTempo,
+        layers: sectionLayers,
+        mainPlayer: null,
+        players: layerPlayers);
+
     if (patch) {
       final index = layerPlayersPool.globalPools
           .indexWhere((pool) => pool.sectionKey == section.key);
-      if (index != -1) {
-        final poolToDispose = layerPlayersPool.globalPools[index];
-        poolToDispose.disposePoolSources();
-      }
+      layerPlayersPool.globalPools[index] = layerPlayerPool;
+    } else {
+      layerPlayersPool.globalPools.add(layerPlayerPool);
     }
-
-    Future<void> setLayerPlayerPool(
-        String filePath, String audioFileName, String layer) async {
-      try {
-        AudioSource audioSource = await player.loadFile(filePath);
-        currentlyLoadedFiles.add(audioFileName);
-        notifyListeners();
-        layerPlayers.add(
-          LayerPlayer(
-              sectionIndex: section.sectionIndex,
-              sectionKey: section.key,
-              audioSource: audioSource,
-              layer: layer,
-              player: player),
-        );
-        layerFilesLoaded++;
-        totalLayerFiles++;
-        notifyListeners();
-      } catch (e) {
-        log(e.toString());
-      }
-    }
-
-    Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
-      final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
-      message = "Loading files...";
-      notifyListeners();
-      log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
-
-      //layer file
-      final layerFile = await persistentController.readAudioFile(
-          sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
-      if (layerFile.bytes.isNotEmpty) {
-        layerFilesDownloaded++;
-        notifyListeners();
-        await setLayerPlayerPool(
-            layerFile.path, layerAudioFileName, sectionLayer.layer);
-      }
-    }
-
-    for (final String layer in section.layers!) {
-      sectionLayers.add(SectionLayer(
-          layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
-    }
-
-    //getting section layer audio files
-    for (final sectionLayer in sectionLayers) {
-      handleLoadLayerFiles.add(loadAudioFiles(sectionLayer));
-    }
-
-    notifyListeners();
-    if (patch) setMessage('Loading files...');
-    await Future.wait(handleLoadLayerFiles);
-    if (patch) setMessage('Ready');
-
-    LayerPlayerPool addPlayerPool() {
-      final layerPlayerPool = LayerPlayerPool(
-          sectionIndex: section.sectionIndex,
-          sectionKey: section.key,
-          tempo: tempo ?? section.userLayerTempo ?? section.defaultTempo,
-          layers: sectionLayers,
-          mainPlayer: null,
-          players: layerPlayers);
-
-      if (patch) {
-        final index = layerPlayersPool.globalPools
-            .indexWhere((pool) => pool.sectionKey == section.key);
-        layerPlayersPool.globalPools.removeAt(index);
-        layerPlayersPool.globalPools.insert(index, layerPlayerPool);
-      } else {
-        layerPlayersPool.globalPools.add(layerPlayerPool);
-      }
-
-      return layerPlayerPool;
-    }
-
-    addPlayerPool();
   }
+
+  // Future<void>? setSectionLayersPlayerPool(Section section, bool patch,
+  //     [int? tempo]) async {
+  //   final handleLoadLayerFiles =
+  //       <Future>[]; //set of tasks running at the same time
+  //   final layerPlayers = <LayerPlayer>[];
+  //   final sectionLayers = <SectionLayer>[];
+
+  //   //initialize player if for some reason it's not
+  //   if (!player.isInitialized) {
+  //     await player.init();
+  //   }
+
+  //   //dispose all audio sources for layersPool if patch is true
+  //   if (patch) {
+  //     final index = layerPlayersPool.globalPools
+  //         .indexWhere((pool) => pool.sectionKey == section.key);
+  //     if (index != -1) {
+  //       final poolToDispose = layerPlayersPool.globalPools[index];
+  //       poolToDispose.disposePoolSources();
+  //     }
+  //   }
+
+  //   Future<void> setLayerPlayerPool(
+  //       String filePath, String audioFileName, String layer) async {
+  //     try {
+  //       AudioSource audioSource = await player.loadFile(filePath);
+  //       currentlyLoadedFiles.add(audioFileName);
+  //       notifyListeners();
+  //       layerPlayers.add(
+  //         LayerPlayer(
+  //             sectionIndex: section.sectionIndex,
+  //             sectionKey: section.key,
+  //             audioSource: audioSource,
+  //             layer: layer,
+  //             player: player),
+  //       );
+  //       layerFilesLoaded++;
+  //       totalLayerFiles++;
+  //       notifyListeners();
+  //     } catch (e) {
+  //       log(e.toString());
+  //     }
+  //   }
+
+  //   Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
+  //     final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
+  //     message = "Loading files...";
+  //     notifyListeners();
+  //     log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
+
+  //     //layer file
+  //     final layerFile = await persistentController.readAudioFile(
+  //         sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
+  //     if (layerFile.bytes.isNotEmpty) {
+  //       layerFilesDownloaded++;
+  //       notifyListeners();
+  //       await setLayerPlayerPool(
+  //           layerFile.path, layerAudioFileName, sectionLayer.layer);
+  //     }
+  //   }
+
+  //   for (final String layer in section.layers!) {
+  //     sectionLayers.add(SectionLayer(
+  //         layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
+  //   }
+
+  //   //getting section layer audio files
+  //   for (final sectionLayer in sectionLayers) {
+  //     handleLoadLayerFiles.add(loadAudioFiles(sectionLayer));
+  //   }
+
+  //   notifyListeners();
+  //   if (patch) setMessage('Loading files...');
+  //   await Future.wait(handleLoadLayerFiles);
+  //   if (patch) setMessage('Ready');
+
+  //   LayerPlayerPool addPlayerPool() {
+  //     final layerPlayerPool = LayerPlayerPool(
+  //         sectionIndex: section.sectionIndex,
+  //         sectionKey: section.key,
+  //         tempo: tempo ?? section.userLayerTempo ?? section.defaultTempo,
+  //         layers: sectionLayers,
+  //         mainPlayer: null,
+  //         players: layerPlayers);
+
+  //     if (patch) {
+  //       final index = layerPlayersPool.globalPools
+  //           .indexWhere((pool) => pool.sectionKey == section.key);
+  //       layerPlayersPool.globalPools.removeAt(index);
+  //       layerPlayersPool.globalPools.insert(index, layerPlayerPool);
+  //     } else {
+  //       layerPlayersPool.globalPools.add(layerPlayerPool);
+  //     }
+
+  //     return layerPlayerPool;
+  //   }
+
+  //   addPlayerPool();
+  // }
 
   void setGlobalLayerVolume(double value, String layer) {
     layerPlayersPool.setGlobalLayerVolume(value, layer);
@@ -548,7 +677,6 @@ class PlaylistProvider extends ChangeNotifier {
     }
     if (tempoIsNotInThoseSections.isNotEmpty) {
       setError("Some of your tempo preferences are not available in layers");
-      // dismissError();
       return;
     }
 
@@ -745,102 +873,212 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> setPlayerPool() async {
+    await _initializePlayerAndPrefs();
+    final audioUrls = _getAudioUrls();
+    await _loadAudioFiles(audioUrls);
+    await _createPlayerPool();
+  }
+
+  Future<void> _initializePlayerAndPrefs() async {
     currentlyLoadedFiles.clear();
+    webAudioUrls.clear();
+    audioFilesUrls.clear();
     filesLoaded = 0;
     filesDownloaded = 0;
     filesDownloading = true;
-    final loadAudioFiles = <Future>[];
-    final audioUrls = <AudioUrl>[];
-    final audioFilesUrls = <AudioUrl>[];
-    final webAudioUrls = <WebAudioUrl>[];
 
-    //player initialization
     try {
       await initPlayer();
     } catch (e) {
-      log(e.toString());
+      log('Player initialization error: $e');
     }
 
-    //loading user prefs
     for (Section section in playlist) {
       await loadSectionPrefs(section);
     }
+  }
 
-    //getting audiofiles urls
-    for (Section section in playlist) {
+  List<AudioUrl> _getAudioUrls() {
+    return playlist.map((section) {
       final audioUrl = getAudioUrl(section);
-      audioUrls.add(AudioUrl(section.sectionIndex, section.key, audioUrl));
-    }
+      return AudioUrl(section.sectionIndex, section.key, audioUrl);
+    }).toList();
+  }
 
-    //handling files for desktop or web
-    Future<void> loadFile(AudioUrl audioUrl) async {
-      final scoreId = playlist[0].scoreId;
-      final String audioFileName = getAudioFileNAme(audioUrl.url);
-      setMessage("Getting files...");
-      currentlyLoadedFiles.add(audioFileName);
-
-      //if not web, read the files from the device or download them
-      if (!kIsWeb) {
-        final file = await persistentController.readAudioFile(
-            scoreId, audioFileName, audioUrl.url);
-        filesDownloaded++;
-        notifyListeners();
-        audioFilesUrls.add(
-            AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
-      } else {
-        //if web, read the files from the database and convert them to bytes
-        final file =
-            await DB().readAudioFile(scoreId, audioFileName, audioUrl.url);
-        // final file = fileObject.bytes;
-        filesDownloaded++;
-        notifyListeners();
-        webAudioUrls.add(WebAudioUrl(audioUrl.url, file.key,
-            audioUrl.sectionIndex, audioUrl.sectionKey, file.bytes));
-      }
-    }
-
-    for (final audioUrl in audioUrls) {
-      loadAudioFiles.add(loadFile(audioUrl));
-    }
+  Future<void> _loadAudioFiles(List<AudioUrl> audioUrls) async {
+    setMessage("Getting files...");
+    final futures = audioUrls.map((audioUrl) => _loadFile(audioUrl));
+    await Future.wait(futures);
     filesDownloading = false;
     notifyListeners();
+  }
 
-    await Future.wait(loadAudioFiles);
+  Future<void> _loadFile(AudioUrl audioUrl) async {
+    final scoreId = playlist[0].scoreId;
+    final String audioFileName = getAudioFileNAme(audioUrl.url);
+    currentlyLoadedFiles.add(audioFileName);
 
-    audioFilesUrls.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
-
-    //handling files for desktop or web
-    if (!kIsWeb) {
-      for (final audioFileUrl in audioFilesUrls) {
-        try {
-          final audioSource = await player.loadFile(audioFileUrl.url);
-          playerPool.add(PlayerPool(
-              sectionIndex: audioFileUrl.sectionIndex,
-              sectionKey: audioFileUrl.sectionKey,
-              audioSource: audioSource));
-          filesLoaded++;
-          notifyListeners();
-        } catch (e) {
-          log(e.toString());
-        }
-      }
+    if (kIsWeb) {
+      await _loadWebFile(scoreId, audioFileName, audioUrl);
     } else {
-      //loading files for web
-      for (final webAudioUrl in webAudioUrls) {
-        try {
-          final audioSource = await player.loadUrl(webAudioUrl.url);
+      await _loadDesktopFile(scoreId, audioFileName, audioUrl);
+    }
+  }
+
+  Future<void> _loadWebFile(
+      String scoreId, String audioFileName, AudioUrl audioUrl) async {
+    final file = await DB().readAudioFile(scoreId, audioFileName, audioUrl.url);
+    webAudioUrls.add(WebAudioUrl(audioUrl.url, file.key, audioUrl.sectionIndex,
+        audioUrl.sectionKey, file.bytes));
+    filesDownloaded++;
+    notifyListeners();
+  }
+
+  Future<void> _loadDesktopFile(
+      String scoreId, String audioFileName, AudioUrl audioUrl) async {
+    final file = await persistentController.readAudioFile(
+        scoreId, audioFileName, audioUrl.url);
+    audioFilesUrls
+        .add(AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
+    filesDownloaded++;
+    notifyListeners();
+  }
+
+  Future<void> _createPlayerPool() async {
+    final audioSources = kIsWeb ? webAudioUrls : audioFilesUrls;
+
+    audioSources.sort((a, b) {
+      if (a is AudioUrl && b is AudioUrl) {
+        return a.sectionIndex.compareTo(b.sectionIndex);
+      } else if (a is WebAudioUrl && b is WebAudioUrl) {
+        return a.sectionIndex.compareTo(b.sectionIndex);
+      }
+      return 0; // Default case, should not happen if types are consistent
+    });
+
+    for (final audioSource in audioSources) {
+      try {
+        final source = kIsWeb
+            ? await player.loadUrl((audioSource as WebAudioUrl).url)
+            : await player.loadFile((audioSource as AudioUrl).url);
+
+        if (audioSource is AudioUrl) {
           playerPool.add(PlayerPool(
-              sectionIndex: webAudioUrl.sectionIndex,
-              sectionKey: webAudioUrl.sectionKey,
-              audioSource: audioSource));
-          filesLoaded++;
-          notifyListeners();
-        } catch (e) {
-          log(e.toString());
+              sectionIndex: audioSource.sectionIndex,
+              sectionKey: audioSource.sectionKey,
+              audioSource: source));
+        } else if (audioSource is WebAudioUrl) {
+          playerPool.add(PlayerPool(
+              sectionIndex: audioSource.sectionIndex,
+              sectionKey: audioSource.sectionKey,
+              audioSource: source));
         }
+
+        filesLoaded++;
+        notifyListeners();
+      } catch (e) {
+        log('Error loading audio source: $e');
       }
     }
   }
+
+  // Future<void> setPlayerPool() async {
+  //   currentlyLoadedFiles.clear();
+  //   filesLoaded = 0;
+  //   filesDownloaded = 0;
+  //   filesDownloading = true;
+  //   final loadAudioFiles = <Future>[];
+  //   final audioUrls = <AudioUrl>[];
+  //   final audioFilesUrls = <AudioUrl>[];
+  //   final webAudioUrls = <WebAudioUrl>[];
+
+  //   //player initialization
+  //   try {
+  //     await initPlayer();
+  //   } catch (e) {
+  //     log(e.toString());
+  //   }
+
+  //   //loading user prefs
+  //   for (Section section in playlist) {
+  //     await loadSectionPrefs(section);
+  //   }
+
+  //   //getting audiofiles urls
+  //   for (Section section in playlist) {
+  //     final audioUrl = getAudioUrl(section);
+  //     audioUrls.add(AudioUrl(section.sectionIndex, section.key, audioUrl));
+  //   }
+
+  //   //handling files for desktop or web
+  //   Future<void> loadFile(AudioUrl audioUrl) async {
+  //     final scoreId = playlist[0].scoreId;
+  //     final String audioFileName = getAudioFileNAme(audioUrl.url);
+  //     setMessage("Getting files...");
+  //     currentlyLoadedFiles.add(audioFileName);
+
+  //     //if not web, read the files from the device or download them
+  //     if (!kIsWeb) {
+  //       final file = await persistentController.readAudioFile(
+  //           scoreId, audioFileName, audioUrl.url);
+  //       filesDownloaded++;
+  //       notifyListeners();
+  //       audioFilesUrls.add(
+  //           AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
+  //     } else {
+  //       //if web, read the files from the database and convert them to bytes
+  //       final file =
+  //           await DB().readAudioFile(scoreId, audioFileName, audioUrl.url);
+  //       // final file = fileObject.bytes;
+  //       filesDownloaded++;
+  //       notifyListeners();
+  //       webAudioUrls.add(WebAudioUrl(audioUrl.url, file.key,
+  //           audioUrl.sectionIndex, audioUrl.sectionKey, file.bytes));
+  //     }
+  //   }
+
+  //   for (final audioUrl in audioUrls) {
+  //     loadAudioFiles.add(loadFile(audioUrl));
+  //   }
+  //   filesDownloading = false;
+  //   notifyListeners();
+
+  //   await Future.wait(loadAudioFiles);
+
+  //   audioFilesUrls.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
+
+  //   //handling files for desktop or web
+  //   if (!kIsWeb) {
+  //     for (final audioFileUrl in audioFilesUrls) {
+  //       try {
+  //         final audioSource = await player.loadFile(audioFileUrl.url);
+  //         playerPool.add(PlayerPool(
+  //             sectionIndex: audioFileUrl.sectionIndex,
+  //             sectionKey: audioFileUrl.sectionKey,
+  //             audioSource: audioSource));
+  //         filesLoaded++;
+  //         notifyListeners();
+  //       } catch (e) {
+  //         log(e.toString());
+  //       }
+  //     }
+  //   } else {
+  //     //loading files for web
+  //     for (final webAudioUrl in webAudioUrls) {
+  //       try {
+  //         final audioSource = await player.loadUrl(webAudioUrl.url);
+  //         playerPool.add(PlayerPool(
+  //             sectionIndex: webAudioUrl.sectionIndex,
+  //             sectionKey: webAudioUrl.sectionKey,
+  //             audioSource: audioSource));
+  //         filesLoaded++;
+  //         notifyListeners();
+  //       } catch (e) {
+  //         log(e.toString());
+  //       }
+  //     }
+  //   }
+  // }
 
   //create array of AudioPlayers for all sections in playlist
   Future<void> initSessionPlayers(String sectionKey) async {
@@ -864,6 +1102,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     setDefaultTempos();
     setAdjustedMarkerPosition();
+    getSectionsColorized();
     getOnePedalMode();
     isLoading = false;
     setMessage("Ready");
@@ -1116,17 +1355,17 @@ class PlaylistProvider extends ChangeNotifier {
 
   Future<void> playCurrentSection() async {
     //if section is looped and loop was stopped
-    if (currentSection?.looped == true && !performanceMode && loopStropped) {
-      loopStropped = false;
-    }
 
     //if the next section is set to skip
-    if (currentSection?.muted == true) {
+    if (currentSection?.muted == true & !performanceMode) {
       playNextSection();
       log('skipping muted section');
     } else {
       activeHandle = await player.play(currentAudioSource()!);
 
+      if (isLoopingActive && loopStropped) {
+        loopStropped = false;
+      }
       //if section is looped, play it again
       if (!loopStropped) {
         loopingTimer = Timer(

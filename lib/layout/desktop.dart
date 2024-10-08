@@ -7,6 +7,7 @@ import 'package:gphil/layout/navigation.dart';
 import 'package:gphil/layout/status_bar.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/providers/opacity_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
@@ -96,7 +97,13 @@ class DesktopLayout extends StatelessWidget {
           children: [
             !n.isPerformanceScreen
                 ? const MyDrawer(child: Navigation())
-                : const MyDrawer(child: PerformanceSidebar()),
+                : MyDrawer(
+                    child: ChangeNotifierProvider(
+                      create: (_) => OpacityProvider(),
+                      lazy: false,
+                      child: PerformanceSidebar(),
+                    ),
+                  ),
             SizedBox(
               width: MediaQuery.sizeOf(context).width - 240,
               height: MediaQuery.sizeOf(context).height,

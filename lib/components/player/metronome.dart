@@ -59,9 +59,11 @@ class _MetronomeState extends State<Metronome>
           : redColor;
     }
 
+    double size = 184;
+
     return Container(
-      width: 200,
-      height: 200,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
           shape: BoxShape.circle,
@@ -113,7 +115,7 @@ class _MetronomeState extends State<Metronome>
               AnimatedContainer(
                 duration: Duration(milliseconds: p.beatLength),
                 curve: Curves.linear,
-                width: 200,
+                width: size,
                 height: 22,
                 alignment: Alignment(setAlignment(), 0),
                 child: Container(

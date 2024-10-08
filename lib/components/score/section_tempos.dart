@@ -47,51 +47,54 @@ class SectionTempos extends StatelessWidget {
       return 1.0;
     }
 
-    return Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        runAlignment: WrapAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: paddingMd),
-            child: Text('Tempos: ', style: TextStyle(fontSize: fontSizeMd)),
-          ),
-          for (int tempo in section.tempoRange)
-            Opacity(
-              opacity: setOpacity(tempo),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  elevation: 0,
-                  animationDuration: const Duration(milliseconds: 200),
-                  backgroundColor: isSelected(tempo)
-                      ? t.themeData.highlightColor
-                      : t.themeData.colorScheme.primary,
-                  foregroundColor: t.themeData.colorScheme.inversePrimary,
-                  shape: CircleBorder(
-                    side: BorderSide(
-                      width: 2,
-                      color: isDefaultTempo(tempo)
+    return Column(
+      children: [
+        Text('T E M P O S: ', style: TextStyle(fontSize: fontSizeLg)),
+        const SizedBox(height: paddingMd),
+        Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            children: [
+              for (int tempo in section.tempoRange)
+                Opacity(
+                  opacity: setOpacity(tempo),
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      elevation: 0,
+                      animationDuration: const Duration(milliseconds: 200),
+                      backgroundColor: isSelected(tempo)
                           ? t.themeData.highlightColor
-                          : Colors.transparent,
+                          : t.themeData.colorScheme.primary,
+                      foregroundColor: t.themeData.colorScheme.inversePrimary,
+                      shape: CircleBorder(
+                        side: BorderSide(
+                          width: 2,
+                          color: isDefaultTempo(tempo)
+                              ? t.themeData.highlightColor
+                              : Colors.transparent,
+                        ),
+                      ),
+                    ),
+                    onPressed: () => tempoExists(tempo)
+                        ? p.appState != AppState.loading
+                            ? setTempo(tempo)
+                            : null
+                        : null,
+                    child: Padding(
+                      padding: const EdgeInsets.all(paddingMd),
+                      child: Text(
+                        tempo.toString(),
+                        style: TextStyle(
+                          fontSize: fontSizeSm,
+                          fontWeight:
+                              isSelected(tempo) ? FontWeight.bold : null,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                onPressed: () => tempoExists(tempo)
-                    ? p.appState != AppState.loading
-                        ? setTempo(tempo)
-                        : null
-                    : null,
-                child: Padding(
-                  padding: const EdgeInsets.all(paddingMd),
-                  child: Text(
-                    tempo.toString(),
-                    style: TextStyle(
-                      fontSize: fontSizeSm,
-                      fontWeight: isSelected(tempo) ? FontWeight.bold : null,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-        ]);
+            ]),
+      ],
+    );
   }
 }
