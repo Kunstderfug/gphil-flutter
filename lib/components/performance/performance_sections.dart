@@ -20,12 +20,20 @@ class PerformanceSections extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 12),
+          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 14),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Expanded(flex: 3, child: Text('Section', style: style)),
-            Expanded(flex: 2, child: Center(child: Text('Skip', style: style))),
-            Expanded(flex: 2, child: Center(child: Text('Loop', style: style))),
-            Expanded(flex: 2, child: Center(child: Text('Auto', style: style))),
+            Expanded(flex: 2, child: Text('Section', style: style)),
+            Expanded(
+              flex: 3,
+              child: Row(children: [
+                Expanded(
+                    flex: 1, child: Center(child: Text('Skip', style: style))),
+                Expanded(
+                    flex: 1, child: Center(child: Text('Loop', style: style))),
+                Expanded(
+                    flex: 1, child: Center(child: Text('Auto', style: style))),
+              ]),
+            )
           ]),
         ),
         SizedBox(height: sizeMd),
@@ -33,7 +41,8 @@ class PerformanceSections extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.grey.shade900.withOpacity(0.7),
             ),
-            child: Column(children: [
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               for (Section section in sections)
                 PerformanceSection(
                   section: section,

@@ -7,19 +7,20 @@ class NavigationItem extends StatelessWidget {
   final String title;
   final IconData icon;
   final int index;
+  final bool isSelected;
   const NavigationItem(
       {super.key,
       required this.title,
       required this.icon,
-      required this.index});
+      required this.index,
+      required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
     final n = Provider.of<NavigationProvider>(context);
-    bool isSelected = n.currentIndex == index;
 
     return Padding(
-      padding: const EdgeInsets.only(left: paddingLg, top: paddingLg),
+      padding: const EdgeInsets.only(top: paddingLg),
       child: ListTile(
         title: Text(title, style: TextStyles().textSm),
         leading: Icon(

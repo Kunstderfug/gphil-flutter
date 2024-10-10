@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
+import 'package:gphil/controllers/audio_manager.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/layer_player.dart';
 import 'package:gphil/models/movement.dart';
@@ -12,8 +13,6 @@ import 'package:gphil/models/playlist_classes.dart';
 import 'package:gphil/models/score.dart';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
-// import 'package:gphil/providers/audio_provider.dart';
-// import 'package:gphil/providers/metronome_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/db.dart';
@@ -103,7 +102,8 @@ class PlaylistProvider extends ChangeNotifier {
   Timer? loopingTimer; // timer for looping function
 
 // AUDIO PLAYERS
-  final player = SoLoud.instance;
+  List<PlayerAudioSource> playerAudioSources = [];
+  final player = AudioManager().soloud;
   SoundHandle? activeHandle;
   SoundHandle? passiveHandle;
   final playerPool = <PlayerPool>[];
@@ -388,7 +388,8 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void resetPlayers() {
+  void resetPlayers() async {
+    await player.disposeAllSources();
     playerPool.clear();
     layerPlayersPool.resetAll();
     activeHandle = null;
@@ -851,14 +852,64 @@ class PlaylistProvider extends ChangeNotifier {
 
 // INIT
   Future<void> initPlayer() async {
-    // player = SoLoud.instance;
-    !kIsWeb
-        ? await player.init(bufferSize: 256, sampleRate: 48000)
-        : await player.init(bufferSize: 1024);
-    if (player.isInitialized) {
-      player.setVisualizationEnabled(true);
-      player.setFftSmoothing(0.93);
-      setGlobalVolume(globalVolume);
+    if (!player.isInitialized) {
+      !kIsWeb
+          ? await player.init(bufferSize: 256, sampleRate: 48000)
+          : await player.init(bufferSize: 1024);
+    }
+    player.setVisualizationEnabled(true);
+    player.setFftSmoothing(0.93);
+    setGlobalVolume(globalVolume);
+  }
+
+  AudioSource? getAudioSource(String sectionKey) {
+    return playerAudioSources.isNotEmpty
+        ? playerAudioSources
+            .firstWhere((source) => source.sectionKey == sectionKey)
+            .audioSource
+        : null;
+  }
+
+  Future<void> playSection(Section section) async {
+    appState = AppState.loading;
+    await initPlayer();
+    await player.disposeAllSources();
+
+    // if (getAudioSource(section.key) != null) {
+    //   isPlaying = false;
+    //   await stop();
+    //   activeHandle = await player.play(getAudioSource(section.key)!);
+    //   isPlaying = true;
+    //   notifyListeners();
+    //   setMessage('OK');
+    //   dismissMessage();
+    //   return;
+    // }
+    final audioUrl = getAudioUrl(section);
+    final audioFileName = getAudioFileNAme(audioUrl);
+    currentlyLoadedFiles.add(audioFileName);
+    final file = await persistentController.readAudioFile(
+        section.scoreId, audioFileName, audioUrl);
+    dismissMessage();
+    if (file.bytes.isNotEmpty) {
+      // setMessage('audioSource loading');
+
+      final AudioSource audioSource = await player.loadFile(file.path);
+      // setMessage('audioSource loaded, $audioSource');
+      // playerAudioSources.add(PlayerAudioSource(audioSource, section.key));
+      activeHandle = await player.play(audioSource);
+      isPlaying = true;
+      appState = AppState.idle;
+      notifyListeners();
+    } else {
+      // setMessage('Loading URL, $audioUrl');
+      final audioSource = await player.loadUrl(audioUrl);
+
+      // playerAudioSources.add(PlayerAudioSource(audioSource, section.key));
+      activeHandle = await player.play(audioSource);
+      isPlaying = true;
+      appState = AppState.idle;
+      notifyListeners();
     }
   }
 
@@ -981,104 +1032,6 @@ class PlaylistProvider extends ChangeNotifier {
       }
     }
   }
-
-  // Future<void> setPlayerPool() async {
-  //   currentlyLoadedFiles.clear();
-  //   filesLoaded = 0;
-  //   filesDownloaded = 0;
-  //   filesDownloading = true;
-  //   final loadAudioFiles = <Future>[];
-  //   final audioUrls = <AudioUrl>[];
-  //   final audioFilesUrls = <AudioUrl>[];
-  //   final webAudioUrls = <WebAudioUrl>[];
-
-  //   //player initialization
-  //   try {
-  //     await initPlayer();
-  //   } catch (e) {
-  //     log(e.toString());
-  //   }
-
-  //   //loading user prefs
-  //   for (Section section in playlist) {
-  //     await loadSectionPrefs(section);
-  //   }
-
-  //   //getting audiofiles urls
-  //   for (Section section in playlist) {
-  //     final audioUrl = getAudioUrl(section);
-  //     audioUrls.add(AudioUrl(section.sectionIndex, section.key, audioUrl));
-  //   }
-
-  //   //handling files for desktop or web
-  //   Future<void> loadFile(AudioUrl audioUrl) async {
-  //     final scoreId = playlist[0].scoreId;
-  //     final String audioFileName = getAudioFileNAme(audioUrl.url);
-  //     setMessage("Getting files...");
-  //     currentlyLoadedFiles.add(audioFileName);
-
-  //     //if not web, read the files from the device or download them
-  //     if (!kIsWeb) {
-  //       final file = await persistentController.readAudioFile(
-  //           scoreId, audioFileName, audioUrl.url);
-  //       filesDownloaded++;
-  //       notifyListeners();
-  //       audioFilesUrls.add(
-  //           AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
-  //     } else {
-  //       //if web, read the files from the database and convert them to bytes
-  //       final file =
-  //           await DB().readAudioFile(scoreId, audioFileName, audioUrl.url);
-  //       // final file = fileObject.bytes;
-  //       filesDownloaded++;
-  //       notifyListeners();
-  //       webAudioUrls.add(WebAudioUrl(audioUrl.url, file.key,
-  //           audioUrl.sectionIndex, audioUrl.sectionKey, file.bytes));
-  //     }
-  //   }
-
-  //   for (final audioUrl in audioUrls) {
-  //     loadAudioFiles.add(loadFile(audioUrl));
-  //   }
-  //   filesDownloading = false;
-  //   notifyListeners();
-
-  //   await Future.wait(loadAudioFiles);
-
-  //   audioFilesUrls.sort((a, b) => a.sectionIndex.compareTo(b.sectionIndex));
-
-  //   //handling files for desktop or web
-  //   if (!kIsWeb) {
-  //     for (final audioFileUrl in audioFilesUrls) {
-  //       try {
-  //         final audioSource = await player.loadFile(audioFileUrl.url);
-  //         playerPool.add(PlayerPool(
-  //             sectionIndex: audioFileUrl.sectionIndex,
-  //             sectionKey: audioFileUrl.sectionKey,
-  //             audioSource: audioSource));
-  //         filesLoaded++;
-  //         notifyListeners();
-  //       } catch (e) {
-  //         log(e.toString());
-  //       }
-  //     }
-  //   } else {
-  //     //loading files for web
-  //     for (final webAudioUrl in webAudioUrls) {
-  //       try {
-  //         final audioSource = await player.loadUrl(webAudioUrl.url);
-  //         playerPool.add(PlayerPool(
-  //             sectionIndex: webAudioUrl.sectionIndex,
-  //             sectionKey: webAudioUrl.sectionKey,
-  //             audioSource: audioSource));
-  //         filesLoaded++;
-  //         notifyListeners();
-  //       } catch (e) {
-  //         log(e.toString());
-  //       }
-  //     }
-  //   }
-  // }
 
   //create array of AudioPlayers for all sections in playlist
   Future<void> initSessionPlayers(String sectionKey) async {
@@ -1367,7 +1320,7 @@ class PlaylistProvider extends ChangeNotifier {
         loopStropped = false;
       }
       //if section is looped, play it again
-      if (!loopStropped) {
+      if (!loopStropped && currentSection?.looped == true) {
         loopingTimer = Timer(
             Duration(milliseconds: duration.inMilliseconds),
             () => !performanceMode && currentSection!.looped
@@ -1452,12 +1405,15 @@ class PlaylistProvider extends ChangeNotifier {
   void handleLooping(Duration position) {
     loopingTimer?.cancel();
 
-    loopingTimer = Timer(
+    if (isLoopingActive) {
+      loopingTimer = Timer(
         Duration(
             milliseconds: duration.inMilliseconds - position.inMilliseconds),
         () {
-      playCurrentSection();
-    });
+          playCurrentSection();
+        },
+      );
+    }
   }
 
   void handlePlayNextSection() {

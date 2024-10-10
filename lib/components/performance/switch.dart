@@ -25,31 +25,28 @@ class AutoSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topLeft,
-      child: Opacity(
-        opacity: opacity,
-        child: Wrap(
-            spacing: spacing,
-            alignment: WrapAlignment.end,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Text(
-                label,
-                style: !isLarge ? TextStyles().textSm : TextStyles().textLg,
+    return Opacity(
+      opacity: opacity,
+      child: Wrap(
+          spacing: spacing,
+          alignment: WrapAlignment.end,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              label,
+              style: !isLarge ? TextStyles().textSm : TextStyles().textMd,
+            ),
+            Transform.scale(
+              scale: !isLarge ? scale : 0.7,
+              child: CupertinoSwitch(
+                activeColor: p.setColor(),
+                value: value,
+                onChanged: (value) {
+                  onToggle(value);
+                },
               ),
-              Transform.scale(
-                scale: isTablet(context) ? 1 : scale,
-                child: CupertinoSwitch(
-                  activeColor: p.setColor(),
-                  value: value,
-                  onChanged: (value) {
-                    onToggle(value);
-                  },
-                ),
-              ),
-            ]),
-      ),
+            ),
+          ]),
     );
   }
 }

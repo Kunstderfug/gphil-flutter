@@ -16,7 +16,7 @@ class PerformanceScreen extends StatelessWidget {
     Widget layout = LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       if (constraints.maxWidth >= 900) {
-        return Center(child: LaptopBody());
+        return Center(child: SingleChildScrollView(child: LaptopBody()));
       } else {
         return TabletBody();
       }

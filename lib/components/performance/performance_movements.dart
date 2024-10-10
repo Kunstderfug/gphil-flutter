@@ -21,7 +21,7 @@ class PerformanceMovements extends StatelessWidget {
             child: ListTile(
               selected: movement.movementKey == p.currentMovementKey,
               selectedTileColor: highlightColor,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
               title:
                   Text(movement.title, style: TextStyle(color: Colors.white)),
               onTap: () {

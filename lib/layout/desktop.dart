@@ -36,11 +36,10 @@ class DesktopLayout extends StatelessWidget {
                       : AppColors().backroundColor(context),
               title: Text(
                   n.isLibraryScreen
-                      ? n.navigationScreens[n.currentIndex]['title'] as String
+                      ? n.navigationScreens[n.currentIndex].title
                       : p.performanceMode
                           ? 'P E R F O R M A N C E  M O D E'
-                          : n.navigationScreens[n.currentIndex]['title']
-                              as String,
+                          : n.navigationScreens[n.currentIndex].title,
                   style: Theme.of(context).textTheme.titleMedium),
               toolbarHeight: appBarSizeDesktop,
             )
@@ -88,7 +87,7 @@ class DesktopLayout extends StatelessWidget {
                 width: MediaQuery.sizeOf(context).width,
                 height: MediaQuery.sizeOf(context).height,
                 fit: BoxFit.fill)
-            : Image.asset('assets/images/bg-light-desktop1.png',
+            : Image.asset('assets/images/bg-light-desktop.png',
                 width: MediaQuery.sizeOf(context).width,
                 height: MediaQuery.sizeOf(context).height,
                 fit: BoxFit.fill),
@@ -101,15 +100,18 @@ class DesktopLayout extends StatelessWidget {
                     child: ChangeNotifierProvider(
                       create: (_) => OpacityProvider(),
                       lazy: false,
-                      child: PerformanceSidebar(),
+                      child: p.playlist.isNotEmpty
+                          ? PerformanceSidebar()
+                          : const MyDrawer(child: Navigation()),
                     ),
                   ),
             SizedBox(
               width: MediaQuery.sizeOf(context).width - 240,
               height: MediaQuery.sizeOf(context).height,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(paddingXl),
-                child: n.navigationScreens[n.currentIndex]['screen'] as Widget,
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingXl, vertical: paddingSm),
+                child: n.navigationScreens[n.currentIndex].screen,
               ),
             ),
           ],

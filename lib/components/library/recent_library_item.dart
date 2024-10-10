@@ -19,7 +19,8 @@ class RecentLibraryitem extends StatelessWidget {
         s.setCurrentScoreIdAndRevision(item.id, item.rev);
         l.setScoreId(item.id);
         await s.getScore(item.id);
-        n.setNavigationIndex(2);
+        n.setCurrentIndex(2);
+        n.setSelectedIndex(0);
         l.addToRecentlyAccessed(item);
       },
       style: TextButton.styleFrom(

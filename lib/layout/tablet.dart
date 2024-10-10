@@ -37,8 +37,7 @@ class TabletLayout extends StatelessWidget {
               elevation: 0,
               backgroundColor:
                   Theme.of(context).colorScheme.surface.withOpacity(0.9),
-              title: Text(
-                  n.navigationScreens[n.currentIndex]['title'] as String,
+              title: Text(n.navigationScreens[n.currentIndex].title,
                   style: Theme.of(context).textTheme.titleLarge),
             ),
       drawer: const MyDrawer(child: PerformanceSidebar()),
@@ -46,12 +45,12 @@ class TabletLayout extends StatelessWidget {
         children: [
           t.isDarkMode
               ? Image.asset(
-                  'assets/images/bg-dark1.png',
+                  'assets/images/bg-dark-tablet.png',
                   width: MediaQuery.sizeOf(context).width,
                   height: MediaQuery.sizeOf(context).height,
                   fit: BoxFit.fill,
                 )
-              : Image.asset('assets/images/bg-light.png',
+              : Image.asset('assets/images/bg-light-tablet.png',
                   width: MediaQuery.sizeOf(context).width,
                   height: MediaQuery.sizeOf(context).height,
                   fit: BoxFit.fill),
@@ -60,7 +59,7 @@ class TabletLayout extends StatelessWidget {
             height: MediaQuery.sizeOf(context).height,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(48),
-              child: n.navigationScreens[n.currentIndex]['screen'] as Widget,
+              child: n.navigationScreens[n.currentIndex].screen,
             ),
           ),
         ],

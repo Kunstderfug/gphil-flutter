@@ -51,7 +51,10 @@ class SectionManagementMixer extends StatelessWidget {
 
           //RIGHT SIDE, PLAYLIST CONTROLS
           Expanded(
-            child: GlobalMixer(p: p),
+            child: AnimatedOpacity(
+                opacity: p.isSkippingActive ? 0.3 : 1,
+                duration: Duration(milliseconds: 300),
+                child: GlobalMixer(p: p)),
           )
         ]);
   }

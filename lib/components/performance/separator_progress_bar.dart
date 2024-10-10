@@ -14,6 +14,7 @@ class SeparatorAndProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     const double barWidth = 4;
     const double barOffset = 18;
+    const double barHeight = 24;
     final p = Provider.of<PlaylistProvider>(context);
 
     final progressBarAndGuard = LayoutBuilder(builder: (context, constraints) {
@@ -22,7 +23,7 @@ class SeparatorAndProgressBar extends StatelessWidget {
         left: constraints.maxWidth / 100 * p.guardPosition - barOffset,
         child: Container(
           width: barWidth,
-          height: 48,
+          height: barHeight,
           decoration: BoxDecoration(
             color: redColor,
             borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -41,7 +42,7 @@ class SeparatorAndProgressBar extends StatelessWidget {
                     barOffset,
                 child: Container(
                   width: barWidth,
-                  height: 48,
+                  height: barHeight,
                   decoration: BoxDecoration(
                     color: p.currentSection!.autoContinue! == true
                         ? greenColor

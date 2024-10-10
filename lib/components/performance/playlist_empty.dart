@@ -36,7 +36,8 @@ class PlaylistIsEmpty extends StatelessWidget {
             TextButton.icon(
               icon: const Icon(Icons.arrow_back),
               label: const Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingLg, vertical: paddingSm),
                 child: Text('back to Library'),
               ),
               style: const ButtonStyle(

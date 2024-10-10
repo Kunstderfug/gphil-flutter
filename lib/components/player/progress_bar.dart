@@ -10,24 +10,26 @@ class ProgressBar extends StatelessWidget {
     return Consumer<PlaylistProvider>(builder: (context, p, child) {
       return SliderTheme(
         data: SliderTheme.of(context).copyWith(
-            trackHeight: 6,
+            trackHeight: 2,
             // activeTrackColor: setColor(),
             inactiveTrackColor: p.setInactiveColor(),
             trackShape: const RoundedRectSliderTrackShape(),
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 6,
             )),
-        child: Slider(
-          min: 0,
-          max: p.duration.inMilliseconds.toDouble(),
-          value: p.currentPosition.inMilliseconds > p.duration.inMilliseconds
-              ? p.duration.inMilliseconds.toDouble()
-              : p.currentPosition.inMilliseconds.toDouble(),
-          activeColor: p.setColor(),
-          onChanged: (double value) {},
-          onChangeEnd: (double value) {
-            p.seek(Duration(milliseconds: value.toInt()));
-          },
+        child: SizedBox.expand(
+          child: Slider(
+            min: 0,
+            max: p.duration.inMilliseconds.toDouble(),
+            value: p.currentPosition.inMilliseconds > p.duration.inMilliseconds
+                ? p.duration.inMilliseconds.toDouble()
+                : p.currentPosition.inMilliseconds.toDouble(),
+            activeColor: p.setColor(),
+            onChanged: (double value) {},
+            onChangeEnd: (double value) {
+              p.seek(Duration(milliseconds: value.toInt()));
+            },
+          ),
         ),
       );
     });

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/player_area.dart';
 import 'package:gphil/components/performance/movements_area.dart';
 import 'package:gphil/components/player/player_header.dart';
@@ -42,7 +41,6 @@ class TabletBody extends StatelessWidget {
       const SizedBox(
         height: separatorLg,
       ),
-      footer
     ]);
   }
 }

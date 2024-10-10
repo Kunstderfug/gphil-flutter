@@ -50,7 +50,7 @@ class PlayerControl extends StatelessWidget {
         p.setCurrentSectionByKey(sectionKey);
       }
 
-      double iconSize = iconSizeLg;
+      double iconSize = iconSizeMd;
 
       return Shortcuts(
         shortcuts: <ShortcutActivator, Intent>{
@@ -119,49 +119,53 @@ class PlayerControl extends StatelessWidget {
           },
           child: Focus(
             autofocus: true,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                //previous button
-                Expanded(
-                  child: IconButton(
-                      iconSize: iconSize,
-                      onPressed: () => !p.layerFilesDownloading
-                          ? p.currentSectionIndex =
-                              (p.currentSectionIndex - 1) % p.playlist.length
-                          : null,
-                      icon: const Icon(Icons.skip_previous)),
-                ),
-
-                //play button
-                Expanded(
-                  flex: 2,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                          padding: const EdgeInsets.all(0),
-                          tooltip: 'Play/Pause',
-                          onPressed:
-                              !p.layerFilesDownloading ? p.pauseOrResume : null,
-                          icon: const RepaintBoundary(
-                            child: Metronome(),
-                          )),
-                    ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: paddingXl),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  //previous button
+                  Expanded(
+                    child: IconButton(
+                        iconSize: iconSize,
+                        onPressed: () => !p.layerFilesDownloading
+                            ? p.currentSectionIndex =
+                                (p.currentSectionIndex - 1) % p.playlist.length
+                            : null,
+                        icon: const Icon(Icons.skip_previous)),
                   ),
-                ),
 
-                //next button
-                Expanded(
-                  child: IconButton(
-                      iconSize: iconSize,
-                      onPressed: () => !p.layerFilesDownloading
-                          ? p.currentSectionIndex =
-                              (p.currentSectionIndex + 1) % p.playlist.length
-                          : null,
-                      icon: const Icon(Icons.skip_next)),
-                ),
-              ],
+                  //play button
+                  Expanded(
+                    flex: 2,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        IconButton(
+                            padding: const EdgeInsets.all(0),
+                            tooltip: 'Play/Pause',
+                            onPressed: !p.layerFilesDownloading
+                                ? p.pauseOrResume
+                                : null,
+                            icon: const RepaintBoundary(
+                              child: Metronome(),
+                            )),
+                      ],
+                    ),
+                  ),
+
+                  //next button
+                  Expanded(
+                    child: IconButton(
+                        iconSize: iconSize,
+                        onPressed: () => !p.layerFilesDownloading
+                            ? p.currentSectionIndex =
+                                (p.currentSectionIndex + 1) % p.playlist.length
+                            : null,
+                        icon: const Icon(Icons.skip_next)),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -56,7 +56,8 @@ class _ScoreNavigationState extends State<ScoreNavigation>
           padding: const EdgeInsets.all(paddingMd),
           tooltip: 'Back to Library',
           onPressed: () {
-            n.setNavigationIndex(0);
+            n.setCurrentIndex(0);
+            n.setSelectedIndex(0);
           },
           icon: const Icon(Icons.arrow_back),
         ),

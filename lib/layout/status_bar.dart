@@ -30,14 +30,14 @@ class StatusBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-                width: 225,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: SizedBox(
+                width: 240,
                 child: Row(
                   mainAxisAlignment: alignment,
                   children: [
@@ -50,14 +50,40 @@ class StatusBar extends StatelessWidget {
                     ),
                   ],
                 )),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: alignment,
+              children: [
+                StatusBarItem(
+                    text: 'Current score',
+                    value: s.currentScore != null
+                        ? '${s.currentScore!.shortTitle} - ${s.currentScore!.composer}'
+                        : 'Not selected'),
+                VerticalDivider(
+                  thickness: 1,
+                  color: dividerColor,
+                ),
+              ],
+            ),
+          ),
+          if (n.currentIndex == 2)
+            Expanded(
+              child: StatusBarItem(
+                  text: 'Current section',
+                  value: s.currentSection.name != ''
+                      ? '${s.currentMovement.title} / ${s.currentSection.name}${s.currentSection.updateRequired != null ? '*' : ''}'
+                      : 'Not selected'),
+            ),
+          if (n.isPerformanceScreen && p.currentMovementKey != null)
             Expanded(
               child: Row(
                 mainAxisAlignment: alignment,
                 children: [
                   StatusBarItem(
-                      text: 'Current score',
-                      value: s.currentScore != null
-                          ? '${s.currentScore!.shortTitle} - ${s.currentScore!.composer}'
+                      text: '',
+                      value: p.currentSection != null
+                          ? 'Default tempo: ${p.currentSection?.defaultTempo.toString()} ${p.currentSection!.userTempo != null ? '| User tempo: ${p.currentSection!.userTempo}' : ''}'
                           : 'Not selected'),
                   VerticalDivider(
                     thickness: 1,
@@ -66,51 +92,30 @@ class StatusBar extends StatelessWidget {
                 ],
               ),
             ),
-            if (n.currentIndex == 2)
-              Expanded(
-                child: StatusBarItem(
-                    text: 'Current section',
-                    value: s.currentSection.name != ''
-                        ? '${s.currentMovement.title} / ${s.currentSection.name}${s.currentSection.updateRequired != null ? '*' : ''}'
-                        : 'Not selected'),
-              ),
-            if (n.isPerformanceScreen && p.currentMovementKey != null)
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: alignment,
-                  children: [
-                    StatusBarItem(
-                        text: 'Current section',
-                        value: p.currentSection != null
-                            ? '${p.currentSection!.name}${p.currentSection?.updateRequired != null ? '*' : ''}, default tempo: ${p.currentSection?.defaultTempo.toString()} ${p.currentSection!.userTempo != null ? '| User tempo: ${p.currentSection!.userTempo}' : ''}'
-                            : 'Not selected'),
-                    VerticalDivider(
-                      thickness: 1,
-                      color: dividerColor,
-                    ),
-                  ],
+          if (n.currentIndex == 1 && p.currentMovementKey != null)
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Row(mainAxisAlignment: alignment, children: [
+                    Text(p.message, style: textStyle),
+                    if (!p.isLoading)
+                      Text(
+                          '|  Player volume: ${p.playerVolume.toStringAsFixed(2)}',
+                          style: textStyle),
+                    if (!p.layersEnabled)
+                      const Text('|  Layers disabled', style: textStyle),
+                    if (p.layersEnabled &&
+                        !p.layerFilesLoading &&
+                        p.layerPlayersPool.globalLayers.isNotEmpty)
+                      ...p.layerPlayersPool.globalLayers.map((Layer layer) => Text(
+                          '${layer.layerName}:${layer.layerVolume.toStringAsFixed(2)}',
+                          style: textStyle)),
+                  ]),
                 ),
               ),
-            if (n.currentIndex == 1 && p.currentMovementKey != null)
-              Expanded(
-                child: Wrap(spacing: 8, children: [
-                  Text('Session: ${p.message}', style: textStyle),
-                  if (!p.isLoading)
-                    Text(
-                        '|  Player volume: ${p.playerVolume.toStringAsFixed(2)}',
-                        style: textStyle),
-                  if (!p.layersEnabled)
-                    const Text('|  Layers disabled', style: textStyle),
-                  if (p.layersEnabled &&
-                      !p.layerFilesLoading &&
-                      p.layerPlayersPool.globalLayers.isNotEmpty)
-                    ...p.layerPlayersPool.globalLayers.map((Layer layer) => Text(
-                        '${layer.layerName}:${layer.layerVolume.toStringAsFixed(2)}',
-                        style: textStyle)),
-                ]),
-              ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
@@ -137,8 +142,9 @@ class StatusBarItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '$text: $value',
+      '${text.isNotEmpty ? '$text: ' : ''}$value',
       style: textStyle,
+      softWrap: false,
       overflow: TextOverflow.fade,
     );
   }

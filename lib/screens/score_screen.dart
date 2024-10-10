@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/library/score_navigation.dart';
 import 'package:gphil/components/score/section_image.dart';
@@ -5,6 +6,7 @@ import 'package:gphil/components/score/score_movements.dart';
 import 'package:gphil/components/score/score_sections.dart';
 import 'package:gphil/components/score/show_prompt.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
+import 'package:gphil/models/playlist_classes.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
@@ -110,6 +112,7 @@ class MvtSections extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Provider.of<ScoreProvider>(context);
+    final p = Provider.of<PlaylistProvider>(context);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,15 +139,61 @@ class MvtSections extends StatelessWidget {
                       child: Column(
                         children: [
                           const SizedBox(height: separatorMd),
-                          Text('Section starts at:',
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: separatorXs),
-                          SectionImage(
-                              imageFile: s.sectionImageFile, width: 250),
-                          const SizedBox(height: separatorXs),
-                          Text(
-                              'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
-                              style: Theme.of(context).textTheme.titleMedium),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('Section starts at:',
+                                style: Theme.of(context).textTheme.titleMedium),
+                          ),
+                          // const SizedBox(height: separatorXs),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 60, vertical: 20),
+                            child: SectionImage(
+                                imageFile: s.sectionImageFile, width: 250),
+                          ),
+                          // const SizedBox(height: separatorXs),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                    'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium),
+                              ),
+                              IconButton(
+                                  icon: p.isPlaying
+                                      ? Icon(Icons.stop)
+                                      : Icon(Icons.play_arrow),
+                                  onPressed: () async {
+                                    p.isPlaying
+                                        ? await p.stop()
+                                        : await p.playSection(s.currentSection);
+                                  },
+                                  iconSize: sizeXl,
+                                  padding: const EdgeInsets.all(paddingMd),
+                                  tooltip: "Play section"),
+                            ],
+                          ),
+                          if (p.error.isNotEmpty && kDebugMode)
+                            Text('error: ${p.error}'),
+
+                          // if (p.message.isNotEmpty && kDebugMode)
+                          //   Text('Message: ${p.message}'),
+
+                          if (p.playerAudioSources.isNotEmpty)
+                            for (PlayerAudioSource source
+                                in p.playerAudioSources)
+                              SingleChildScrollView(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                        '${source.audioSource}: ${source.sectionKey}'),
+                                  ],
+                                ),
+                              ),
                         ],
                       ),
                     ),

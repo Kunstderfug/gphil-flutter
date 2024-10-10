@@ -12,16 +12,13 @@ class PerformanceSidebar extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
 
-    return Column(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            child: PerformanceMovements(movements: p.sessionMovements),
-          ),
-          Expanded(
-              child: PerformanceSections(sections: p.currentMovementSections)),
-          SectionColorizer(),
-        ]);
+    return Column(children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 0),
+        child: PerformanceMovements(movements: p.sessionMovements),
+      ),
+      Expanded(child: PerformanceSections(sections: p.currentMovementSections)),
+      SectionColorizer(),
+    ]);
   }
 }

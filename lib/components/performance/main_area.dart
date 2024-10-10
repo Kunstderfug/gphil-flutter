@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/modes_player_control.dart';
 import 'package:gphil/components/performance/section_management_mixer.dart';
 import 'package:gphil/components/performance/section_name_playlist_control.dart';
@@ -16,6 +17,10 @@ class MainArea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
+
+    double opacity = 0.3;
+    int duration = 300;
+
     return Column(
         //Header
         children: [
@@ -26,22 +31,43 @@ class MainArea extends StatelessWidget {
           ),
 
           //Section name and playlist control
-          SectionNamePlaylistControl(separatorWidth: separatorWidth),
+          AnimatedOpacity(
+              opacity: p.isSkippingActive ? opacity : 1,
+              duration: Duration(milliseconds: duration),
+              child:
+                  SectionNamePlaylistControl(separatorWidth: separatorWidth)),
 
           //Separator line and player progress bar
-          SeparatorAndProgressBar(separatorWidth: separatorWidth, height: 60),
+          AnimatedOpacity(
+              opacity: p.isSkippingActive ? opacity : 1,
+              duration: Duration(milliseconds: duration),
+              child: SeparatorAndProgressBar(
+                  separatorWidth: separatorWidth, height: 40)),
 
           //Modes and player control
-          ModesAndPlayerControl(separatorWidth: separatorWidth, height: 184),
+          AnimatedOpacity(
+              opacity: p.isSkippingActive ? opacity : 1,
+              duration: Duration(milliseconds: duration),
+              child: ModesAndPlayerControl(
+                  separatorWidth: separatorWidth, height: 184)),
+          SizedBox(height: 8),
 
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Expanded(child: SeparatorLine(height: separatorLg)),
+            Expanded(child: SeparatorLine(height: separatorSm)),
             SizedBox(width: separatorWidth),
-            Expanded(child: SeparatorLine(height: separatorLg)),
+            Expanded(child: SeparatorLine(height: separatorSm)),
           ]),
 
           //Section management and mixer
-          SectionManagementMixer(separatorWidth: separatorWidth)
+          SectionManagementMixer(separatorWidth: separatorWidth),
+          const SizedBox(
+            height: separatorMd,
+          ),
+          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Expanded(child: Center(child: Footer())),
+            SizedBox(width: separatorWidth),
+            Expanded(child: SizedBox(width: separatorWidth)),
+          ]),
         ]);
   }
 }

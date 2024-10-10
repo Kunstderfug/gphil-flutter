@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/floating_info.dart';
 import 'package:gphil/components/performance/layers_error.dart';
 import 'package:gphil/components/performance/main_area.dart';
@@ -18,21 +17,17 @@ class LaptopBody extends StatelessWidget {
     return ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: maxLaptopWidth,
-          maxHeight: MediaQuery.sizeOf(context).height - 138,
+          minHeight: MediaQuery.sizeOf(context).height,
         ),
         child: Stack(
           fit: StackFit.passthrough,
           children: [
-            AnimatedOpacity(
-                opacity: p.isSkippingActive ? 0.3 : 1,
-                duration: const Duration(milliseconds: 300),
-                child: MainArea()),
+            MainArea(),
             if (kDebugMode) FloatingWindow(child: MixerInfo(p: p)),
-            footer,
             //Error message
             if (p.error.isNotEmpty)
               const Positioned(
-                top: 600,
+                bottom: 0,
                 right: 60,
                 child: LayersError(),
               ),

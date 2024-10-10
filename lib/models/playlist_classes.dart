@@ -1,7 +1,18 @@
 import 'dart:typed_data';
 
+import 'package:flutter_soloud/flutter_soloud.dart';
 import 'package:gphil/models/layer_player.dart';
 import 'package:gphil/models/score_user_prefs.dart';
+
+class PlayerAudioSource {
+  final AudioSource audioSource;
+  final String sectionKey;
+
+  PlayerAudioSource(
+    this.audioSource,
+    this.sectionKey,
+  );
+}
 
 class WebAudioUrl {
   final String path;

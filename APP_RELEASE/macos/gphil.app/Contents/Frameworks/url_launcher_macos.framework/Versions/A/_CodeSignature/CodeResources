@@ -6,7 +6,15 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		rinXJk+hX/DV4hl9nWptISCPxIA=
+		QP8CFiMCk71F1cScqpiypBDid4w=
+		</data>
+		<key>Resources/url_launcher_macos_privacy.bundle/Contents/Info.plist</key>
+		<data>
+		NQz2FQ4l2leWGiyS+m9WvCqxMlI=
+		</data>
+		<key>Resources/url_launcher_macos_privacy.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		Wg6BXNysAQYRmcWWiQCdEQn4KPI=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -15,7 +23,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			q2aTs0ICKzAQFnVAUSq72OpT8kT7lUctNmWzTFSwrpk=
+			koVP5JTXNP++uEfoYjVz1sS1btN9dlNjfHoemhhV6Nc=
+			</data>
+		</dict>
+		<key>Resources/url_launcher_macos_privacy.bundle/Contents/Info.plist</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			XZNOlfzCCIwsdNG5b0ZgF3nqnjcKkfe5KzdjFVBnHgw=
+			</data>
+		</dict>
+		<key>Resources/url_launcher_macos_privacy.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			IE0DWojqsigbPZFPRseWdmrnjjy4JTdxGSjcqeKNu7g=
 			</data>
 		</dict>
 	</dict>

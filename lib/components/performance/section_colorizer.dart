@@ -15,25 +15,27 @@ class SectionColorizer extends StatelessWidget {
     final o = Provider.of<OpacityProvider>(context);
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        OpacitySlider(),
+        if (p.sectionsColorized) OpacitySlider(),
         Padding(
-          padding: const EdgeInsets.only(left: 60),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: TooltipToggle(
-              message:
-                  'Colorize sections background according to auto-continue',
-              child: AutoSwitch(
-                p: p,
-                value: p.sectionsColorized,
-                onToggle: (value) {
-                  p.setSectionsColorized(value);
+          padding: const EdgeInsets.only(left: 14.0),
+          child: TooltipToggle(
+            message: 'Colorize sections background according to auto-continue',
+            child: AutoSwitch(
+              p: p,
+              value: p.sectionsColorized,
+              onToggle: (value) {
+                p.setSectionsColorized(value);
+                if (!value) {
+                  o.resetOpacity();
+                } else {
                   o.getOpacity();
-                },
-                opacity: 1,
-                label: 'Colorize sections',
-              ),
+                }
+              },
+              opacity: 1,
+              label: 'Colorize sections',
             ),
           ),
         ),

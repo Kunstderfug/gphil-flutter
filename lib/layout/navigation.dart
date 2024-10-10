@@ -209,10 +209,12 @@ class Nav extends StatelessWidget {
 
       //NAVIGATION
       ...screens.getRange(0, 2).map((screen) => NavigationItem(
-            title: screen['title'] as String,
-            icon: screen['icon'] as IconData,
-            index: screens.indexOf(screen),
-          )),
+          title: screen.title,
+          icon: screen.icon,
+          index: screens.indexOf(screen),
+          isSelected: n.selectedIndex == screens.indexOf(screen))),
+
+      SeparatorLine(),
     ]);
   }
 }

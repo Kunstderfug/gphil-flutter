@@ -39,7 +39,7 @@ class PlaylistControl extends StatelessWidget {
                       color: p.isSectionLooped
                           ? p.setColor()
                           : Colors.transparent),
-                  padding: const EdgeInsets.all(paddingMd),
+                  padding: const EdgeInsets.all(paddingSm),
                   child: const Icon(Icons.loop),
                 )),
           ),
@@ -52,7 +52,7 @@ class PlaylistControl extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),
                     color: p.isPlaying ? p.setColor() : Colors.transparent),
-                padding: const EdgeInsets.all(paddingMd),
+                padding: const EdgeInsets.all(paddingSm),
                 child: const Icon(Icons.stop),
               )),
 
