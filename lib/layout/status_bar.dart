@@ -69,11 +69,18 @@ class StatusBar extends StatelessWidget {
           ),
           if (n.currentIndex == 2)
             Expanded(
-              child: StatusBarItem(
-                  text: 'Current section',
-                  value: s.currentSection.name != ''
-                      ? '${s.currentMovement.title} / ${s.currentSection.name}${s.currentSection.updateRequired != null ? '*' : ''}'
-                      : 'Not selected'),
+              child: Row(
+                mainAxisAlignment: alignment,
+                children: [
+                  Center(
+                    child: StatusBarItem(
+                        text: 'Current section',
+                        value: s.currentSection.name != ''
+                            ? '${s.currentMovement.title} / ${s.currentSection.name}${s.currentSection.updateRequired != null ? '*' : ''}'
+                            : 'Not selected'),
+                  ),
+                ],
+              ),
             ),
           if (n.isPerformanceScreen && p.currentMovementKey != null)
             Expanded(

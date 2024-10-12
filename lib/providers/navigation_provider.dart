@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/screens/help_screen.dart';
 import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/score_screen.dart';
 import 'package:gphil/screens/performance_screen.dart';
@@ -34,6 +35,8 @@ class NavigationProvider extends ChangeNotifier {
         screen: const PerformanceScreen()),
     NavigationScreen(
         title: 'S C O R E', icon: Icons.piano, screen: const ScoreScreen()),
+    NavigationScreen(
+        title: 'H E L P', icon: Icons.help, screen: const HelpScreen()),
   ];
 
   void setNavigationIndex(int index) {

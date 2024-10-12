@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 
 class KeyboardShortcuts extends StatelessWidget {
-  final Map<List<String>, String> shortcuts;
+  static const shortcuts = {
+    ['Enter']: 'Start/Play next section',
+    ['Space']: 'Stop',
+    ['Arrow Left']: 'Jump-skip to previous section',
+    ['Arrow Right']: 'Jump-skip to the next section',
+    ['Comma']: 'Change tempo one step up',
+    ['Period']: 'Change tempo one step down',
+    ['L']: 'Loop section',
+    ['M']: 'Skip section',
+    ['P']: 'Performance mode',
+    ['A']: 'Section auto continue',
+    ['Ctrl + A']: 'Global Auto continue',
+    // ['H']: 'Hide/show metronome',
+    // ['S']: 'Skip to next section',
+  };
 
-  const KeyboardShortcuts({super.key, required this.shortcuts});
+  const KeyboardShortcuts({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +52,7 @@ class KeyboardShortcuts extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
         decoration: BoxDecoration(
-          color: Colors.grey[300],
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(4.0),
           boxShadow: [
             BoxShadow(

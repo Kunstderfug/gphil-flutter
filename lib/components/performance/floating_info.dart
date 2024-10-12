@@ -6,12 +6,14 @@ class FloatingWindow extends StatefulWidget {
   final Widget child;
   final double initialWidth;
   final double initialHeight;
+  final String label;
 
   const FloatingWindow({
     super.key,
     required this.child,
-    this.initialWidth = 600,
+    this.initialWidth = 300,
     this.initialHeight = 300,
+    required this.label,
   });
 
   @override
@@ -23,7 +25,7 @@ class FloatingWindowState extends State<FloatingWindow> {
   late double _height;
   late double _bottom;
   late double _left;
-  bool _isCollapsed = false;
+  bool _isCollapsed = true;
   late double _opacity;
   late SharedPreferences prefs;
 
@@ -100,7 +102,7 @@ class FloatingWindowState extends State<FloatingWindow> {
                     child: widget.child,
                   ),
                 ),
-              _buildTitleBar(),
+              _buildTitleBar(widget.label),
             ],
           ),
         ),
@@ -108,7 +110,7 @@ class FloatingWindowState extends State<FloatingWindow> {
     );
   }
 
-  Widget _buildTitleBar() {
+  Widget _buildTitleBar(String label) {
     return GestureDetector(
       onTap: _toggleCollapse,
       child: Container(
@@ -121,7 +123,7 @@ class FloatingWindowState extends State<FloatingWindow> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Session Info', style: TextStyle(color: Colors.white)),
+            Text(label, style: TextStyle(color: Colors.white)),
             IconButton(
               icon: Icon(!_isCollapsed ? Icons.expand_more : Icons.expand_less,
                   color: Colors.white),

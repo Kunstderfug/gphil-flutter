@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
@@ -14,7 +13,6 @@ import 'package:gphil/screens/performance_screen.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
-import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 
 // import 'package:gphil/src/rust/frb_generated.dart';

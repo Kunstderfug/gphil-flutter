@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/theme/constants.dart';
 
-class StandardButton extends StatelessWidget {
+class StandartButton extends StatelessWidget {
   final String label;
   final IconData? icon;
   final VoidCallback onPressed;
 
-  const StandardButton({
+  const StandartButton({
     super.key,
     required this.label,
     this.icon,

@@ -8,7 +8,7 @@ class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 30,
+      height: 40,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Wrap(spacing: 8, children: [

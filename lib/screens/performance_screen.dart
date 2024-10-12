@@ -41,7 +41,7 @@ class PerformanceScreen extends StatelessWidget {
                   filesLength: p.playlist.length,
                 ),
                 SizedBox(height: separatorXs),
-                StandardButton(
+                StandartButton(
                   label: 'Cancel',
                   onPressed: () {
                     p.filesDownloading = false;
@@ -58,7 +58,7 @@ class PerformanceScreen extends StatelessWidget {
                       filesLength: p.playlist.length,
                     ),
                     SizedBox(height: separatorXs),
-                    StandardButton(
+                    StandartButton(
                       label: 'Cancel',
                       onPressed: () {
                         p.filesDownloading = false;

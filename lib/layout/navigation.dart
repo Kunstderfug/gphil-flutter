@@ -18,10 +18,7 @@ class Navigation extends StatelessWidget {
   Widget build(BuildContext context) {
     final au = Provider.of<AppUpdateService>(context);
     return Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-      const SizedBox(
-        height: 360,
-        child: Nav(),
-      ),
+      Nav(),
       if (au.platform == 'macos' || au.platform == 'windows')
         const Expanded(child: AppUpdate()),
       const SeparatorLine(
@@ -208,12 +205,20 @@ class Nav extends StatelessWidget {
       ),
 
       //NAVIGATION
-      ...screens.getRange(0, 2).map((screen) => NavigationItem(
-          title: screen.title,
-          icon: screen.icon,
-          index: screens.indexOf(screen),
-          isSelected: n.selectedIndex == screens.indexOf(screen))),
-
+      ...screens.getRange(0, 2).map(
+            (screen) => NavigationItem(
+              title: screen.title,
+              icon: screen.icon,
+              index: screens.indexOf(screen),
+              isSelected: n.selectedIndex == screens.indexOf(screen),
+            ),
+          ),
+      NavigationItem(
+        title: 'H E L P',
+        icon: Icons.help,
+        index: 3,
+        isSelected: n.currentIndex == 3,
+      ),
       SeparatorLine(),
     ]);
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/keyboard_shortcuts.dart';
 import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/section_management.dart';
@@ -50,18 +49,6 @@ class SectionManagementMixer extends StatelessWidget {
           SizedBox(
             width: separatorWidth,
           ),
-          // Align(
-          //   alignment: Alignment.center,
-          //   child: KeyboardShortcuts(shortcuts: {
-          //     ['Enter']: 'Play/Pause',
-          //     ['Space']: 'Stop',
-          //     ['Arrow Left']: 'Previous Section',
-          //     ['Arrow Right']: 'Next Section',
-          //     ['L']: 'Loop Section',
-          //     ['M']: 'Skip Section',
-          //     ['P']: 'Perf Mode',
-          //   }),
-          // ),
 
           //RIGHT SIDE, PLAYLIST CONTROLS
           Expanded(
