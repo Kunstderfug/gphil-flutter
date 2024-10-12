@@ -16,30 +16,27 @@ import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
 import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:gphil/src/rust/frb_generated.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final bool isDark = prefs.getBool('isDarkMode') ?? true;
+  // final prefs = await SharedPreferences.getInstance();
+  final bool isDark = true;
   // await RustLib.init();
   //
   // Logger.root.level = Level.FINE;
-  Logger.root.onRecord.listen((record) {
-    // Forward logs to the console.
-    dev.log(
-      record.message,
-      time: record.time,
-      level: record.level.value,
-      name: record.loggerName,
-      zone: record.zone,
-      error: record.error,
-      stackTrace: record.stackTrace,
-    );
-    // TODO: if needed, forward to Sentry.io, Crashlytics, etc.
-  });
+  // Logger.root.onRecord.listen((record) {
+  //   dev.log(
+  //     record.message,
+  //     time: record.time,
+  //     level: record.level.value,
+  //     name: record.loggerName,
+  //     zone: record.zone,
+  //     error: record.error,
+  //     stackTrace: record.stackTrace,
+  //   );
+  // });
 
   runApp(
     MultiProvider(providers: [

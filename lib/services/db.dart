@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'package:gphil/models/score_user_prefs.dart';
 import 'package:gphil/models/section.dart';
 import 'package:http/http.dart' as http;
-import 'package:idb_shim/idb_client.dart';
-import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class DB {

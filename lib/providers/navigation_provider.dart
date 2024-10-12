@@ -51,4 +51,9 @@ class NavigationProvider extends ChangeNotifier {
     _selectedIndex = index;
     notifyListeners();
   }
+
+  void setScoreScreen() {
+    setCurrentIndex(2);
+    setSelectedIndex(0);
+  }
 }

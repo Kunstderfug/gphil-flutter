@@ -65,34 +65,31 @@ class SectionImage extends StatelessWidget {
                   ),
                 ),
               )
-            : Container(
-                // constraints: BoxConstraints(maxWidth: imageWidth(context)),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRad().bRadiusMd,
-                    ),
-                    child: imageFile != null
-                        ? Image.file(
-                            imageFile!,
-                            filterQuality: FilterQuality.medium,
-                            isAntiAlias: true,
-                            fit: BoxFit.contain,
-                          )
-                        : Center(
-                            child: a.appState == AppState.offline
-                                ? const Text(
-                                    'Image is not available, app is offline',
-                                    style: TextStyle(color: Colors.black54),
-                                  )
-                                : CircularProgressIndicator(
-                                    color: Theme.of(context).highlightColor,
-                                    strokeWidth: 2,
-                                  ),
-                          ),
+            : AspectRatio(
+                aspectRatio: 16 / 9,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRad().bRadiusMd,
                   ),
+                  child: imageFile != null
+                      ? Image.file(
+                          imageFile!,
+                          filterQuality: FilterQuality.medium,
+                          isAntiAlias: true,
+                          fit: BoxFit.contain,
+                        )
+                      : Center(
+                          child: a.appState == AppState.offline
+                              ? const Text(
+                                  'Image is not available, app is offline',
+                                  style: TextStyle(color: Colors.black54),
+                                )
+                              : CircularProgressIndicator(
+                                  color: Theme.of(context).highlightColor,
+                                  strokeWidth: 2,
+                                ),
+                        ),
                 ),
               );
       }

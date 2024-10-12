@@ -67,12 +67,6 @@ class FloatingWindowState extends State<FloatingWindow> {
     setState(() {
       _isCollapsed = !_isCollapsed;
     });
-
-    void setOpacity(double value) {
-      setState(() {
-        _opacity = value;
-      });
-    }
   }
 
   @override
@@ -127,7 +121,7 @@ class FloatingWindowState extends State<FloatingWindow> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Mixer Infor', style: TextStyle(color: Colors.white)),
+            Text('Session Info', style: TextStyle(color: Colors.white)),
             IconButton(
               icon: Icon(!_isCollapsed ? Icons.expand_more : Icons.expand_less,
                   color: Colors.white),

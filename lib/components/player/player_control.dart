@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gphil/components/player/metronome.dart';
+import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
-import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
@@ -35,20 +35,17 @@ class Skip extends Intent {
   const Skip();
 }
 
+class Exit extends Intent {
+  const Exit();
+}
+
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<PlaylistProvider>(builder: (context, p, child) {
-      final s = Provider.of<ScoreProvider>(context);
-
-      void syncProviders() {
-        final movementKey = p.currentSection!.movementKey;
-        final sectionKey = p.currentSection!.key;
-        s.setCurrentSectionByKey(movementKey, sectionKey);
-        p.setCurrentSectionByKey(sectionKey);
-      }
+      final n = Provider.of<NavigationProvider>(context);
 
       double iconSize = iconSizeMd;
 
@@ -67,7 +64,8 @@ class PlayerControl extends StatelessWidget {
               !p.onePedalMode ? const Stop() : const StartOrContinue(),
           const SingleActivator(LogicalKeyboardKey.keyL): const Loop(),
           const SingleActivator(LogicalKeyboardKey.keyP): const PerfMode(),
-          const SingleActivator(LogicalKeyboardKey.keyS): const Skip(),
+          const SingleActivator(LogicalKeyboardKey.keyM): const Skip(),
+          const SingleActivator(LogicalKeyboardKey.escape): const Exit(),
         },
         child: Actions(
           actions: {
@@ -75,7 +73,6 @@ class PlayerControl extends StatelessWidget {
                 CallbackAction<HandlePreviousSection>(onInvoke: (intent) {
               if (p.appState != AppState.loading) {
                 p.skipToPreviousSection();
-                syncProviders();
               }
               return null;
             }),
@@ -100,7 +97,6 @@ class PlayerControl extends StatelessWidget {
                 CallbackAction<HandleNextSection>(onInvoke: (intent) {
               if (p.appState != AppState.loading) {
                 p.skipToNextSection();
-                // syncProviders();
               }
               return null;
             }),
@@ -110,6 +106,10 @@ class PlayerControl extends StatelessWidget {
             }),
             Skip: CallbackAction<Skip>(onInvoke: (intent) {
               p.toggleSectionSkipped(p.currentSectionKey!);
+              return null;
+            }),
+            Exit: CallbackAction<Exit>(onInvoke: (intent) {
+              n.setScoreScreen();
               return null;
             }),
             PerfMode: CallbackAction<PerfMode>(onInvoke: (intent) {

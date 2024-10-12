@@ -34,8 +34,7 @@ class PlayerHeader extends StatelessWidget {
           s.setCurrentSectionByKey(
               p.currentMovementKey!, p.currentSection!.key);
           // s.setCurrentTempo(p.currentTempo!);
-          n.setCurrentIndex(2);
-          n.setSelectedIndex(0);
+          n.setScoreScreen();
         },
         icon: const Icon(Icons.arrow_back),
       ),

@@ -13,25 +13,6 @@ class LaptopBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
-    return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: maxLaptopWidth,
-          minHeight: MediaQuery.sizeOf(context).height,
-        ),
-        child: Stack(
-          fit: StackFit.passthrough,
-          children: [
-            MainArea(),
-            if (kDebugMode) FloatingWindow(child: MixerInfo(p: p)),
-            //Error message
-            if (p.error.isNotEmpty)
-              const Positioned(
-                bottom: 0,
-                right: 60,
-                child: LayersError(),
-              ),
-          ],
-        ));
+    return MainArea();
   }
 }

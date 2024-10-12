@@ -17,6 +17,7 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/db.dart';
 import 'package:gphil/theme/constants.dart';
+import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final persistentController = PersistentDataController();
@@ -25,6 +26,8 @@ final persistentController = PersistentDataController();
 // final prefs = SharedPreferences.getInstance().then((value) => value);
 
 class PlaylistProvider extends ChangeNotifier {
+  final Logger _log = Logger('PlaylistProvider');
+
 // PLAYLIST
   List<Section> playlist = [];
   List<SessionMovement> sessionMovements = [];
@@ -372,8 +375,8 @@ class PlaylistProvider extends ChangeNotifier {
 
   void setSectionsColorized(bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('sectionsColorized', value);
     sectionsColorized = value;
+    await prefs.setBool('sectionsColorized', value);
     notifyListeners();
   }
 
@@ -385,25 +388,6 @@ class PlaylistProvider extends ChangeNotifier {
 
   void tempoForAllSections(bool value) async {
     tempoForAllSectionsEnabled = value;
-    notifyListeners();
-  }
-
-  void resetPlayers() async {
-    await player.disposeAllSources();
-    playerPool.clear();
-    layerPlayersPool.resetAll();
-    activeHandle = null;
-    playerVolume = 1;
-    _currentSectionIndex = 0;
-    _isPlaying = false;
-    // _autoStart = false;
-    _autoContinueAt = Duration.zero;
-    autoContinueMarker = null;
-    autoContinueTimer?.cancel();
-    filesLoaded = 0;
-    layerFilesLoaded = 0;
-    totalLayerFiles = 0;
-    currentPlaylistDurations.clear();
     notifyListeners();
   }
 
@@ -875,16 +859,6 @@ class PlaylistProvider extends ChangeNotifier {
     await initPlayer();
     await player.disposeAllSources();
 
-    // if (getAudioSource(section.key) != null) {
-    //   isPlaying = false;
-    //   await stop();
-    //   activeHandle = await player.play(getAudioSource(section.key)!);
-    //   isPlaying = true;
-    //   notifyListeners();
-    //   setMessage('OK');
-    //   dismissMessage();
-    //   return;
-    // }
     final audioUrl = getAudioUrl(section);
     final audioFileName = getAudioFileNAme(audioUrl);
     currentlyLoadedFiles.add(audioFileName);
@@ -1031,6 +1005,25 @@ class PlaylistProvider extends ChangeNotifier {
         log('Error loading audio source: $e');
       }
     }
+  }
+
+  void resetPlayers() async {
+    if (player.isInitialized) await player.disposeAllSources();
+    playerPool.clear();
+    layerPlayersPool.resetAll();
+    activeHandle = null;
+    playerVolume = 1;
+    _currentSectionIndex = 0;
+    _isPlaying = false;
+    // _autoStart = false;
+    _autoContinueAt = Duration.zero;
+    autoContinueMarker = null;
+    autoContinueTimer?.cancel();
+    filesLoaded = 0;
+    layerFilesLoaded = 0;
+    totalLayerFiles = 0;
+    currentPlaylistDurations.clear();
+    notifyListeners();
   }
 
   //create array of AudioPlayers for all sections in playlist
@@ -1219,24 +1212,19 @@ class PlaylistProvider extends ChangeNotifier {
     isPlaying = true;
     await playCurrentSection();
     player.setVolume(activeHandle!, playerVolume);
-    // getPositionStream(); //test position Stream
     startMetronome();
     handleStartPlayback();
     initImagesOrder();
     setAdjustedMarkerPosition();
     imageProgress = true;
     notifyListeners();
-    // log('isPlaying: $isPlaying');
 
-    //simplified implementation of autocontinue
     if (autoContinueMarker != null && !isLoopingActive) {
       autoContinueTimer = Timer(
           Duration(
               milliseconds: autoContinueMarker! - autoContinueExecutionOffset),
-          () {
-        //Timer will be cancelled on stop or seek
-        handlePlayNextSection();
-      });
+          () => handlePlayNextSection());
+      //Timer will be cancelled on stop or seek
     }
 
     //swap images to the next one in 5000ms
@@ -1310,27 +1298,28 @@ class PlaylistProvider extends ChangeNotifier {
     //if section is looped and loop was stopped
 
     //if the next section is set to skip
-    if (currentSection?.muted == true & !performanceMode) {
+    if (currentSection?.muted == true && !performanceMode) {
       playNextSection();
-      log('skipping muted section');
-    } else {
-      activeHandle = await player.play(currentAudioSource()!);
-
-      if (isLoopingActive && loopStropped) {
-        loopStropped = false;
-      }
-      //if section is looped, play it again
-      if (!loopStropped && currentSection?.looped == true) {
-        loopingTimer = Timer(
-            Duration(milliseconds: duration.inMilliseconds),
-            () => !performanceMode && currentSection!.looped
-                ? isPlaying
-                    ? play()
-                    : null
-                : null);
-      }
-      log('player volume: ${player.getVolume(activeHandle!)}');
+      _log.warning('skipping muted section');
+      return;
     }
+    activeHandle = await player.play(currentAudioSource()!);
+
+    if (isLoopingActive && loopStropped) {
+      loopStropped = false;
+    }
+    //if section is looped, play it again
+    if (!loopStropped && currentSection?.looped == true) {
+      loopingTimer = Timer(
+          Duration(milliseconds: duration.inMilliseconds),
+          () => !performanceMode && currentSection!.looped
+              ? isPlaying
+                  ? play()
+                  : null
+              : null);
+    }
+    log('player volume: ${player.getVolume(activeHandle!)}');
+
     isPlaying = true;
     notifyListeners();
   }
@@ -1346,7 +1335,6 @@ class PlaylistProvider extends ChangeNotifier {
   Future<void> playNextSection() async {
     _currentSectionIndex++;
     setCurrentSectionAndMovementKey();
-    // jumped = false;
     await play();
   }
 

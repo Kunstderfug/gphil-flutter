@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OpacityProvider extends ChangeNotifier {
-  double opacity = 0;
   double userOpacity = 0;
 
   OpacityProvider() {
@@ -24,6 +23,13 @@ class OpacityProvider extends ChangeNotifier {
 
   Future<void> getOpacity() async {
     final prefs = await SharedPreferences.getInstance();
-    userOpacity = prefs.getDouble('opacity') ?? 0.25;
+    final bool sectionsColorized = prefs.getBool('sectionsColorized') ?? false;
+    if (sectionsColorized) {
+      userOpacity = prefs.getDouble('opacity') ?? 0.25;
+      notifyListeners();
+    } else {
+      userOpacity = 0;
+      notifyListeners();
+    }
   }
 }
