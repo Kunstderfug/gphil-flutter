@@ -43,7 +43,7 @@ class PerformanceScreen extends StatelessWidget {
                 SizedBox(height: separatorXs),
                 StandartButton(
                   label: 'Cancel',
-                  onPressed: () {
+                  callback: () {
                     p.filesDownloading = false;
                     n.setScoreScreen();
                   },
@@ -60,7 +60,7 @@ class PerformanceScreen extends StatelessWidget {
                     SizedBox(height: separatorXs),
                     StandartButton(
                       label: 'Cancel',
-                      onPressed: () {
+                      callback: () {
                         p.filesDownloading = false;
                         n.setScoreScreen();
                       },
