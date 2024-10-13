@@ -18,7 +18,8 @@ class SectionManagement extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           TooltipToggle(
-            message: 'If enabled, will skip this section in practice mode',
+            message:
+                'If enabled, will skip this section in Practice mode.\n Will be ignored in Performance mode.\nKeyboard shortcut [M]',
             child: AutoSwitch(
               p: p,
               onToggle: (value) => p.toggleSectionSkipped(p.currentSectionKey!),
@@ -31,7 +32,7 @@ class SectionManagement extends StatelessWidget {
             opacity: !p.performanceMode ? 1 : 0.4,
             child: TooltipToggle(
               message:
-                  'If enabled, section will repeatedly play in Practice Mode.\nWhen Practive mode is off, looping will be disabled',
+                  'If enabled, section will repeatedly play in Practice Mode.\nWhen Performance Mode is enabled, this setting will be ignored.\nKeyboard shortcut [L]',
               child: AutoSwitch(
                 p: p,
                 onToggle: (value) =>
@@ -43,7 +44,8 @@ class SectionManagement extends StatelessWidget {
             ),
           ),
           TooltipToggle(
-            message: 'Set current section auto-continue on/off',
+            message:
+                'Set current section auto-continue on/off.\nKeyboard shortcut [A]',
             child: AutoSwitch(
               p: p,
               onToggle: (value) => p.currentSection?.autoContinue != null

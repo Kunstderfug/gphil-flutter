@@ -39,6 +39,10 @@ class Exit extends Intent {
   const Exit();
 }
 
+class AutoContinue extends Intent {
+  const AutoContinue();
+}
+
 class PlayerControl extends StatelessWidget {
   const PlayerControl({super.key});
 
@@ -66,6 +70,7 @@ class PlayerControl extends StatelessWidget {
           const SingleActivator(LogicalKeyboardKey.keyP): const PerfMode(),
           const SingleActivator(LogicalKeyboardKey.keyM): const Skip(),
           const SingleActivator(LogicalKeyboardKey.escape): const Exit(),
+          const SingleActivator(LogicalKeyboardKey.keyA): const AutoContinue(),
         },
         child: Actions(
           actions: {
@@ -114,6 +119,12 @@ class PlayerControl extends StatelessWidget {
             }),
             PerfMode: CallbackAction<PerfMode>(onInvoke: (intent) {
               p.setPerformanceMode = !p.performanceMode;
+              return null;
+            }),
+            AutoContinue: CallbackAction<AutoContinue>(onInvoke: (intent) {
+              p.currentSection?.autoContinue != null
+                  ? p.setCurrentSectionAutoContinue()
+                  : null;
               return null;
             }),
           },

@@ -19,10 +19,12 @@ class _HelpScreenState extends State<HelpScreen> {
     'navigation': const _SectionContent(title: 'Navigating GPhil', content: [
       '1. Select a score from the library\n2. Choose the movement you want to practice\n3. Navigate to the practice screen',
     ]),
-    'performance': const _SectionContent(
+    'practice': const _SectionContent(
       title: 'Practice',
       content: [
-        'Switch to Performance mode for seamless live performances. This mode disables looping and skipping features to ensure an uninterrupted play-through.',
+        'Practice mode allows you to work in different tempos, loop sections which you want to practice repeatedly or skip ones you don\'t need.\n',
+        'Switch to Performance mode for seamless live performance. This mode disregards looping and skipping features per section to ensure an uninterrupted play-through. The auto-continue settings will still be respected.\n',
+        'Sections with auto-continue will be played back to back without needing to press the Enter key, although, if for some reason you prefer to start the next section manually, you can do so by toggling Auto-continue switch on the Practice screen.\n'
       ],
       child: KeyboardShortcuts(),
     ),

@@ -64,9 +64,9 @@ class MainArea extends StatelessWidget {
 
           //Section management and mixer
           SectionManagementMixer(separatorWidth: separatorWidth),
-          // const SizedBox(
-          //   height: separatorMd,
-          // ),
+          const SizedBox(
+            height: separatorMd,
+          ),
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Expanded(child: Center(child: Footer())),
             SizedBox(width: separatorWidth),

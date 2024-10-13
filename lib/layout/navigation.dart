@@ -246,15 +246,15 @@ class AppCurrentVersion extends StatelessWidget {
             label: 'Feedback',
             icon: Icons.discord,
             url: 'https://discord.gg/Gkn2jKk6VR',
-            iconColor: Colors.blue.shade800,
+            iconColor: greenColor,
             borderColor: greenColor),
         const SizedBox(height: 16),
         SocialButton(
             label: 'Report a bug',
             icon: Icons.bug_report,
             url: 'https://discord.gg/DMDvB6NFJu',
-            iconColor: Colors.red.shade900,
-            borderColor: Colors.red.shade900),
+            iconColor: redColor,
+            borderColor: redColor),
       ],
     );
   }

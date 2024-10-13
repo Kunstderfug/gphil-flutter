@@ -11,7 +11,8 @@ class PerformanceMode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TooltipToggle(
-      message: 'When enabled, Will follow looped sections',
+      message:
+          'When enabled, skipped and looped section settings will be disregarded\nand the playlist will play through from the beginning to the end.\nAuto-continue settings will be respected.\nThis mode is useful for live performances or run throughs.\nKeyboard shortcut [P]',
       child: AutoSwitch(
           p: p,
           onToggle: (value) => p.setPerformanceMode = value,

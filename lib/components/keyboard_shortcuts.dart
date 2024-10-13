@@ -10,11 +10,10 @@ class KeyboardShortcuts extends StatelessWidget {
     // ['Period']: 'Change tempo one step down',
     ['L']: 'Loop section',
     ['M']: 'Skip section',
+    ['A']: 'Section auto continue',
     ['P']: 'Performance mode',
-    // ['A']: 'Section auto continue',
     // ['Ctrl + A']: 'Global Auto continue',
     // ['H']: 'Hide/show metronome',
-    // ['S']: 'Skip to next section',
   };
 
   const KeyboardShortcuts({super.key});
