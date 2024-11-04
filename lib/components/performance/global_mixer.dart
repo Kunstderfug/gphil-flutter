@@ -75,7 +75,6 @@ class GlobalMixer extends StatelessWidget {
                   p.appState == AppState.loading &&
                           p.layerPlayersPool.globalPools.isNotEmpty
                       ? Align(
-                          // alignment: Alignment.center,
                           child: ConstrainedBox(
                             constraints: BoxConstraints(maxWidth: 300),
                             child: LoadingFiles(

@@ -25,7 +25,7 @@ class PlayerHeader extends StatelessWidget {
         onPressed: () async {
           if (p.isPlaying) {
             p.stop();
-            await p.player.disposeAllSources();
+            // await p.player.disposeAllSources();
           }
           if (s.currentScore!.id != p.sessionScore!.id) {
             await s.getScore(p.sessionScore!.id);

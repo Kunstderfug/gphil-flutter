@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/social_button.dart';
 import 'package:gphil/providers/navigation_provider.dart';
-// import 'package:gphil/theme/constants.dart';
-// import 'package:gphil/theme/dark_mode.dart';
 import 'package:gphil/layout/navigation_item.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
@@ -236,7 +234,7 @@ class AppCurrentVersion extends StatelessWidget {
     return Column(
       children: [
         const SocialButton(
-            label: 'Support Project',
+            label: 'Support GPhil',
             icon: Icons.paypal,
             url: 'https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ',
             iconColor: highlightColor,

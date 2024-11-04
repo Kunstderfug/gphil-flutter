@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
+import 'package:gphil/components/performance/layers_error.dart';
 import 'package:gphil/components/performance/main_area.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/standart_button.dart';
@@ -22,7 +23,21 @@ class PerformanceScreen extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth >= 900) {
           return SingleChildScrollView(
-            child: MainArea(),
+            child: Stack(
+              children: [
+                MainArea(),
+                if (!p.isTempoInAllRanges && p.error.isNotEmpty)
+                  Positioned(
+                    bottom: 200,
+                    right: 50,
+                    child: SizedBox(
+                      width: MediaQuery.sizeOf(context).width / 2,
+                      // height: 300,
+                      child: const LayersError(),
+                    ),
+                  )
+              ],
+            ),
           );
         } else {
           return TabletBody();
@@ -42,6 +57,9 @@ class PerformanceScreen extends StatelessWidget {
                 ),
                 SizedBox(height: separatorXs),
                 StandartButton(
+                  iconColor: redColor,
+                  borderColor: redColor,
+                  icon: Icons.cancel,
                   label: 'Cancel',
                   callback: () {
                     p.filesDownloading = false;
@@ -59,6 +77,9 @@ class PerformanceScreen extends StatelessWidget {
                     ),
                     SizedBox(height: separatorXs),
                     StandartButton(
+                      iconColor: redColor,
+                      borderColor: redColor,
+                      icon: Icons.cancel,
                       label: 'Cancel',
                       callback: () {
                         p.filesDownloading = false;

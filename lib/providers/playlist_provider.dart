@@ -21,9 +21,6 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final persistentController = PersistentDataController();
-// final a = AudioProvider();
-// final m = MetronomeProvider();
-// final prefs = SharedPreferences.getInstance().then((value) => value);
 
 class PlaylistProvider extends ChangeNotifier {
   final Logger _log = Logger('PlaylistProvider');
@@ -93,7 +90,7 @@ class PlaylistProvider extends ChangeNotifier {
   bool showPrompt = false;
   double adjustedAutoContinuePosition = 0; // 0 - 100, percentage
   final int autoContinueExecutionOffset =
-      46; // ms earlier than actuall auto continue marker
+      0; // ms earlier than actuall auto continue marker
   double guardPosition = 0; // 0 - 100, percentage
   int?
       autoContinueMarker; // in milliseconds, default Timer delay for auto continue function
@@ -531,106 +528,6 @@ class PlaylistProvider extends ChangeNotifier {
     }
   }
 
-  // Future<void>? setSectionLayersPlayerPool(Section section, bool patch,
-  //     [int? tempo]) async {
-  //   final handleLoadLayerFiles =
-  //       <Future>[]; //set of tasks running at the same time
-  //   final layerPlayers = <LayerPlayer>[];
-  //   final sectionLayers = <SectionLayer>[];
-
-  //   //initialize player if for some reason it's not
-  //   if (!player.isInitialized) {
-  //     await player.init();
-  //   }
-
-  //   //dispose all audio sources for layersPool if patch is true
-  //   if (patch) {
-  //     final index = layerPlayersPool.globalPools
-  //         .indexWhere((pool) => pool.sectionKey == section.key);
-  //     if (index != -1) {
-  //       final poolToDispose = layerPlayersPool.globalPools[index];
-  //       poolToDispose.disposePoolSources();
-  //     }
-  //   }
-
-  //   Future<void> setLayerPlayerPool(
-  //       String filePath, String audioFileName, String layer) async {
-  //     try {
-  //       AudioSource audioSource = await player.loadFile(filePath);
-  //       currentlyLoadedFiles.add(audioFileName);
-  //       notifyListeners();
-  //       layerPlayers.add(
-  //         LayerPlayer(
-  //             sectionIndex: section.sectionIndex,
-  //             sectionKey: section.key,
-  //             audioSource: audioSource,
-  //             layer: layer,
-  //             player: player),
-  //       );
-  //       layerFilesLoaded++;
-  //       totalLayerFiles++;
-  //       notifyListeners();
-  //     } catch (e) {
-  //       log(e.toString());
-  //     }
-  //   }
-
-  //   Future<void> loadAudioFiles(SectionLayer sectionLayer) async {
-  //     final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
-  //     message = "Loading files...";
-  //     notifyListeners();
-  //     log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
-
-  //     //layer file
-  //     final layerFile = await persistentController.readAudioFile(
-  //         sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
-  //     if (layerFile.bytes.isNotEmpty) {
-  //       layerFilesDownloaded++;
-  //       notifyListeners();
-  //       await setLayerPlayerPool(
-  //           layerFile.path, layerAudioFileName, sectionLayer.layer);
-  //     }
-  //   }
-
-  //   for (final String layer in section.layers!) {
-  //     sectionLayers.add(SectionLayer(
-  //         layer: layer, audioUrl: getAudioLayerUrl(section, layer)));
-  //   }
-
-  //   //getting section layer audio files
-  //   for (final sectionLayer in sectionLayers) {
-  //     handleLoadLayerFiles.add(loadAudioFiles(sectionLayer));
-  //   }
-
-  //   notifyListeners();
-  //   if (patch) setMessage('Loading files...');
-  //   await Future.wait(handleLoadLayerFiles);
-  //   if (patch) setMessage('Ready');
-
-  //   LayerPlayerPool addPlayerPool() {
-  //     final layerPlayerPool = LayerPlayerPool(
-  //         sectionIndex: section.sectionIndex,
-  //         sectionKey: section.key,
-  //         tempo: tempo ?? section.userLayerTempo ?? section.defaultTempo,
-  //         layers: sectionLayers,
-  //         mainPlayer: null,
-  //         players: layerPlayers);
-
-  //     if (patch) {
-  //       final index = layerPlayersPool.globalPools
-  //           .indexWhere((pool) => pool.sectionKey == section.key);
-  //       layerPlayersPool.globalPools.removeAt(index);
-  //       layerPlayersPool.globalPools.insert(index, layerPlayerPool);
-  //     } else {
-  //       layerPlayersPool.globalPools.add(layerPlayerPool);
-  //     }
-
-  //     return layerPlayerPool;
-  //   }
-
-  //   addPlayerPool();
-  // }
-
   void setGlobalLayerVolume(double value, String layer) {
     layerPlayersPool.setGlobalLayerVolume(value, layer);
     // log('setGlobalLayerVolume: $value, $layer');
@@ -915,11 +812,13 @@ class PlaylistProvider extends ChangeNotifier {
     try {
       await initPlayer();
     } catch (e) {
-      log('Player initialization error: $e');
+      setError('Player initialization error: $e');
     }
 
-    for (Section section in playlist) {
-      await loadSectionPrefs(section);
+    if (!kIsWeb) {
+      for (Section section in playlist) {
+        await loadSectionPrefs(section);
+      }
     }
   }
 
@@ -1002,7 +901,7 @@ class PlaylistProvider extends ChangeNotifier {
         filesLoaded++;
         notifyListeners();
       } catch (e) {
-        log('Error loading audio source: $e');
+        setError('Error loading audio source: $e');
       }
     }
   }
@@ -1274,7 +1173,6 @@ class PlaylistProvider extends ChangeNotifier {
     imageProgress = false;
     isPlaying = false;
     loopStropped = true;
-    // positionSub?.cancel();
     notifyListeners();
   }
 
@@ -1282,7 +1180,7 @@ class PlaylistProvider extends ChangeNotifier {
     if (activeHandle != null) {
       await player.stop(activeHandle!);
     }
-    stopLayers();
+    await stopLayers();
     autoContinueTimer?.cancel();
     ticker.stop();
     ticker.dispose();
@@ -1290,8 +1188,23 @@ class PlaylistProvider extends ChangeNotifier {
     stopMetronome();
     initImagesOrder();
     imageProgress = false;
-    // positionSub?.cancel();
     notifyListeners();
+  }
+
+  Future<void> playSelectedSection(String sectionKey) async {
+    if (isPlaying) {
+      await skip();
+    }
+    //find index of the section in playlist
+    int index = playlist.indexWhere((element) => element.key == sectionKey);
+    if (index != -1) {
+      //set current section to the selected one
+      currentSectionIndex = index;
+      setCurrentSectionAndMovementKey();
+    }
+    if (isPlaying) {
+      await play();
+    }
   }
 
   Future<void> playCurrentSection() async {
@@ -1345,7 +1258,7 @@ class PlaylistProvider extends ChangeNotifier {
         await playNextSection();
       } else {
         _currentSectionIndex++;
-        setCurrentSectionAndMovementKey();
+        setCurrentSectionByKey(playlist[_currentSectionIndex].key);
       }
       setAdjustedMarkerPosition();
     }
@@ -1358,7 +1271,7 @@ class PlaylistProvider extends ChangeNotifier {
         await playPreviousSection();
       } else {
         _currentSectionIndex--;
-        setCurrentSectionAndMovementKey();
+        setCurrentSectionByKey(playlist[_currentSectionIndex].key);
       }
       setAdjustedMarkerPosition();
     }
@@ -1884,6 +1797,7 @@ class PlaylistProvider extends ChangeNotifier {
 
 // CLEAR SESSION
   void clearSession() {
+    layersEnabled = false;
     playlist.clear();
     sessionMovements.clear();
     currentlyLoadedFiles.clear();

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/keyboard_shortcuts.dart';
+import 'package:gphil/components/standart_button.dart';
 import 'package:gphil/theme/constants.dart';
+
+TextStyle textStyle = TextStyles().textMd;
+final double bottom = 90;
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -14,27 +17,24 @@ class _HelpScreenState extends State<HelpScreen> {
 
   final Map<String, Widget> _sections = {
     'about': const _SectionContent(title: 'About GPhil', content: [
-      'GPhil is an innovative app designed for musicians to play instrumental concertos with flexible virtual orchestral accompaniment. Whether you\'re practicing for a performance or simply enjoying your favorite concertos, GPhil provides a rich, interactive experience.',
+      'GPhil is an innovative app designed for musicians to play instrumental concertos with flexible virtual orchestral accompaniment. Whether you\'re practicing for a performance or simply enjoying your favorite concertos, GPhil provides a rich, interactive experience.\n',
+      'Advanced Virtual Orchestra: GPhil uses cutting-edge virtual orchestra technology based on high-quality sample libraries and synthesized instruments to create a realistic and immersive audio experience.\n',
+      'For All Skill Levels: GPhil is designed to cater to musicians of all levels, from beginners to professionals. The app focuses on fostering true ensembleship and collaboration with the virtual orchestra during rehearsals and performances, providing a valuable tool for musical growth and expression.\n',
+      'Professional Musician Insight: A key advantage of GPhil is the combination of advanced technology with real-world musical expertise. Developed by a professional musician with years of experience in music production and performance, the app incorporates practical insights that enhance the user\'s musical journey.\n',
+      'Open-Source Foundation: GPhil is built on top of open-source technologies, including the Dart programming language, Flutter framework, and the SoLoud audio engine. This foundation ensures reliability, performance, and the potential for community-driven improvements.\n',
     ]),
-    'navigation': const _SectionContent(title: 'Navigating GPhil', content: [
-      '1. Select a score from the library\n2. Choose the movement you want to practice\n3. Navigate to the practice screen',
-    ]),
-    'practice': const _SectionContent(
-      title: 'Practice',
-      content: [
-        'Practice mode allows you to work in different tempos, loop sections which you want to practice repeatedly or skip ones you don\'t need.\n',
-        'Switch to Performance mode for seamless live performance. This mode disregards looping and skipping features per section to ensure an uninterrupted play-through. The auto-continue settings will still be respected.\n',
-        'Sections with auto-continue will be played back to back without needing to press the Enter key, although, if for some reason you prefer to start the next section manually, you can do so by toggling Auto-continue switch on the Practice screen.\n'
-      ],
-      child: KeyboardShortcuts(),
-    ),
+    'navigation': const NavigationSection(),
+    'practice': const PracticeSection(),
     'faq': const _FAQSection(),
   };
 
-  final double bottom = 90;
-
   @override
   Widget build(BuildContext context) {
+    final currentIndex = _sections.keys.toList().indexOf(_activeSection);
+    final nextIndex = (currentIndex + 1) % _sections.length;
+    final int previousIndex =
+        (currentIndex - 1 + _sections.length) % _sections.length;
+
     return ConstrainedBox(
       constraints: BoxConstraints(
         minHeight: MediaQuery.sizeOf(context).height - bottom,
@@ -88,6 +88,31 @@ class _HelpScreenState extends State<HelpScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _sections[_activeSection] ?? const SizedBox.shrink(),
+                        Padding(
+                          padding: const EdgeInsets.all(paddingMd),
+                          child: Row(
+                            children: [
+                              StandartButton(
+                                label: 'Previous',
+                                icon: Icons.arrow_back,
+                                iconAlignment: IconAlignment.start,
+                                callback: () {
+                                  setState(() => _activeSection =
+                                      _sections.keys.elementAt(previousIndex));
+                                },
+                              ),
+                              const SizedBox(width: paddingLg),
+                              StandartButton(
+                                  label: 'Next',
+                                  icon: Icons.arrow_forward,
+                                  iconAlignment: IconAlignment.end,
+                                  callback: () {
+                                    setState(() => _activeSection =
+                                        _sections.keys.elementAt(nextIndex));
+                                  }),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -100,8 +125,6 @@ class _HelpScreenState extends State<HelpScreen> {
     );
   }
 }
-
-TextStyle textStyle = TextStyles().textMd;
 
 class _SectionContent extends StatelessWidget {
   final String title;
@@ -121,13 +144,14 @@ class _SectionContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.headlineMedium),
+              Text(title, style: Theme.of(context).textTheme.headlineSmall),
               SizedBox(height: paddingLg),
               for (String text in content) Text(text, style: textStyle),
               SizedBox(height: paddingLg),
             ],
           ),
         ),
+        SizedBox(width: paddingLg),
         child != null
             ? Expanded(child: child!)
             : Expanded(child: const SizedBox()),
@@ -149,7 +173,7 @@ class _FAQSection extends StatelessWidget {
         _FAQItem(
           question: 'Is the app free to use?',
           answer:
-              'Yes, it is. If you use GPhil for commercial purposes (for example paid performances or recordings), please contact us at vyacheslav@g-phil.app',
+              'Yes, it is. If you use GPhil for commercial purposes (for example paid performances or recordings), please contact us at vyacheslav@g-phil.app.',
         ),
         _FAQItem(
           question: 'Can the app be used offline?',
@@ -160,7 +184,7 @@ class _FAQSection extends StatelessWidget {
         _FAQItem(
           question: 'What if there is a problem with the app?',
           // answer: '',
-          child: BagReportSection(),
+          child: BugReportSection(),
         ),
         _FAQItem(
           question: 'Credits and Copyright',
@@ -225,64 +249,71 @@ class __FAQItemState extends State<_FAQItem> {
   }
 }
 
-class OfflineUsageInfo extends StatelessWidget {
-  const OfflineUsageInfo({super.key});
+class NavigationSection extends StatelessWidget {
+  const NavigationSection({super.key});
 
-  Widget _buildInfoSection({required String title, required String content}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
-          const SizedBox(height: 4),
-          Text(content, style: const TextStyle(fontSize: fontSizeMd)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildImportantNote(String content) {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        // color: Colors.yellow[800],
-        border: Border.all(color: redColor, width: 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Important Note',
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
-          const SizedBox(height: 4),
-          Text(content, style: const TextStyle(fontSize: fontSizeMd)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNumberedList(List<String> items) {
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: items.asMap().entries.map((entry) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${entry.key + 1}. ',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              Expanded(child: Text(entry.value)),
-            ],
-          ),
-        );
-      }).toList(),
+      children: [
+        Text('Navigating GPhil',
+            style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 24),
+        _SectionContent(title: 'Step 1', content: [
+          'Select a score from the library. Currently newly updated/finished scores, as well as recently accessed ones are shown in the lower part of the library screen.\n',
+        ]),
+        _SectionContent(title: 'Step 2', content: [
+          'Explore the contents of the score. Click on the movement - you\'ll see the list of sections with a visual representation where the section starts exactly (locate a red line).\n',
+          'You can listen to each section by pressing the Play button belowe the section image. The audio will start playing from the beginning of the section using the default tempo for the current section.\n',
+        ]),
+        _SectionContent(title: 'Step 3', content: [
+          'You can download the audio files associated with the score by clicking the Download button in the score details screen. This will download all audio files for the score. Once downloaded, you can access these files without an internet connection and loading them will be almost instant.\n',
+          'If there is an update for the current score, you\'ll see an Update button in the score details screen. Clicking on it will update the score to the latest version.\n',
+        ]),
+        _SectionContent(title: 'Step 4', content: [
+          'To listen to all available tempos, add the movement (or all movements) to the Practice Playlist by clicking the + button on the right side of the movement name. This will add all sections of the movement to the Practice Playlist. You can then navigate to the Practice screen and start practicing.\n',
+        ]),
+      ],
     );
   }
+}
+
+class PracticeSection extends StatelessWidget {
+  const PracticeSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Practice', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: 24),
+        Text('This screen is designed for practice and performance purposes. ',
+            style: TextStyles().textMd),
+        const SizedBox(height: 24),
+        _SectionContent(title: '1. Practice Mode', content: [
+          'Practice mode allows you to work in different tempos, loop sections which you want to practice repeatedly or skip ones you don\'t need.\n',
+        ]),
+        _SectionContent(title: '2. Performance Mode', content: [
+          'Switch to Performance Mode for seamless live performance. This mode disregards looping and skipping features per section to ensure an uninterrupted play-through. The auto-continue settings will still be respected.\n',
+          'Sections with auto-continue will be played back to back without needing to press the Enter key, although, if for some reason you prefer to start the next section manually, you can do so by toggling Auto-continue switch.\n'
+        ]),
+        _SectionContent(title: '3. Using page-turner pedal', content: [
+          'Using the page-turner pedal is the best way to practice and this is what GPhil is designed for. The page-turner pedal allows you to start/stop sections while playing and makes run through possible.\n',
+          'Practice and Performance modes use the same keyboard shortcuts: Enter to start/start next section, Space to stop. Set your page-turner pedal to Enter/Space mode and you\'ll be able to use it in GPhil.\n',
+        ]),
+        _SectionContent(title: '4. Practical tips', content: [
+          'Don\'t fight with the orchestral track. Even though the tracks are created with some common freedom in mind, it is impossible to satisfy every performer\'s rubato taste and habits.\n',
+          'Try to understand what orchestra is doing and what to listen to in order to stay in sync with it. It is the best way to deeply integrate your playing into the whole ensemble and be extremely comfortable with the real life orchestra accompaniment.\n',
+        ]),
+      ],
+    );
+  }
+}
+
+class OfflineUsageInfo extends StatelessWidget {
+  const OfflineUsageInfo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -291,18 +322,21 @@ class OfflineUsageInfo extends StatelessWidget {
       children: [
         _buildInfoSection(
           title: 'Automatic Caching',
-          content:
-              'Audio files, pictures, and metronome files from visited and practiced scores are automatically saved in the app\'s cache.',
+          content: [
+            'Audio files, pictures, and metronome files from visited and practiced scores are automatically cached in the app.'
+          ],
         ),
         _buildInfoSection(
           title: 'Manual Download',
-          content:
-              'Use the [Download] button in the score details screen to download all files associated with a score at once.',
+          content: [
+            'Use the [Download] button in the score details screen to download all files associated with a score at once.'
+          ],
         ),
         _buildInfoSection(
           title: 'Offline Access',
-          content:
-              'Once downloaded, you can access these files without an internet connection.',
+          content: [
+            'Once downloaded, you can access these files without an internet connection.'
+          ],
         ),
         const SizedBox(height: 16),
         _buildImportantNote(
@@ -313,8 +347,74 @@ class OfflineUsageInfo extends StatelessWidget {
   }
 }
 
-class BagReportSection extends StatelessWidget {
-  const BagReportSection({super.key});
+Widget _buildInfoSection(
+    {required String title, required List<String> content}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16.0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style:
+                TextStyle(fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
+        const SizedBox(height: 4),
+        for (String text in content)
+          Column(
+            children: [
+              Text(text, style: const TextStyle(fontSize: fontSizeMd)),
+              SizedBox(height: paddingLg),
+            ],
+          ),
+      ],
+    ),
+  );
+}
+
+Widget _buildImportantNote(String content) {
+  return Container(
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      // color: Colors.yellow[800],
+      border: Border.all(color: redColor, width: 1),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Important Note',
+            style:
+                TextStyle(fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
+        const SizedBox(height: 4),
+        Text(content, style: const TextStyle(fontSize: fontSizeMd)),
+      ],
+    ),
+  );
+}
+
+Widget _buildNumberedList(List<String> items) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: items.asMap().entries.map((entry) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${entry.key + 1}. ',
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
+            Expanded(
+                child: Text(entry.value,
+                    style: const TextStyle(fontSize: fontSizeMd))),
+          ],
+        ),
+      );
+    }).toList(),
+  );
+}
+
+class BugReportSection extends StatelessWidget {
+  const BugReportSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -336,28 +436,6 @@ class BagReportSection extends StatelessWidget {
           'Your device information (e.g., model, OS version)',
         ]),
       ],
-    );
-  }
-
-  Widget _buildNumberedList(List<String> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: items.asMap().entries.map((entry) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 16.0, bottom: 8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('${entry.key + 1}. ',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: fontSizeMd)),
-              Expanded(
-                  child: Text(entry.value,
-                      style: const TextStyle(fontSize: fontSizeMd))),
-            ],
-          ),
-        );
-      }).toList(),
     );
   }
 }

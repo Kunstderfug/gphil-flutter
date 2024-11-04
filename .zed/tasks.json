@@ -32,7 +32,7 @@
   },
   {
     "label": "Flutter build web",
-    "command": "flutter build web --release && netlify deploy 'build/web' --prod",
+    "command": "flutter build web --release && netlify deploy 'build/web' --prod --dir=build/web",
     "use_new_terminal": true,
     "allow_concurrent_runs": false,
     "reveal": "always"

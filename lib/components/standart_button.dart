@@ -8,20 +8,24 @@ class StandartButton extends StatelessWidget {
       this.icon,
       this.iconColor,
       this.borderColor = highlightColor,
+      this.iconAlignment = IconAlignment.start,
       required this.callback});
   final String label;
   final IconData? icon;
   final Color? iconColor;
   final Color borderColor;
   final Function() callback;
+  final IconAlignment iconAlignment;
 
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
-      iconAlignment: IconAlignment.start,
-      icon: Icon(
-        icon,
-      ),
+      iconAlignment: iconAlignment,
+      icon: icon != null
+          ? Icon(
+              icon,
+            )
+          : null,
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) {

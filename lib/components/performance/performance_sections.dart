@@ -46,7 +46,7 @@ class PerformanceSections extends StatelessWidget {
               for (Section section in sections)
                 PerformanceSection(
                   section: section,
-                  onTap: () => p.setCurrentSectionByKey(section.key),
+                  onTap: () async => await p.playSelectedSection(section.key),
                   isSelected: p.currentSectionKey == section.key,
                 ),
             ])),

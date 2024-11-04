@@ -76,6 +76,7 @@ class _MetronomeState extends State<Metronome>
           alignment: Alignment.center,
           children: [
             Positioned(
+              // top: -5,
               child: p.currentBeatData?.beat != null
                   ? p.isStarted
                       ? Opacity(
@@ -84,7 +85,7 @@ class _MetronomeState extends State<Metronome>
                             '${p.currentBeatData?.beat}',
                             textAlign: TextAlign.center,
                             style: const TextStyle(
-                                fontSize: 140, fontWeight: FontWeight.bold),
+                                fontSize: 130, fontWeight: FontWeight.bold),
                           ),
                         )
                       : AnimatedOpacity(

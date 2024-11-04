@@ -53,6 +53,28 @@ class PlayerControl extends StatelessWidget {
 
       double iconSize = iconSizeMd;
 
+      void startOrContinue() {
+        if (!p.isPlaying && p.appState != AppState.loading) {
+          p.play();
+        } else {
+          if (!p.doublePressGuard) {
+            p.playNextSection();
+          }
+        }
+      }
+
+      void handlePreviousSection() {
+        if (p.appState != AppState.loading) {
+          p.skipToPreviousSection();
+        }
+      }
+
+      void handleNextSection() {
+        if (p.appState != AppState.loading) {
+          p.skipToNextSection();
+        }
+      }
+
       return Shortcuts(
         shortcuts: <ShortcutActivator, Intent>{
           const SingleActivator(LogicalKeyboardKey.arrowLeft):
@@ -61,7 +83,8 @@ class PlayerControl extends StatelessWidget {
               const HandleNextSection(),
           const SingleActivator(LogicalKeyboardKey.enter):
               const StartOrContinue(),
-          const SingleActivator(LogicalKeyboardKey.space): const Stop(),
+          const SingleActivator(LogicalKeyboardKey.space):
+              !p.onePedalMode ? const Stop() : const StartOrContinue(),
           const SingleActivator(LogicalKeyboardKey.pageDown):
               const StartOrContinue(),
           const SingleActivator(LogicalKeyboardKey.pageUp):
@@ -76,22 +99,12 @@ class PlayerControl extends StatelessWidget {
           actions: {
             HandlePreviousSection:
                 CallbackAction<HandlePreviousSection>(onInvoke: (intent) {
-              if (p.appState != AppState.loading) {
-                p.skipToPreviousSection();
-              }
+              handlePreviousSection();
               return null;
             }),
             StartOrContinue:
                 CallbackAction<StartOrContinue>(onInvoke: (intent) async {
-              if (!p.isPlaying && p.appState != AppState.loading) {
-                p.play();
-              } else {
-                if (!p.doublePressGuard) {
-                  p.playNextSection();
-                  // syncProviders();
-                }
-              }
-
+              startOrContinue();
               return null;
             }),
             Stop: CallbackAction<Stop>(onInvoke: (intent) {
@@ -100,9 +113,7 @@ class PlayerControl extends StatelessWidget {
             }),
             HandleNextSection:
                 CallbackAction<HandleNextSection>(onInvoke: (intent) {
-              if (p.appState != AppState.loading) {
-                p.skipToNextSection();
-              }
+              handleNextSection();
               return null;
             }),
             Loop: CallbackAction<Loop>(onInvoke: (intent) {
@@ -140,8 +151,7 @@ class PlayerControl extends StatelessWidget {
                     child: IconButton(
                         iconSize: iconSize,
                         onPressed: () => !p.layerFilesDownloading
-                            ? p.currentSectionIndex =
-                                (p.currentSectionIndex - 1) % p.playlist.length
+                            ? handlePreviousSection()
                             : null,
                         icon: const Icon(Icons.skip_previous)),
                   ),
@@ -155,8 +165,8 @@ class PlayerControl extends StatelessWidget {
                         IconButton(
                             padding: const EdgeInsets.all(0),
                             tooltip: 'Play/Pause',
-                            onPressed: !p.layerFilesDownloading
-                                ? p.pauseOrResume
+                            onPressed: () => !p.layerFilesDownloading
+                                ? startOrContinue()
                                 : null,
                             icon: const RepaintBoundary(
                               child: Metronome(),
@@ -170,8 +180,7 @@ class PlayerControl extends StatelessWidget {
                     child: IconButton(
                         iconSize: iconSize,
                         onPressed: () => !p.layerFilesDownloading
-                            ? p.currentSectionIndex =
-                                (p.currentSectionIndex + 1) % p.playlist.length
+                            ? handleNextSection()
                             : null,
                         icon: const Icon(Icons.skip_next)),
                   ),
