@@ -44,7 +44,7 @@ class PerformanceSection extends StatelessWidget {
 
     return Container(
       // margin: EdgeInsets.only(bottom: 1),
-      height: calculateHeight(),
+      height: calculateHeight() < 40 ? calculateHeight() : 40,
       decoration: BoxDecoration(
           color: section.key == p.currentSectionKey
               ? setColor(section).withOpacity(1)
