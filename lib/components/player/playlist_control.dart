@@ -31,6 +31,7 @@ class PlaylistControl extends StatelessWidget {
             opacity: !p.performanceMode ? 1 : 0.3,
             child: IconButton(
                 padding: EdgeInsets.zero,
+                tooltip: 'Loop in a section. shortcut: L',
                 onPressed: () =>
                     !p.performanceMode ? p.toggleSectionLooped() : null,
                 icon: Container(
@@ -48,6 +49,7 @@ class PlaylistControl extends StatelessWidget {
           IconButton(
               padding: EdgeInsets.zero,
               onPressed: () => p.stop(),
+              tooltip: 'Stop. shortcut: Space',
               icon: Container(
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100),

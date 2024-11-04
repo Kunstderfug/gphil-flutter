@@ -150,6 +150,7 @@ class PlayerControl extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                         iconSize: iconSize,
+                        tooltip: 'Previous section. shortcut: left arrow',
                         onPressed: () => !p.layerFilesDownloading
                             ? handlePreviousSection()
                             : null,
@@ -164,7 +165,7 @@ class PlayerControl extends StatelessWidget {
                       children: [
                         IconButton(
                             padding: const EdgeInsets.all(0),
-                            tooltip: 'Play/Pause',
+                            tooltip: 'Play/Stop, shortcut: Enter/Space',
                             onPressed: () => !p.layerFilesDownloading
                                 ? startOrContinue()
                                 : null,
@@ -179,6 +180,7 @@ class PlayerControl extends StatelessWidget {
                   Expanded(
                     child: IconButton(
                         iconSize: iconSize,
+                        tooltip: 'Next section. shortcut: right arrow',
                         onPressed: () => !p.layerFilesDownloading
                             ? handleNextSection()
                             : null,
