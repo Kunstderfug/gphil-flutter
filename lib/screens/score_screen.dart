@@ -148,8 +148,7 @@ class MvtSections extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 60, vertical: 20),
-                            child: SectionImage(
-                                imageFile: s.sectionImageFile, width: 250),
+                            child: SectionImage(imageFile: s.sectionImageFile),
                           ),
                           // const SizedBox(height: separatorXs),
                           Row(

@@ -62,7 +62,7 @@ class MainArea extends StatelessWidget {
             )),
           ]),
 
-          //Section management and mixer
+          //Section management, section image and mixer
           SectionManagementMixer(separatorWidth: separatorWidth),
           const SizedBox(
             height: separatorMd,

@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 
 class SectionManagementMixer extends StatelessWidget {
   final double separatorWidth;
-  final double imageSize = 600;
 
   const SectionManagementMixer({super.key, required this.separatorWidth});
 
@@ -18,11 +17,11 @@ class SectionManagementMixer extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     Widget image = Stack(alignment: Alignment.topLeft, children: [
-      SectionImage(imageFile: p.currentSectionImage, width: imageSize),
+      SectionImage(imageFile: p.currentSectionImage),
       // if (p.isPlaying)
       Positioned(
         top: sizeXs,
-        child: ImageProgress(windowSize: imageSize),
+        child: ImageProgress(),
       )
     ]);
 
@@ -39,7 +38,7 @@ class SectionManagementMixer extends StatelessWidget {
                 if (p.currentSection?.sectionImage != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: paddingXl),
-                    child: image,
+                    child: ImageProgress(),
                   ),
               ],
             ),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class ImageProgress extends StatefulWidget {
-  final double windowSize;
-  const ImageProgress({super.key, required this.windowSize});
+  const ImageProgress({super.key});
 
   @override
   State<ImageProgress> createState() => _ImageProgressState();
@@ -15,7 +15,6 @@ class _ImageProgressState extends State<ImageProgress>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  bool isStarted = false;
 
   @override
   void initState() {
@@ -33,47 +32,42 @@ class _ImageProgressState extends State<ImageProgress>
     super.dispose();
   }
 
-  void startProgress() {
-    _controller.forward();
-    isStarted = true;
-
-    Future.delayed(const Duration(milliseconds: 5000), () {
-      // _controller.stop();
-      resetAnimation();
-    });
-  }
-
-  void resetAnimation() {
-    _controller.stop();
-    _controller.reset();
-    final p = Provider.of<PlaylistProvider>(context, listen: false);
-    p.imageProgress = false;
-    isStarted = false;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
-    if (p.imageProgress && p.nextSectionImage != null && !isStarted) {
-      startProgress();
-    }
+    return Consumer<PlaylistProvider>(
+      builder: (context, p, child) {
+        if (p.imageProgress && p.nextSectionImage != null) {
+          _controller.forward().then((_) {
+            p.imageProgress = false;
+            _controller.reset();
+          });
+        }
 
-    return FadeTransition(
-      opacity: _animation,
-      child: AnimatedBuilder(
-        animation: _animation,
-        builder: (context, child) {
-          return SizedBox(
-            width: widget.windowSize,
-            height: 4,
-            child: LinearProgressIndicator(
-              value: _animation.value,
-              color: redColor,
-              backgroundColor: Colors.transparent,
-            ),
-          );
-        },
-      ),
+        return AspectRatio(
+          aspectRatio: 16 / 9, // Match your image aspect ratio
+          child: Stack(
+            children: [
+              SectionImage(imageFile: p.currentSectionImage),
+              Positioned(
+                top: sizeXs,
+                left: 0,
+                right: 0,
+                child: FadeTransition(
+                  opacity: _animation,
+                  child: SizedBox(
+                    height: 4,
+                    child: LinearProgressIndicator(
+                      value: _animation.value,
+                      color: redColor,
+                      backgroundColor: Colors.transparent,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

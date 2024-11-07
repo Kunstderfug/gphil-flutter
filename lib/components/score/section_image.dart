@@ -13,8 +13,8 @@ import 'package:provider/provider.dart';
 
 class SectionImage extends StatelessWidget {
   final File? imageFile;
-  final double width;
-  const SectionImage({super.key, this.imageFile, required this.width});
+  // final double width;
+  const SectionImage({super.key, this.imageFile});
 
   @override
   Widget build(BuildContext context) {
@@ -22,21 +22,17 @@ class SectionImage extends StatelessWidget {
 
     return Consumer<ScoreProvider>(builder: (context, s, child) {
       if (s.currentSection.sectionImage == null) {
-        return SizedBox(
-          width: width,
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Container(
-              // constraints: const BoxConstraints(maxWidth: 500),
-              decoration: BoxDecoration(
-                  color: Colors.grey[300], borderRadius: BorderRad().bRadiusMd),
-              child: Center(
-                child: Text(
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: fontSizeMd),
-                  'No image yet',
-                ),
+        return AspectRatio(
+          aspectRatio: 16 / 9,
+          child: Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[300], borderRadius: BorderRad().bRadiusMd),
+            child: Center(
+              child: Text(
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: fontSizeMd),
+                'No image yet',
               ),
             ),
           ),
