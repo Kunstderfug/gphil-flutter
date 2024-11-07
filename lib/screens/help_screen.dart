@@ -132,7 +132,10 @@ class _SectionContent extends StatelessWidget {
   final Widget? child;
 
   const _SectionContent(
-      {required this.title, required this.content, this.child});
+      {required this.title,
+      // ignore: unused_element
+      this.child,
+      required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +155,7 @@ class _SectionContent extends StatelessWidget {
           ),
         ),
         SizedBox(width: paddingLg),
-        child != null
-            ? Expanded(child: child!)
-            : Expanded(child: const SizedBox()),
+        if (child != null) Expanded(child: child!),
       ],
     );
   }

@@ -41,7 +41,7 @@ class ModesAndPlayerControl extends StatelessWidget {
                       if (n.isPerformanceScreen && p.areAllTempoRangesEqual)
                         AllSectionsTempoSwitch(p: p),
                       IconButton(
-                        tooltip: "Save session",
+                        tooltip: "Save session, to be implemented..",
                         icon: Icon(Icons.settings),
                         onPressed: () {},
                       ),
