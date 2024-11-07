@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/section_management.dart';
-import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
@@ -16,14 +15,14 @@ class SectionManagementMixer extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
 
-    Widget image = Stack(alignment: Alignment.topLeft, children: [
-      SectionImage(imageFile: p.currentSectionImage),
-      // if (p.isPlaying)
-      Positioned(
-        top: sizeXs,
-        child: ImageProgress(),
-      )
-    ]);
+    // Widget image = Stack(alignment: Alignment.topLeft, children: [
+    //   SectionImage(imageFile: p.currentSectionImage),
+    //   // if (p.isPlaying)
+    //   Positioned(
+    //     top: sizeXs,
+    //     child: ImageProgress(),
+    //   )
+    // ]);
 
     return Row(
         crossAxisAlignment: CrossAxisAlignment.start,

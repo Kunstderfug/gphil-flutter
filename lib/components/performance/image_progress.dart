@@ -58,7 +58,7 @@ class _ImageProgressState extends State<ImageProgress>
                     height: 4,
                     child: LinearProgressIndicator(
                       value: _animation.value,
-                      color: redColor,
+                      color: p.setColor(),
                       backgroundColor: Colors.transparent,
                     ),
                   ),

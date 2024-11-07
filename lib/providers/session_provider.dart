@@ -2,15 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/movement.dart';
 import 'package:gphil/models/playlist_classes.dart';
-import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/models/section.dart';
-import 'package:gphil/providers/navigation_provider.dart';
-import 'package:gphil/providers/score_provider.dart';
 
-final playlistProvider = PlaylistProvider();
-final scoreProvider = ScoreProvider();
-final navigation = NavigationProvider();
-final persistentController = PersistentDataController();
+final p = PersistentDataController();
 
 class SessionProvider extends ChangeNotifier {
   List<Section> _sessionPlaylist = [];

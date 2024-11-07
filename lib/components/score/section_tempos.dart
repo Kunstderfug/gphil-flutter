@@ -52,6 +52,7 @@ class SectionTempos extends StatelessWidget {
         Text('T E M P O S: ', style: TextStyle(fontSize: fontSizeLg)),
         const SizedBox(height: paddingMd),
         Wrap(
+            spacing: section.tempoRange.length > 6 ? -10 : 0,
             crossAxisAlignment: WrapCrossAlignment.center,
             runAlignment: WrapAlignment.center,
             children: [
@@ -81,7 +82,8 @@ class SectionTempos extends StatelessWidget {
                             : null
                         : null,
                     child: Padding(
-                      padding: const EdgeInsets.all(paddingMd),
+                      padding: EdgeInsets.all(
+                          section.tempoRange.length > 6 ? 12 : 16),
                       child: Text(
                         tempo.toString(),
                         style: TextStyle(
