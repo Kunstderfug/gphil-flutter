@@ -66,7 +66,17 @@ class PersistentDataController with ChangeNotifier {
   }
 
 //DATA PATHS
-  Future<String> getScoreDirectory(String scoreId) async {
+
+  Future<String> sessionDirectory() async {
+    final String rootPath = await _gphilRootDirectory;
+    Directory directory = Directory('$rootPath/user_sessions');
+    if (!await directory.exists()) {
+      directory = await directory.create(recursive: true);
+    }
+    return directory.path;
+  }
+
+  Future<String> scoreDirectory(String scoreId) async {
     final String path = await _gphilRootDirectory;
     Directory directory = Directory('$path/$scoreId');
     if (await directory.exists()) {
@@ -77,8 +87,8 @@ class PersistentDataController with ChangeNotifier {
     return directory.path;
   }
 
-  Future<String> getAudioDirectory(String scoreId) async {
-    final String directory = await getScoreDirectory(scoreId);
+  Future<String> audioDirectory(String scoreId) async {
+    final String directory = await scoreDirectory(scoreId);
 
     Directory audioDirectory = Directory('$directory/audio');
     if (await audioDirectory.exists()) {
@@ -90,8 +100,8 @@ class PersistentDataController with ChangeNotifier {
   }
 
   //get sections directory
-  Future<String> getSectionsDirectory(String scoreId) async {
-    final String path = await getScoreDirectory(scoreId);
+  Future<String> sectionsDirectory(String scoreId) async {
+    final String path = await scoreDirectory(scoreId);
     Directory directory = Directory('$path/sections');
     if (await directory.exists()) {
       return directory.path;
@@ -101,8 +111,8 @@ class PersistentDataController with ChangeNotifier {
   }
 
   //get clicks directory
-  Future<String> getClicksDirectory(String scoreId) async {
-    final String path = await getScoreDirectory(scoreId);
+  Future<String> clicksDirectory(String scoreId) async {
+    final String path = await scoreDirectory(scoreId);
     Directory directory = Directory('$path/clicks');
     if (await directory.exists()) {
       return directory.path;
@@ -112,8 +122,8 @@ class PersistentDataController with ChangeNotifier {
   }
 
   //get images directory
-  Future<String> getImagesDirectory(String scoreId) async {
-    final String path = await getScoreDirectory(scoreId);
+  Future<String> imagesDirectory(String scoreId) async {
+    final String path = await scoreDirectory(scoreId);
     Directory directory = Directory('$path/images');
     if (await directory.exists()) {
       return directory.path;
@@ -123,23 +133,23 @@ class PersistentDataController with ChangeNotifier {
   }
 
   Future<File> jsonSectionFile(String scoreId, String sectionKey) async {
-    final path = await getSectionsDirectory(scoreId);
+    final path = await sectionsDirectory(scoreId);
     return File('$path/$sectionKey.json');
   }
 
   Future<File> jsonClickFile(String scoreId, String sectionKey) async {
-    final String path = await getClicksDirectory(scoreId);
+    final String path = await clicksDirectory(scoreId);
     return File('$path/${sectionKey}_click.json');
   }
 
   Future<File> imageFile(String scoreId, String imageId) async {
-    final path = await getImagesDirectory(scoreId);
+    final path = await imagesDirectory(scoreId);
     return File('$path/$imageId');
   }
 
   Future<File> audioFile(
       String scoreId, String audioFileName, String audioFormat) async {
-    final path = await getAudioDirectory(scoreId);
+    final path = await audioDirectory(scoreId);
     return File('$path/$audioFileName.$audioFormat');
   }
 
@@ -253,7 +263,7 @@ class PersistentDataController with ChangeNotifier {
 
   Future<bool> writeAudioFile(
       String scoreId, String audioFileName, Uint8List byteList) async {
-    final String path = await getAudioDirectory(scoreId);
+    final String path = await audioDirectory(scoreId);
     final File file = File('$path/$audioFileName');
     await file.writeAsBytes(byteList, flush: true);
     return true;
@@ -262,7 +272,7 @@ class PersistentDataController with ChangeNotifier {
   Future<({Uint8List bytes, String path})> readAudioFile(
       String scoreId, String audioFileName, String audioUrl) async {
     Uint8List byteList = Uint8List(0);
-    final String path = await getAudioDirectory(scoreId);
+    final String path = await audioDirectory(scoreId);
     final String fullPath = '$path/$audioFileName';
     final File file = File(fullPath);
 
@@ -367,7 +377,7 @@ class PersistentDataController with ChangeNotifier {
           await readImageFile(scoreId, imageRef);
         }
 
-        final Score score = await s.setupScore(scoreJson);
+        final Score score = await setupScore(scoreJson);
         final sections = getSectionsToUpdate(score);
 
         for (final section in sections) {
@@ -438,7 +448,7 @@ class PersistentDataController with ChangeNotifier {
 //save all items in the score library
   Future<void> writeLibrary(List<InitScore> scores) async {
     for (InitScore score in scores) {
-      final String path = await getScoreDirectory(score.id);
+      final String path = await scoreDirectory(score.id);
       final File scoreFile = File('$path/score_${score.id}.json');
       await scoreFile.writeAsString(json.encode(score));
       await checkScoreRevision(score.id, score.rev);
@@ -466,7 +476,7 @@ class PersistentDataController with ChangeNotifier {
 
 //wrire score revision
   Future<String> writeScoreRevision(String scoreId, String scoreRev) async {
-    final String path = await getScoreDirectory(scoreId);
+    final String path = await scoreDirectory(scoreId);
     final File scoreFile = File('$path/score_rev.json');
     if (await scoreFile.exists()) {
       final Map<String, dynamic> scoreJson =
@@ -481,7 +491,7 @@ class PersistentDataController with ChangeNotifier {
 
   //check for score revision
   Future<bool> checkScoreRevision(String scoreId, String scoreRev) async {
-    final String path = await getScoreDirectory(scoreId);
+    final String path = await scoreDirectory(scoreId);
     final File scoreRevFile = File('$path/score_rev.json');
     if (await scoreRevFile.exists()) {
       final Map<String, dynamic> scoreJson =
@@ -497,8 +507,8 @@ class PersistentDataController with ChangeNotifier {
   Future<void> deleteScore(String scoreId) async {
     // final String directory = await getScoreDirectory(scoreId);
     // final String sectionPath = await getSectionsDirectory(scoreId);
-    final String imagePath = await getImagesDirectory(scoreId);
-    final String clickPath = await getClicksDirectory(scoreId);
+    final String imagePath = await imagesDirectory(scoreId);
+    final String clickPath = await clicksDirectory(scoreId);
     // final String audioPath = await getAudioDirectory(scoreId);
     final String path = await _gphilRootDirectory;
     final scoreFile = File('$path/score_$scoreId.json');
@@ -512,7 +522,7 @@ class PersistentDataController with ChangeNotifier {
   }
 
   Future<void> deleteAudio(String scoreId, String sectionName) async {
-    final String path = await getAudioDirectory(scoreId);
+    final String path = await audioDirectory(scoreId);
     Directory directory = Directory(path);
     List<FileSystemEntity> entities = await directory.list().toList();
 

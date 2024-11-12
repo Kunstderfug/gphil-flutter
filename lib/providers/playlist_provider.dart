@@ -16,6 +16,7 @@ import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/db.dart';
+import 'package:gphil/services/session_service.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,17 +124,21 @@ class PlaylistProvider extends ChangeNotifier {
   // StreamSubscription? positionSub;
 
 // METRONOME
-  final List<SectionClickData> playlistClickData = [];
+  List<SectionClickData> playlistClickData = [];
   ClickData currentBeat = ClickData(time: 0, beat: 0);
   int currentBeatIndex = 0;
   int beatLength = 0;
-  final List<PlaylistDuration> currentPlaylistDurations = [];
+  List<PlaylistDuration> currentPlaylistDurations = [];
   bool isLeft = true;
   bool isStarted = false;
   Timer? metronomeTimer;
   int lastUsedTempo = 0;
   late int? currentTempo =
       currentSection?.userTempo ?? currentSection?.defaultTempo;
+
+//SESSION
+  bool sessionLoaded = false;
+  bool sessionChanged = false;
 
 // GETTERS
   //PLAYLIST
@@ -794,14 +799,14 @@ class PlaylistProvider extends ChangeNotifier {
     return section.fileList[getTempoIndex(section)];
   }
 
-  Future<void> setPlayerPool() async {
-    await _initializePlayerAndPrefs();
+  Future<void> setPlayerPool(bool isSessionLoading) async {
+    await _initializePlayerAndPrefs(isSessionLoading);
     final audioUrls = _getAudioUrls();
     await _loadAudioFiles(audioUrls);
     await _createPlayerPool();
   }
 
-  Future<void> _initializePlayerAndPrefs() async {
+  Future<void> _initializePlayerAndPrefs(bool isSessionLoading) async {
     currentlyLoadedFiles.clear();
     webAudioUrls.clear();
     audioFilesUrls.clear();
@@ -815,7 +820,9 @@ class PlaylistProvider extends ChangeNotifier {
       setError('Player initialization error: $e');
     }
 
-    if (!kIsWeb) {
+    if (isSessionLoading) {}
+
+    if (!kIsWeb && !isSessionLoading) {
       for (Section section in playlist) {
         await loadSectionPrefs(section);
       }
@@ -926,14 +933,16 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   //create array of AudioPlayers for all sections in playlist
-  Future<void> initSessionPlayers(String sectionKey) async {
+  Future<void> initSessionPlayers(String sectionKey,
+      {bool isSessionLoading = false}) async {
     isLoading = true;
     //checking if globalLayers exist in the current score
     if (sessionScore?.globalLayers == null) layersEnabled = false;
     resetPlayers();
 
     setMessage("Starting...");
-    await setPlayerPool();
+    await setPlayerPool(isSessionLoading);
+    await loadClickFiles(playlist);
     setGlobalPlaylistLayers();
     if (layersEnabled) setLayersEnabled(layersEnabled);
 
@@ -1522,41 +1531,76 @@ class PlaylistProvider extends ChangeNotifier {
     return sectionClickData;
   }
 
-  Future<void> loadPlaylistClickData(Section section) async {
-    SectionClickData sectionClickData = await loadSectionClickData(section);
+  // Future<void> loadPlaylistClickData(Section section) async {
+  //   SectionClickData sectionClickData = await loadSectionClickData(section);
 
-    void setPlaylistClickData(SectionClickData value) {
-      playlistClickData.add(value);
-      notifyListeners();
-    }
+  //   // set bet lengths for each clickdata
+  //   currentPlaylistDurations
+  //       .add(PlaylistDuration(sectionKey: section.key, beatLengths: []));
+  //   notifyListeners();
+  //   log('currentPlaylistDurations: ${currentPlaylistDurations.length}');
 
-    // set bet lengths for each clickdata
-    currentPlaylistDurations
-        .add(PlaylistDuration(sectionKey: section.key, beatLengths: []));
+  //   for (int i = 0; i < sectionClickData.clickData.length - 1; i++) {
+  //     final beatLength = sectionClickData.clickData[i + 1].time -
+  //         sectionClickData.clickData[i].time;
+  //     currentPlaylistDurations
+  //         .firstWhere((element) => element.sectionKey == section.key)
+  //         .beatLengths
+  //         .add(beatLength);
+  //   }
 
-    for (int i = 0; i < sectionClickData.clickData.length - 1; i++) {
-      final beatLength = sectionClickData.clickData[i + 1].time -
-          sectionClickData.clickData[i].time;
-      currentPlaylistDurations
-          .firstWhere((element) => element.sectionKey == section.key)
-          .beatLengths
-          .add(beatLength);
-    }
+  //   void addPlaylistClickData(SectionClickData value) {
+  //     playlistClickData.add(value);
+  //   }
 
-    setPlaylistClickData(sectionClickData);
-  }
+  //   addPlaylistClickData(sectionClickData);
+  //   notifyListeners();
+  // }
 
-  void loadClickFiles(List<Section> sections) async {
-    playlistClickData.clear();
-    final loadClickTasks = <Future>[];
+  Future<void> loadClickFiles(List<Section> sections) async {
+    // Create new lists instead of clearing existing ones
+    final List<SectionClickData> newPlaylistClickData = [];
+    final List<PlaylistDuration> newPlaylistDurations = [];
 
-    for (Section section in sections) {
-      if (section.metronomeAvailable == true) {
-        loadClickTasks.add(loadPlaylistClickData(section));
+    try {
+      for (Section section in sections) {
+        if (section.metronomeAvailable == true) {
+          // Load click data for the section
+          final SectionClickData sectionClickData =
+              await loadSectionClickData(section);
+
+          // Create new duration entry for this section
+          final List<int> beatLengths = [];
+
+          // Calculate beat lengths
+          for (int i = 0; i < sectionClickData.clickData.length - 1; i++) {
+            final beatLength = sectionClickData.clickData[i + 1].time -
+                sectionClickData.clickData[i].time;
+            beatLengths.add(beatLength);
+          }
+
+          // Add to new collections
+          newPlaylistClickData.add(sectionClickData);
+          newPlaylistDurations.add(
+            PlaylistDuration(
+              sectionKey: section.key,
+              beatLengths: beatLengths,
+            ),
+          );
+
+          log('Added durations for section ${section.key}: ${beatLengths.length} beats');
+        }
       }
-    }
 
-    await Future.wait(loadClickTasks);
+      // Update state with new collections
+      playlistClickData = newPlaylistClickData;
+      currentPlaylistDurations = newPlaylistDurations;
+
+      log('Final currentPlaylistDurations count: ${currentPlaylistDurations.length}');
+      notifyListeners();
+    } catch (e) {
+      log('Error in loadClickFiles: $e');
+    }
   }
 
 // TEMPO MANAGEMENT
@@ -1599,6 +1643,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     appState = AppState.idle;
     lastUsedTempo = tempo;
+    sessionChanged = true;
     notifyListeners();
   }
 
@@ -1616,6 +1661,7 @@ class PlaylistProvider extends ChangeNotifier {
       for (Section section in currentMovementSections) {
         setUserTempo(tempo, section);
       }
+      sessionChanged = true;
       notifyListeners();
     }
   }
@@ -1629,9 +1675,9 @@ class PlaylistProvider extends ChangeNotifier {
     return sessionMovements.any((el) => el.scoreId != scoreId);
   }
 
-  void addMovement(Score score, Movement movement, String sectionKey) {
+  void addMovement(Score score, Movement movement) {
     movementToAdd = movement;
-    //check if sections from other concerto are already in session
+    //check if sections from other concerto is already in the session playlist
     if (checkScoreAndPlaylistId(score.id)) {
       showPrompt = true;
       notifyListeners();
@@ -1698,6 +1744,50 @@ class PlaylistProvider extends ChangeNotifier {
       log('sectionIndex: ${section.sectionIndex.toString()}');
     }
 
+    notifyListeners();
+  }
+
+  Future<void> loadNewSession(
+      Score score, List<Movement> movements, SessionType sessionType) async {
+    isLoading = true;
+    //reset click data in case of hard loading
+    stop();
+    stopMetronome();
+    playlistClickData.clear();
+    currentBeatIndex = 0;
+    if (playlist.isNotEmpty && sessionMovements.isNotEmpty) {
+      playlist.clear();
+      sessionMovements.clear();
+    }
+    sessionScore = score;
+    //setting up session movements
+    for (Movement movement in movements) {
+      addMovement(score, movement);
+    }
+
+    //setting up playlist
+    for (SessionMovement sessionMovement in sessionMovements) {
+      final movementKey = sessionMovement.movementKey;
+
+      for (Section section in movements
+          .firstWhere((element) => element.key == movementKey)
+          .setupSections) {
+        playlist.add(section);
+      }
+    }
+
+    for (Section section in playlist) {
+      section.sectionIndex = playlist.indexOf(section);
+      log('sectionIndex: ${section.sectionIndex.toString()}');
+    }
+
+    // await loadClickFiles(playlist);
+    await initSessionPlayers(playlist.first.key, isSessionLoading: true);
+    //set mode to practice or performance
+    if (sessionType == SessionType.performance) {
+      setPerformanceMode = true;
+    }
+    sessionLoaded = true;
     notifyListeners();
   }
 
@@ -1790,6 +1880,7 @@ class PlaylistProvider extends ChangeNotifier {
     try {
       await persistentController.writeSectionJsonFile(
           section.scoreId, section.key, sectionPrefs);
+      sessionChanged = true;
     } catch (e) {
       setError(e.toString());
     }

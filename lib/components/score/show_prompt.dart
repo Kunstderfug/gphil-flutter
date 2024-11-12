@@ -28,7 +28,7 @@ class ShowPrompt extends StatelessWidget {
       style: buttonStyle(redColor, context),
       onPressed: () {
         p.clearSession();
-        p.addMovement(s.currentScore!, p.movementToAdd!, s.currentSection.key);
+        p.addMovement(s.currentScore!, p.movementToAdd!);
       },
       icon: Icon(Icons.check, color: redColor),
     );

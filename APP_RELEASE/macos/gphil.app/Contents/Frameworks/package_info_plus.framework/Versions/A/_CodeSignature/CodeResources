@@ -6,11 +6,15 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		VhpF4+Xt+8OZevGyBRYnkuBverY=
+		yd2zF7RnmfSSHu7bqvyTDT5uITU=
 		</data>
 		<key>Resources/package_info_plus_privacy.bundle/Contents/Info.plist</key>
 		<data>
-		6e4TRIgpXNxEFI/GCHKtUJpDJAU=
+		PykwWplzkuwYTEoholPfGAjsU8M=
+		</data>
+		<key>Resources/package_info_plus_privacy.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<data>
+		Wg6BXNysAQYRmcWWiQCdEQn4KPI=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -19,14 +23,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			pt24H+D58OaslifV7T8Up7Or/Py3u2dgnMsh0J6denI=
+			w9hDnFzsmlDOn4q6gHncYoQ0AZZx4D14GlK1nkCCGtc=
 			</data>
 		</dict>
 		<key>Resources/package_info_plus_privacy.bundle/Contents/Info.plist</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			kl/RkmLhHICiC40+KMUG55VQ0fL71c9huxkVr/rzLhM=
+			nDuUhG7g2z9TD7bJM87n6/kIJfg03CHKdzzJ+0af3jU=
+			</data>
+		</dict>
+		<key>Resources/package_info_plus_privacy.bundle/Contents/Resources/PrivacyInfo.xcprivacy</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			IE0DWojqsigbPZFPRseWdmrnjjy4JTdxGSjcqeKNu7g=
 			</data>
 		</dict>
 	</dict>

@@ -23,7 +23,20 @@ class StatusBar extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
     final au = Provider.of<AppUpdateService>(context);
     final ac = Provider.of<AppConnection>(context);
-    // final pc = Provider.of<PersistentDataController>(context);
+
+    bool ifTempoChanged() {
+      final originalSection = s.allSections
+          .firstWhere((section) => section.key == p.currentSectionKey);
+
+      if (originalSection.userTempo != null &&
+          originalSection.userTempo != p.currentSection?.userTempo) {
+        return true;
+      }
+      if (originalSection.defaultTempo != p.currentSection?.userTempo) {
+        return true;
+      }
+      return false;
+    }
 
     return Container(
       height: 30,
@@ -90,7 +103,7 @@ class StatusBar extends StatelessWidget {
                   StatusBarItem(
                       text: '',
                       value: p.currentSection != null
-                          ? 'Default tempo: ${p.currentSection?.defaultTempo.toString()} ${p.currentSection!.userTempo != null ? '| User tempo: ${p.currentSection!.userTempo}' : ''}'
+                          ? 'Default tempo: ${p.currentSection?.defaultTempo.toString()} ${p.currentSection!.userTempo != null ? '| User tempo: ${p.currentSection!.userTempo}${ifTempoChanged() ? '*' : ''}' : ''}'
                           : 'Not selected'),
                   VerticalDivider(
                     thickness: 1,

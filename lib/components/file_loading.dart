@@ -13,6 +13,10 @@ class LoadingFiles extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PlaylistProvider>(
       builder: (context, p, child) {
+        // Calculate progress safely
+        final double progress =
+            filesLength > 0 ? (filesLoaded / filesLength).clamp(0.0, 1.0) : 0.0;
+
         return Visibility(
           visible: true,
           child: Column(
@@ -27,7 +31,7 @@ class LoadingFiles extends StatelessWidget {
                 minHeight: 2,
                 color: greenColor,
                 backgroundColor: greenColor.withOpacity(0.5),
-                value: (filesLoaded / filesLength).toDouble(),
+                value: progress,
               ),
             ],
           ),

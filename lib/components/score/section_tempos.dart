@@ -25,7 +25,6 @@ class SectionTempos extends StatelessWidget {
     bool isDefaultTempo(int tempo) => section.defaultTempo == tempo;
 
     void setTempo(int tempo) {
-      //TODO need work for syncing section between providers
       if (p.currentMovementKey != null && p.currentSectionKey != null) {
         p.tempoForAllSectionsEnabled
             ? p.setTempoForAllSections(tempo)

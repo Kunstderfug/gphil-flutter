@@ -32,8 +32,7 @@ class LibraryItemCard extends StatelessWidget {
             s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);
             l.setScoreId(libraryItem.id);
             await s.getScore(libraryItem.id);
-            n.setCurrentIndex(2);
-            n.setSelectedIndex(0);
+            n.setScoreScreen();
             l.addToRecentlyAccessed(libraryItem);
           },
           child: Stack(alignment: Alignment.bottomLeft, children: [

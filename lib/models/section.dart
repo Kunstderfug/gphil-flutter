@@ -179,6 +179,78 @@ class Section extends InitSection {
       this.muted = false,
       this.looped = false});
 
+  factory Section.fromMap(Map<String, dynamic> map) {
+    return Section(
+      metronomeAvailable: map['metronomeAvailable'],
+      name: map['name'],
+      movementIndex: map['movementIndex'],
+      key: map['key'],
+      tempoRangeFull: List<int>.from(map['tempoRangeFull']),
+      tempoRangeLayers: map['tempoRangeLayers'] != null
+          ? List<int>.from(map['tempoRangeLayers'])
+          : null,
+      layerStep: map['layerStep'],
+      step: map['step'],
+      defaultTempo: map['defaultTempo'],
+      tempoRange: List<int>.from(map['tempoRange']),
+      fileList: List<String>.from(map['fileList']),
+      defaultSectionLength: map['defaultSectionLength'],
+      sectionIndex: map['sectionIndex'],
+      sectionImage: map['sectionImage'] != null
+          ? SectionImage.fromJson(map['sectionImage'])
+          : null,
+      beatsPerBar: map['beatsPerBar'],
+      beatLength: map['beatLength'],
+      autoContinue: map['autoContinue'],
+      autoContinueMarker: map['autoContinueMarker'],
+      userTempo: map['userTempo'],
+      userLayerTempo: map['userLayerTempo'],
+      tempoMultiplier: map['tempoMultiplier'],
+      sectionVolume: map['sectionVolume'] ?? 0.8,
+      layers: map['layers'] != null ? List<String>.from(map['layers']) : null,
+      muted: map['muted'] ?? false,
+      looped: map['looped'] ?? false,
+      updateRequired: map['updateRequired'],
+      scoreId: map['scoreId'] ?? '',
+      movementKey: map['movementKey'] ?? '',
+      clickDataUrl: map['clickDataUrl'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'metronomeAvailable': metronomeAvailable,
+      'name': name,
+      'movementIndex': movementIndex,
+      'key': key,
+      'tempoRangeFull': tempoRangeFull,
+      'tempoRangeLayers': tempoRangeLayers,
+      'layerStep': layerStep,
+      'step': step,
+      'defaultTempo': defaultTempo,
+      'tempoRange': tempoRange,
+      'fileList': fileList,
+      'defaultSectionLength': defaultSectionLength,
+      'sectionIndex': sectionIndex,
+      'sectionImage': sectionImage?.toJson(),
+      'beatsPerBar': beatsPerBar,
+      'beatLength': beatLength,
+      'autoContinue': autoContinue,
+      'autoContinueMarker': autoContinueMarker,
+      'userTempo': userTempo,
+      'userLayerTempo': userLayerTempo,
+      'tempoMultiplier': tempoMultiplier,
+      'sectionVolume': sectionVolume,
+      'layers': layers,
+      'muted': muted,
+      'looped': looped,
+      'updateRequired': updateRequired,
+      'scoreId': scoreId,
+      'movementKey': movementKey,
+      'clickDataUrl': clickDataUrl,
+    };
+  }
+
   factory Section.fromJson(Map<String, dynamic> json) => Section(
         metronomeAvailable: json["metronomeAvailable"],
         name: json["name"],
