@@ -210,6 +210,7 @@ class ScoreProvider extends ChangeNotifier {
 
   Future<Score?> getScore(String scoreId) async {
     if (_currentScore?.id == scoreId) {
+      scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
       return _currentScore;
     }
     _movementIndex = 0;

@@ -29,10 +29,11 @@ class PerformanceScreen extends StatelessWidget {
             child: Stack(
               children: [
                 MainArea(),
-                FloatingWindow(
-                  label: 'Mixer',
-                  child: MixerInfo(p: p),
-                ),
+                if (kDebugMode)
+                  FloatingWindow(
+                    label: 'Mixer',
+                    child: MixerInfo(p: p),
+                  ),
                 if (p.layersEnabled &&
                     !p.isTempoInAllRanges &&
                     p.error.isNotEmpty)

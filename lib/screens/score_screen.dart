@@ -14,7 +14,7 @@ import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 // import 'package:gphil/providers/global_providers.dart';
 
-final persistentController = PersistentDataController();
+final pc = PersistentDataController();
 
 class ScoreScreen extends StatefulWidget {
   const ScoreScreen({super.key});

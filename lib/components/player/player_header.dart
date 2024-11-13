@@ -94,15 +94,18 @@ class PlayerHeader extends StatelessWidget {
   }
 
   bool _hasTempoChanges(PlaylistProvider p, ScoreProvider s) {
-    final originalSection = s.allSections
-        .firstWhere((section) => section.key == p.currentSectionKey);
+    if (s.currentScore?.id == p.sessionScore!.id) {
+      final originalSection = s.allSections
+          .firstWhere((section) => section.key == p.currentSectionKey);
 
-    if (originalSection.userTempo != null &&
-        originalSection.userTempo != p.currentSection?.userTempo) {
-      return true;
-    }
-    if (originalSection.defaultTempo != p.currentSection?.userTempo) {
-      return true;
+      if (originalSection.userTempo != null &&
+          originalSection.userTempo != p.currentSection?.userTempo) {
+        return true;
+      }
+      if (originalSection.defaultTempo != p.currentSection?.userTempo) {
+        return true;
+      }
+      return false;
     }
     return false;
   }
@@ -121,7 +124,7 @@ class PlayerHeader extends StatelessWidget {
   void _navigateBack(
       PlaylistProvider p, ScoreProvider s, NavigationProvider n) async {
     if (p.isPlaying) {
-      p.stop();
+      await p.stop();
     }
     if (s.currentScore != null || s.currentScore?.id != p.sessionScore!.id) {
       await s.getScore(p.sessionScore!.id);
@@ -152,3 +155,5 @@ class PlayerHeader extends StatelessWidget {
     );
   }
 }
+
+//TODO sync libraryProvider scoreId when there are different scores in playlist and in score provider

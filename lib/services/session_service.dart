@@ -114,6 +114,8 @@ class SessionService {
     if (await sessionFile.exists()) {
       await sessionFile.delete();
     }
+
+    //TODO: delete from shared preferences
   }
 
   Future<List<UserSession>> getSessions() async {
@@ -285,6 +287,10 @@ class SessionService {
       audioFormat: originalScore.audioFormat,
       globalLayers: originalScore.globalLayers,
     );
+
+    //saving session name to local storage
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('sessionName', name);
 
     return (
       score: updatedScore,

@@ -1559,12 +1559,13 @@ class PlaylistProvider extends ChangeNotifier {
 
   Future<void> loadClickFiles(List<Section> sections) async {
     // Create new lists instead of clearing existing ones
-    final List<SectionClickData> newPlaylistClickData = [];
-    final List<PlaylistDuration> newPlaylistDurations = [];
+    // final List<SectionClickData> newPlaylistClickData = [];
+    // final List<PlaylistDuration> newPlaylistDurations = [];
+    final List<Future<void>> futures = [];
 
-    try {
-      for (Section section in sections) {
-        if (section.metronomeAvailable == true) {
+    Future<void> loadSectionClicks(Section section) async {
+      if (section.metronomeAvailable == true) {
+        try {
           // Load click data for the section
           final SectionClickData sectionClickData =
               await loadSectionClickData(section);
@@ -1580,8 +1581,8 @@ class PlaylistProvider extends ChangeNotifier {
           }
 
           // Add to new collections
-          newPlaylistClickData.add(sectionClickData);
-          newPlaylistDurations.add(
+          playlistClickData.add(sectionClickData);
+          currentPlaylistDurations.add(
             PlaylistDuration(
               sectionKey: section.key,
               beatLengths: beatLengths,
@@ -1589,18 +1590,23 @@ class PlaylistProvider extends ChangeNotifier {
           );
 
           log('Added durations for section ${section.key}: ${beatLengths.length} beats');
+        } catch (e) {
+          log('Error in loadClickFiles: $e');
         }
       }
 
       // Update state with new collections
-      playlistClickData = newPlaylistClickData;
-      currentPlaylistDurations = newPlaylistDurations;
-
+      // playlistClickData = newPlaylistClickData;
+      // currentPlaylistDurations = newPlaylistDurations;
       log('Final currentPlaylistDurations count: ${currentPlaylistDurations.length}');
       notifyListeners();
-    } catch (e) {
-      log('Error in loadClickFiles: $e');
     }
+
+    for (Section section in sections) {
+      futures.add(loadSectionClicks(section));
+    }
+
+    Future.wait(futures);
   }
 
 // TEMPO MANAGEMENT
@@ -1786,6 +1792,8 @@ class PlaylistProvider extends ChangeNotifier {
     //set mode to practice or performance
     if (sessionType == SessionType.performance) {
       setPerformanceMode = true;
+    } else {
+      setPerformanceMode = false;
     }
     sessionLoaded = true;
     notifyListeners();
