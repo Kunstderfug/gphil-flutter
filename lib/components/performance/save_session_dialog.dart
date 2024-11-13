@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/standart_button.dart';
 import 'package:gphil/providers/navigation_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/services/session_service.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:intl/intl.dart';
@@ -99,6 +100,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
 
   Widget _buildSessionList() {
     final n = Provider.of<NavigationProvider>(context);
+    final p = Provider.of<PlaylistProvider>(context);
 
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
@@ -112,7 +114,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
             style: TextStyles().textMd,
           ),
           const SizedBox(height: sizeLg),
-          if (!n.isPerformanceScreen)
+          if (p.playlist.isEmpty)
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
