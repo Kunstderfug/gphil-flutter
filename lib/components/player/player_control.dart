@@ -107,8 +107,8 @@ class PlayerControl extends StatelessWidget {
               startOrContinue();
               return null;
             }),
-            Stop: CallbackAction<Stop>(onInvoke: (intent) {
-              p.stop();
+            Stop: CallbackAction<Stop>(onInvoke: (intent) async {
+              await p.stop();
               return null;
             }),
             HandleNextSection:
@@ -124,7 +124,8 @@ class PlayerControl extends StatelessWidget {
               p.toggleSectionSkipped(p.currentSectionKey!);
               return null;
             }),
-            Exit: CallbackAction<Exit>(onInvoke: (intent) {
+            Exit: CallbackAction<Exit>(onInvoke: (intent) async {
+              await p.stop();
               n.setScoreScreen();
               return null;
             }),

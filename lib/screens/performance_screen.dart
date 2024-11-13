@@ -1,8 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
+import 'package:gphil/components/performance/debug_info.dart';
+import 'package:gphil/components/performance/floating_info.dart';
 import 'package:gphil/components/performance/layers_error.dart';
 import 'package:gphil/components/performance/main_area.dart';
+import 'package:gphil/components/performance/mixer_info.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/standart_button.dart';
 import 'package:gphil/components/tablet_body.dart';
@@ -26,7 +29,14 @@ class PerformanceScreen extends StatelessWidget {
             child: Stack(
               children: [
                 MainArea(),
-                if (!p.isTempoInAllRanges && p.error.isNotEmpty)
+                if (kDebugMode)
+                  FloatingWindow(
+                    label: 'Mixer',
+                    child: MixerInfo(p: p),
+                  ),
+                if (p.layersEnabled &&
+                    !p.isTempoInAllRanges &&
+                    p.error.isNotEmpty)
                   Positioned(
                     bottom: 200,
                     right: 50,
@@ -45,7 +55,7 @@ class PerformanceScreen extends StatelessWidget {
       },
     );
 
-    if (p.playlist.isEmpty) {
+    if (p.playlist.isEmpty && !p.isLoading) {
       return const PlaylistIsEmpty();
     } else {
       return p.filesDownloading
@@ -86,22 +96,7 @@ class PerformanceScreen extends StatelessWidget {
                         n.setScoreScreen();
                       },
                     ),
-                    if (kDebugMode)
-                      SizedBox(
-                        height: 500,
-                        width: 500,
-                        child: Column(
-                          children: [
-                            SizedBox(height: separatorMd),
-                            Text('filesLoaded: ${p.filesLoaded}'),
-                            Text('layerFilesLoaded: ${p.layerFilesLoaded}'),
-                            Text('totalLayerFiles: ${p.totalLayerFiles}'),
-                            Text(
-                                'layerFilesDownloaded: ${p.layerFilesDownloaded}'),
-                            Text('filesDownloaded: ${p.filesDownloaded}'),
-                          ],
-                        ),
-                      ),
+                    if (kDebugMode) DebugInfo(p: p)
                   ],
                 )
               : layout;

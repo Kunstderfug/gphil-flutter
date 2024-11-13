@@ -18,7 +18,7 @@ class PerformanceSidebar extends StatelessWidget {
         child: PerformanceMovements(movements: p.sessionMovements),
       ),
       Expanded(child: PerformanceSections(sections: p.currentMovementSections)),
-      SectionColorizer(),
+      if (p.currentMovementSections.isNotEmpty) SectionColorizer(),
     ]);
   }
 }

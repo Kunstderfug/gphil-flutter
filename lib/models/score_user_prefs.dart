@@ -1,9 +1,4 @@
-// To parse this JSON data, do
-//
-//     final scoreUserPref = scoreUserPrefFromJson(jsonString);
-
 import 'dart:convert';
-
 import 'package:gphil/models/layer_player.dart';
 
 ScoreUserPrefs scoreUserPrefFromJson(String str) =>
@@ -25,14 +20,15 @@ class ScoreUserPrefs {
   factory ScoreUserPrefs.fromJson(Map<String, dynamic> json) => ScoreUserPrefs(
         scoreId: json["scoreId"],
         rev: json["rev"],
-        sections: List<SectionPrefs>.from(
-            json["sections"].map((x) => SectionPrefs.fromJson(x))),
+        sections: List<SectionPrefs>.from(json["sections"]
+            .map((sectionPref) => SectionPrefs.fromJson(sectionPref))),
       );
 
   Map<String, dynamic> toJson() => {
         "scoreId": scoreId,
         "rev": rev,
-        "sections": List<dynamic>.from(sections.map((x) => x.toJson())),
+        "sections":
+            List<dynamic>.from(sections.map((section) => section.toJson())),
       };
 }
 

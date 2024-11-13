@@ -54,8 +54,7 @@ class ScoreMovement extends StatelessWidget {
               onPressed: () {
                 p.containsMovement(movement.key)
                     ? p.removeMovement(movement)
-                    : p.addMovement(
-                        s.currentScore!, movement, s.currentSection.key);
+                    : p.addMovement(s.currentScore!, movement);
               },
               tooltip: p.containsMovement(movement.key)
                   ? 'Remove movement from the playlist'

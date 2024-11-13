@@ -17,7 +17,7 @@ const String audioFormat = AudioFormat.mp3;
 final p = PersistentDataController();
 
 class ScoreProvider extends ChangeNotifier {
-  late String _currentScoreId;
+  String? _currentScoreId;
   String currentScoreRev = '';
   int _movementIndex = 0;
   int _sectionIndex = 0;
@@ -38,7 +38,7 @@ class ScoreProvider extends ChangeNotifier {
   bool _scoreIsUptoDate = false;
 
 // GETTERS
-  String get scoreId => _currentScoreId;
+  String get scoreId => _currentScoreId ?? '';
   int get movementIndex => _movementIndex;
   int get sectionIndex => _sectionIndex;
   int get currentTempo => _currentTempo;
@@ -208,9 +208,10 @@ class ScoreProvider extends ChangeNotifier {
     return imageFile;
   }
 
-  Future<void> getScore(String scoreId) async {
+  Future<Score?> getScore(String scoreId) async {
     if (_currentScore?.id == scoreId) {
-      return;
+      scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
+      return _currentScore;
     }
     _movementIndex = 0;
     try {
@@ -222,7 +223,7 @@ class ScoreProvider extends ChangeNotifier {
 
       if (score == null) {
         error = 'No score found';
-        return;
+        return null;
       }
       currentScore = await setupScore(score);
 
@@ -239,13 +240,14 @@ class ScoreProvider extends ChangeNotifier {
     } finally {
       isLoading = false;
     }
+    return currentScore;
   }
 
   Future<void> updateCurrentScore() async {
     isLoading = true;
     notifyListeners();
     try {
-      InitScore? score = await p.updateScore(_currentScoreId, currentScoreRev);
+      InitScore? score = await p.updateScore(_currentScoreId!, currentScoreRev);
       currentScore = await setupScore(score!);
       setMovementIndex(_movementIndex);
       scoreIsUptoDate = await p.checkScoreRevision(scoreId, currentScoreRev);
@@ -254,133 +256,6 @@ class ScoreProvider extends ChangeNotifier {
     }
     isLoading = false;
     notifyListeners();
-  }
-
-  Future<Score> setupScore(InitScore score) async {
-    int index = 0;
-
-    Score newScore = Score(
-        shortTitle: score.shortTitle,
-        slug: score.slug,
-        pathName: score.pathName,
-        movements: score.movements,
-        updatedAt: score.updatedAt,
-        rev: score.rev,
-        id: score.id,
-        composer: score.composer,
-        setupMovements: [],
-        fullScoreUrl: score.fullScoreUrl,
-        pianoScoreUrl: score.pianoScoreUrl,
-        globalLayers: score.globalLayers);
-
-    for (InitMovement movement in score.movements) {
-      Movement newMovement = Movement(
-          score: movement.score,
-          title: movement.title,
-          key: movement.key,
-          index: movement.index,
-          sections: movement.sections,
-          renderTail: movement.renderTail,
-          setupSections: []);
-      for (InitSection section in newMovement.sections) {
-        Section newSection = Section(
-            scoreId: newMovement.score.ref,
-            movementKey: newMovement.key,
-            sectionIndex: index,
-            name: section.name,
-            tempoRangeFull: section.tempoRangeFull,
-            layerStep: section.layerStep,
-            tempoRangeLayers: section.tempoRangeLayers != null &&
-                    section.layerStep != null
-                ? setTempoRange(section.tempoRangeLayers!, section.layerStep!)
-                : [],
-            step: section.step,
-            movementIndex: movement.index,
-            key: section.key,
-            fileList: [],
-            tempoRange: [],
-            metronomeAvailable: section.metronomeAvailable,
-            defaultTempo: section.defaultTempo,
-            sectionImage: section.sectionImage,
-            autoContinue: section.autoContinue,
-            autoContinueMarker: section.autoContinueMarker,
-            defaultSectionLength: section.defaultSectionLength,
-            beatsPerBar: section.beatsPerBar,
-            beatLength: section.beatLength,
-            tempoMultiplier: section.tempoMultiplier,
-            layers: section.layers,
-            muted: false,
-            looped: false,
-            updateRequired: section.updateRequired,
-            clickDataUrl: getClickDataUrl(
-                score.slug,
-                score.pathName,
-                section.movementIndex,
-                section.name,
-                section.tempoMultiplier != null
-                    ? section.defaultTempo * section.tempoMultiplier!
-                    : section.defaultTempo));
-
-        newSection.tempoRange =
-            setTempoRange(section.tempoRangeFull, section.step);
-
-        newSection.fileList = setFileList(
-          score.slug,
-          score.pathName,
-          section.movementIndex,
-          section.tempoMultiplier == null
-              ? newSection.tempoRange
-              : newSection.tempoRange
-                  .map((int tempo) => tempo * section.tempoMultiplier!)
-                  .toList(),
-          section.name,
-          AudioFormat.mp3,
-        );
-
-        // if (!kIsWeb) {
-        //   final SectionPrefs? localPrefs =
-        //       await getSectionPrefs(newSection.scoreId, newSection.key);
-        //   if (localPrefs != null) {
-        //     await updateSectionFromLocalPrefs(localPrefs, newSection);
-        //   } else {
-        //     log('local prefs not found');
-        //   }
-        // }
-        newMovement.setupSections.add(newSection);
-        newMovement.sections = [];
-
-        index++;
-      }
-
-      newScore.setupMovements.add(newMovement);
-    }
-
-    newScore.movements = [];
-
-    return newScore;
-  }
-
-  List<int> setTempoRange(List<int> data, int step) {
-    List<int> array = [];
-    for (int i = data[0]; i <= data[1]; i += step) {
-      array.add(i);
-    }
-    return array;
-  }
-
-  List<String> setFileList(
-    String slug,
-    String pathName,
-    int movementIndex,
-    List<int> tempoRange,
-    String sectionName,
-    String format,
-  ) {
-    String fullPath = '$supabaseUrl$slug/$movementIndex/$sectionName';
-    String fullName = '${pathName}_${movementIndex}_$sectionName';
-    return tempoRange
-        .map((tempo) => '$fullPath/${fullName}_$tempo.$format')
-        .toList();
   }
 
   //save audio files
@@ -412,7 +287,6 @@ class ScoreProvider extends ChangeNotifier {
   }
 }
 
-//get click data url
 String getClickDataUrl(String slug, String pathName, int movementIndex,
     String sectionName, int tempo) {
   String fullPath = '$supabaseUrl$slug/$movementIndex/CLICKDATA';
@@ -424,4 +298,122 @@ class AudioFormat {
   static const String mp3 = 'mp3';
   static const String opus = 'opus';
   static const String flac = 'flac';
+}
+
+Future<Score> setupScore(InitScore score) async {
+  int index = 0;
+
+  Score newScore = Score(
+      shortTitle: score.shortTitle,
+      slug: score.slug,
+      pathName: score.pathName,
+      movements: score.movements,
+      updatedAt: score.updatedAt,
+      rev: score.rev,
+      id: score.id,
+      composer: score.composer,
+      setupMovements: [],
+      fullScoreUrl: score.fullScoreUrl,
+      pianoScoreUrl: score.pianoScoreUrl,
+      globalLayers: score.globalLayers);
+
+  for (InitMovement movement in score.movements) {
+    Movement newMovement = Movement(
+        score: movement.score,
+        title: movement.title,
+        key: movement.key,
+        index: movement.index,
+        sections: movement.sections,
+        renderTail: movement.renderTail,
+        setupSections: []);
+    for (InitSection section in newMovement.sections) {
+      Section newSection = Section(
+          scoreId: newMovement.score.ref,
+          movementKey: newMovement.key,
+          sectionIndex: index,
+          name: section.name,
+          tempoRangeFull: section.tempoRangeFull,
+          layerStep: section.layerStep,
+          tempoRangeLayers:
+              section.tempoRangeLayers != null && section.layerStep != null
+                  ? setTempoRange(section.tempoRangeLayers!, section.layerStep!)
+                  : [],
+          step: section.step,
+          movementIndex: movement.index,
+          key: section.key,
+          fileList: [],
+          tempoRange: [],
+          metronomeAvailable: section.metronomeAvailable,
+          defaultTempo: section.defaultTempo,
+          sectionImage: section.sectionImage,
+          autoContinue: section.autoContinue,
+          autoContinueMarker: section.autoContinueMarker,
+          defaultSectionLength: section.defaultSectionLength,
+          beatsPerBar: section.beatsPerBar,
+          beatLength: section.beatLength,
+          tempoMultiplier: section.tempoMultiplier,
+          layers: section.layers,
+          muted: false,
+          looped: false,
+          updateRequired: section.updateRequired,
+          clickDataUrl: getClickDataUrl(
+              score.slug,
+              score.pathName,
+              section.movementIndex,
+              section.name,
+              section.tempoMultiplier != null
+                  ? section.defaultTempo * section.tempoMultiplier!
+                  : section.defaultTempo));
+
+      newSection.tempoRange =
+          setTempoRange(section.tempoRangeFull, section.step);
+
+      newSection.fileList = setFileList(
+        score.slug,
+        score.pathName,
+        section.movementIndex,
+        section.tempoMultiplier == null
+            ? newSection.tempoRange
+            : newSection.tempoRange
+                .map((int tempo) => tempo * section.tempoMultiplier!)
+                .toList(),
+        section.name,
+        AudioFormat.mp3,
+      );
+
+      newMovement.setupSections.add(newSection);
+      newMovement.sections = [];
+
+      index++;
+    }
+
+    newScore.setupMovements.add(newMovement);
+  }
+
+  newScore.movements = [];
+
+  return newScore;
+}
+
+List<int> setTempoRange(List<int> data, int step) {
+  List<int> array = [];
+  for (int i = data[0]; i <= data[1]; i += step) {
+    array.add(i);
+  }
+  return array;
+}
+
+List<String> setFileList(
+  String slug,
+  String pathName,
+  int movementIndex,
+  List<int> tempoRange,
+  String sectionName,
+  String format,
+) {
+  String fullPath = '$supabaseUrl$slug/$movementIndex/$sectionName';
+  String fullName = '${pathName}_${movementIndex}_$sectionName';
+  return tempoRange
+      .map((tempo) => '$fullPath/${fullName}_$tempo.$format')
+      .toList();
 }

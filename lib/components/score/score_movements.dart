@@ -19,7 +19,7 @@ class ScoreMovements extends StatelessWidget {
 
     void startSession() {
       p.buildPlaylist(s.currentScore!);
-      p.loadClickFiles(p.playlist);
+      // p.loadClickFiles(p.playlist);
       p.initSessionPlayers(p.playlist.first.key);
       n.setNavigationIndex(1);
     }

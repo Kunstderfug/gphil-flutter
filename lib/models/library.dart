@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:gphil/models/score.dart';
+
 List<LibraryItem> libraryFromJson(List<dynamic> library) =>
     List<LibraryItem>.from(library.map((x) => LibraryItem.fromJson(x)));
 
@@ -59,6 +61,21 @@ class LibraryItem {
         composer: json["composer"],
       );
 
+  factory LibraryItem.fromScore(Score score) {
+    return LibraryItem(
+      id: score.id,
+      rev: score.rev,
+      pathName: score.pathName,
+      shortTitle: score.shortTitle,
+      complete: score.completed ?? 0,
+      instrument: instrumentFromString(score.instrument),
+      ready: score.ready ?? false,
+      slug: score.slug,
+      updatedAt: score.updatedAt,
+      composer: score.composer,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         "pathName": pathName,
         "shortTitle": shortTitle,
@@ -77,7 +94,21 @@ class LibraryItem {
       };
 }
 
-enum Instrument { piano, violin, voice, cello, viola }
+enum Instrument {
+  piano,
+  violin,
+  voice,
+  cello,
+  viola,
+}
+
+Instrument instrumentFromString(String? str) {
+  if (str == null) return Instrument.piano; // default value
+  return Instrument.values.firstWhere(
+    (e) => e.name.toLowerCase() == str.toLowerCase(),
+    orElse: () => Instrument.piano, // default value if not found
+  );
+}
 
 final instrumentValues = EnumValues({
   "piano": Instrument.piano,
