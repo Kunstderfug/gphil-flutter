@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/models/layer_player.dart';
 // import 'package:gphil/controllers/persistent_data_controller.dart';
@@ -74,8 +74,6 @@ class StatusBar extends StatelessWidget {
                     value: s.currentScore != null
                         ? '${s.currentScore!.shortTitle} - ${s.currentScore!.composer}'
                         : 'Not selected'),
-                if (kDebugMode) Text(s.currentScoreRev),
-                if (kDebugMode) Text('up to date :${s.scoreIsUptoDate}'),
                 VerticalDivider(
                   thickness: 1,
                   color: dividerColor,

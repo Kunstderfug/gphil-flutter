@@ -941,8 +941,8 @@ class PlaylistProvider extends ChangeNotifier {
     resetPlayers();
 
     setMessage("Starting...");
-    await setPlayerPool(isSessionLoading);
     await loadClickFiles(playlist);
+    await setPlayerPool(isSessionLoading);
     setGlobalPlaylistLayers();
     if (layersEnabled) setLayersEnabled(layersEnabled);
 

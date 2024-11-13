@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/components/performance/performance_mode.dart';
 import 'package:gphil/components/performance/save_session_dialog.dart';
+import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
@@ -13,7 +14,7 @@ class PlayerHeader extends StatelessWidget {
   const PlayerHeader({super.key, required this.sectionName});
 
   void _showSaveConfirmationDialog(BuildContext context, PlaylistProvider p,
-      ScoreProvider s, NavigationProvider n) {
+      ScoreProvider s, NavigationProvider n, LibraryProvider l) {
     showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -28,7 +29,7 @@ class PlayerHeader extends StatelessWidget {
                 style: TextStyles().textMd.copyWith(color: redColor)),
             onPressed: () {
               Navigator.of(context).pop(); // Close dialog
-              _navigateBack(p, s, n); // Navigate back
+              _navigateBack(p, s, n, l); // Navigate back
             },
           ),
           TextButton(
@@ -69,7 +70,7 @@ class PlayerHeader extends StatelessWidget {
                                   .textMd
                                   .copyWith(color: Colors.white)),
                         ));
-                        _navigateBack(p, s, n); // Navigate back after saving
+                        _navigateBack(p, s, n, l); // Navigate back after saving
                       }
                     } catch (e) {
                       if (context.mounted) {
@@ -111,22 +112,23 @@ class PlayerHeader extends StatelessWidget {
   }
 
   void _handleBackNavigation(BuildContext context, PlaylistProvider p,
-      ScoreProvider s, NavigationProvider n) {
-    if (_hasTempoChanges(p, s) || p.sessionChanged) {
+      ScoreProvider s, NavigationProvider n, LibraryProvider l) {
+    if (p.sessionChanged) {
       // Show save dialog only if there are changes
-      _showSaveConfirmationDialog(context, p, s, n);
+      _showSaveConfirmationDialog(context, p, s, n, l);
     } else {
       // Navigate back directly if no changes
-      _navigateBack(p, s, n);
+      _navigateBack(p, s, n, l);
     }
   }
 
-  void _navigateBack(
-      PlaylistProvider p, ScoreProvider s, NavigationProvider n) async {
+  void _navigateBack(PlaylistProvider p, ScoreProvider s, NavigationProvider n,
+      LibraryProvider l) async {
     if (p.isPlaying) {
       await p.stop();
     }
     if (s.currentScore != null || s.currentScore?.id != p.sessionScore!.id) {
+      l.setScoreId(p.sessionScore!.id);
       await s.getScore(p.sessionScore!.id);
     }
     s.setSections(p.currentMovementKey!, p.currentSection!.key);
@@ -139,6 +141,7 @@ class PlayerHeader extends StatelessWidget {
     final n = Provider.of<NavigationProvider>(context, listen: false);
     final p = Provider.of<PlaylistProvider>(context);
     final s = Provider.of<ScoreProvider>(context, listen: false);
+    final l = Provider.of<LibraryProvider>(context, listen: false);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +150,7 @@ class PlayerHeader extends StatelessWidget {
           iconSize: iconSizeXs,
           padding: const EdgeInsets.all(paddingSm),
           tooltip: 'Back to Score',
-          onPressed: () => _handleBackNavigation(context, p, s, n),
+          onPressed: () => _handleBackNavigation(context, p, s, n, l),
           icon: const Icon(Icons.arrow_back),
         ),
         PerformanceMode(p: p),
@@ -155,5 +158,3 @@ class PlayerHeader extends StatelessWidget {
     );
   }
 }
-
-//TODO sync libraryProvider scoreId when there are different scores in playlist and in score provider

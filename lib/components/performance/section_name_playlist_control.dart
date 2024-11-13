@@ -18,20 +18,23 @@ class SectionNamePlaylistControl extends StatelessWidget {
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
           Flexible(
             child: Center(
-              child: Text(p.currentSection!.name.replaceAll('_', ' '),
+              child: Text(
+                  p.currentSection != null
+                      ? p.currentSection!.name.replaceAll('_', ' ')
+                      : '',
                   style: TextStyles().textLg),
             ),
           ),
           Flexible(
             child: Center(
               child: Text(
-                p.currentSection!.autoContinueMarker != null
+                p.currentSection?.autoContinueMarker != null
                     ? 'Auto-Continue'
                     : '',
                 style: TextStyle(
                     fontSize: fontSizeLg,
                     fontWeight: FontWeight.bold,
-                    color: p.currentSection!.autoContinue != false
+                    color: p.currentSection?.autoContinue != false
                         ? greenColor
                         : Colors.grey.shade700),
               ),

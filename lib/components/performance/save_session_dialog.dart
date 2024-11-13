@@ -94,7 +94,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
     Navigator.of(context).pop();
   }
 
-  Color color(SessionType type) {
+  Color _typeColor(SessionType type) {
     return type == SessionType.practice ? greenColor : redColor;
   }
 
@@ -160,8 +160,10 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
         return ListTile(
           title: Row(
             children: [
+              //Session name and date
               Expanded(
                 child: InkWell(
+                  hoverColor: Colors.transparent,
                   onTap: () {
                     widget.onLoad(session);
                     widget.scoreName != null
@@ -171,18 +173,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                   child: Row(
                     children: [
                       Text(session.name, style: TextStyles().textMd),
-                      const SizedBox(width: paddingSm),
-                      Chip(
-                        label: Text(
-                          session.type.displayName,
-                          style: TextStyles()
-                              .textSm
-                              .copyWith(color: color(session.type)),
-                        ),
-                        padding: EdgeInsets.zero,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        side: BorderSide(color: color(session.type)),
-                      ),
+                      // const SizedBox(width: paddingSm),
                     ],
                   ),
                 ),
@@ -193,9 +184,25 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              //Session type
+              Chip(
+                label: Text(
+                  session.type.displayName,
+                  style: TextStyles()
+                      .textSm
+                      .copyWith(color: _typeColor(session.type)),
+                ),
+                padding: EdgeInsets.zero,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                side: BorderSide(color: _typeColor(session.type)),
+              ),
+              SizedBox(width: paddingSm),
               IconButton(
+                iconSize: sizeLg,
                 tooltip: 'Load Session',
-                icon: const Icon(Icons.play_arrow),
+                icon: const Icon(
+                  Icons.play_arrow_outlined,
+                ),
                 color: greenColor,
                 onPressed: () {
                   widget.onLoad(session);
@@ -206,7 +213,9 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
               ),
               IconButton(
                 tooltip: 'Delete Session',
-                icon: const Icon(Icons.delete),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                ),
                 color: redColor,
                 onPressed: () async {
                   final formattedDate =
@@ -230,136 +239,151 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
 
   Widget sessions() {
     return Shortcuts(
-      shortcuts: {
-        LogicalKeySet(LogicalKeyboardKey.enter): const SaveSessionIntent(),
-      },
-      child: Actions(
-        actions: {
-          SaveSessionIntent: CallbackAction<SaveSessionIntent>(
-            onInvoke: (SaveSessionIntent intent) {
-              if (widget.scoreName != null && _nameController.text.isNotEmpty) {
-                _validateAndSave();
-              }
-              return null;
-            },
-          ),
+        shortcuts: {
+          LogicalKeySet(LogicalKeyboardKey.enter): const SaveSessionIntent(),
         },
-        child: DefaultSelectionStyle(
-          cursorColor: greenColor,
-          selectionColor: Colors.grey.shade600,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 700, maxHeight: 800),
-            child: Padding(
-              padding: const EdgeInsets.all(paddingLg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: sizeXl),
-                  Text(
-                    'Sessions',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: paddingMd),
-                  Expanded(
-                    child: _buildSessionList(),
-                  ),
-                  if (widget.scoreName != null)
-                    const Divider(height: paddingLg),
-                  if (widget.scoreName != null)
-                    TextField(
-                      showCursor: true,
-                      // cursorColor: Colors.white,
-                      selectionControls: DesktopTextSelectionControls(),
-                      controller: _nameController,
-                      style: TextStyles().textMd,
-                      decoration: InputDecoration(
-                        hoverColor: highlightColor,
-                        fillColor: highlightColor,
-                        focusColor: greenColor,
-                        labelText: 'New Session Name',
-                        floatingLabelStyle: TextStyles().textMd,
-                        errorText: _errorText,
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(16)),
-                          borderSide: BorderSide(width: 1, color: greenColor),
-                        ),
+        child: Actions(
+            actions: {
+              SaveSessionIntent: CallbackAction<SaveSessionIntent>(
+                onInvoke: (SaveSessionIntent intent) {
+                  if (widget.scoreName != null &&
+                      _nameController.text.isNotEmpty) {
+                    _validateAndSave();
+                  }
+                  return null;
+                },
+              ),
+            },
+            child: DefaultSelectionStyle(
+              cursorColor: greenColor,
+              selectionColor: Colors.grey.shade600,
+              child: ConstrainedBox(
+                constraints:
+                    const BoxConstraints(maxWidth: 700, maxHeight: 800),
+                child: Padding(
+                  padding: const EdgeInsets.all(paddingLg),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(height: sizeXl),
+                      Text(
+                        'Sessions',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      autofocus: true,
-                    ),
-                  if (widget.scoreName != null)
-                    const SizedBox(height: paddingLg),
-                  if (widget.scoreName != null)
-                    Row(
-                      children: [
-                        Text('Session Type:', style: TextStyles().textMd),
-                        const SizedBox(width: paddingMd),
-                        ...SessionType.values.map((type) => Padding(
-                              padding: const EdgeInsets.only(right: paddingMd),
-                              child: ChipTheme(
-                                data: ChipThemeData(
-                                  selectedColor: Colors.transparent,
-                                  checkmarkColor: color(type),
-                                  side: _selectedType == type
-                                      ? BorderSide(color: color(type))
-                                      : BorderSide(
-                                          color: Colors.grey.withOpacity(0.2)),
-                                  backgroundColor: Colors.transparent,
-                                  showCheckmark: true,
-                                  labelStyle: TextStyles()
-                                      .textSm
-                                      .copyWith(color: Colors.white),
-                                  brightness: Brightness.dark,
-                                ),
-                                child: FilterChip(
-                                  selected: _selectedType == type,
-                                  label: Text(
-                                    type.displayName,
-                                    style: TextStyles()
-                                        .textSm
-                                        .copyWith(color: Colors.white),
-                                  ),
-                                  tooltip:
-                                      'When loaded, will set session to the ${type == SessionType.practice ? 'practice (default)' : 'performance'} mode',
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      _selectedType = type;
-                                    });
-                                  },
+                      const SizedBox(height: paddingMd),
+                      Expanded(
+                        child: _buildSessionList(),
+                      ),
+                      if (widget.scoreName != null)
+                        const Divider(height: paddingLg),
+                      if (widget.scoreName != null)
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: const Color(0xFF3F3F46)), // zinc-700
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'New Session Name',
+                                style: TextStyle(
+                                  color: Color(0xFFA1A1AA), // zinc-400
+                                  fontSize: fontSizeMd,
                                 ),
                               ),
-                            )),
-                      ],
-                    ),
-                  const SizedBox(height: paddingLg),
-                  if (widget.scoreName != null)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        StandartButton(
-                          icon: Icons.close,
-                          iconColor: redColor,
-                          borderColor: redColor,
-                          callback: () => Navigator.of(context).pop(),
-                          label: 'Cancel',
+                              const SizedBox(height: 8),
+                              TextFormField(
+                                showCursor: true,
+                                // initialValue: sessionName,
+                                selectionControls:
+                                    DesktopTextSelectionControls(),
+                                controller: _nameController,
+                                style:
+                                    const TextStyle(color: Color(0xFFF4F4F5)),
+
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  floatingLabelStyle: TextStyles().textMd,
+                                  errorText: _errorText,
+                                ),
+                                autofocus: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(width: paddingMd),
-                        StandartButton(
-                          icon: Icons.save,
-                          iconColor: greenColor,
-                          borderColor: greenColor,
-                          callback: _validateAndSave,
-                          label: 'Save New',
+                      if (widget.scoreName != null)
+                        const SizedBox(height: paddingLg),
+                      if (widget.scoreName != null)
+                        Row(
+                          children: [
+                            const Text(
+                              'Session Type:',
+                              style: TextStyle(
+                                color: Color(0xFFA1A1AA), // zinc-400
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: paddingMd),
+                            ...SessionType.values.map(
+                              (type) => Row(
+                                children: [
+                                  _SessionTypeButton(
+                                    label: type.name,
+                                    isSelected: type == _selectedType,
+                                    activeColor: type == SessionType.practice
+                                        ? Color(0xFF132E1A)
+                                        : const Color(
+                                            0xFF451524), // green-950/50
+                                    activeBorderColor: type ==
+                                            SessionType.practice
+                                        ? const Color(0xFF22C55E)
+                                        : const Color(0xFFF87171), // green-400
+                                    activeTextColor: type ==
+                                            SessionType.practice
+                                        ? const Color(0xFF22C55E)
+                                        : const Color(0xFFF87171), // green-400
+                                    onTap: () => setState(() {
+                                      _selectedType = type;
+                                    }),
+                                  ),
+                                  const SizedBox(width: 12),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                ],
+                      const SizedBox(height: paddingLg),
+                      if (widget.scoreName != null)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            StandartButton(
+                              icon: Icons.close,
+                              iconColor: redColor,
+                              label: 'Cancel',
+                              borderColor: redColor, // red-400
+                              callback: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: paddingMd),
+                            StandartButton(
+                              label: 'Save New',
+                              icon: Icons.save,
+                              iconColor: greenColor,
+                              borderColor: greenColor,
+                              callback: _validateAndSave,
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
-    );
+            )));
   }
 
   @override
@@ -376,5 +400,54 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
             child: sessions(),
           )
         : Center(child: sessions());
+  }
+}
+
+class _SessionTypeButton extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final Color activeColor;
+  final Color activeBorderColor;
+  final Color activeTextColor;
+  final VoidCallback onTap;
+
+  const _SessionTypeButton({
+    required this.label,
+    required this.isSelected,
+    required this.activeColor,
+    required this.activeBorderColor,
+    required this.activeTextColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color:
+                isSelected ? activeColor : const Color(0xFF27272A), // zinc-800
+            border: Border.all(
+              color: isSelected
+                  ? activeBorderColor.withOpacity(0.3)
+                  : const Color(0xFF3F3F46), // zinc-700
+            ),
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected
+                  ? activeTextColor
+                  : const Color(0xFFA1A1AA), // zinc-400
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
