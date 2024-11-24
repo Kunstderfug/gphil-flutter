@@ -23,19 +23,19 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			0j8Uj7xGphSo4MJH8gY/Ab6s72k=
+			oEhoHIw09aWYhhpJHTYFtyHo4Zo=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"d23f148fbc46a614a8e0c247f2063f01beacef69" or cdhash H"eeaeeced11b11bed41c3111734ae3f41a4825e61"</string>
+			<string>cdhash H"a048681c8c34f5a598861a491d3605b721e8e19a" or cdhash H"bdfb4dc43d3ab692d5436b3724ea40a3b242ce94"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			ew25pxYIOMHVyu/nAViETKKbvH0=
+			jZlkvTj5GVoltLWVYqWepBmOMIM=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"7b0db9a7160838c1d5caefe70158844ca29bbc7d" or cdhash H"d9140be8b4985587dff8c58d1ce6475ebb619b95"</string>
+			<string>cdhash H"8d9964bd38f9195a25b4b59562a59ea4198e3083" or cdhash H"9cfdbdf2df12ab49169d9504077e10a37233f2c6"</string>
 		</dict>
 		<key>Frameworks/connectivity_plus.framework</key>
 		<dict>
@@ -275,10 +275,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			QgysOh/m3rX7ZefzTtbQc+WkMXM=
+			ecY9pHH/RPcpjeZpDkNJceo+h8Y=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"420cac3a1fe6deb5fb65e7f34ed6d073e5a43173" or cdhash H"e014de562240d093610aeb3004193be415f86f4d"</string>
+			<string>cdhash H"79c63da471ff44f7298de6690e434971ea3e87c6" or cdhash H"66445b1b426b32949dc8d9209ac5b91f967c3ce5"</string>
 		</dict>
 		<key>Frameworks/url_launcher_macos.framework</key>
 		<dict>

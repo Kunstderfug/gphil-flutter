@@ -114,8 +114,6 @@ class SessionService {
     if (await sessionFile.exists()) {
       await sessionFile.delete();
     }
-
-    //TODO: delete from shared preferences
   }
 
   Future<List<UserSession>> getSessions() async {

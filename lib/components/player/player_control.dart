@@ -54,7 +54,7 @@ class PlayerControl extends StatelessWidget {
       double iconSize = iconSizeMd;
 
       void startOrContinue() {
-        if (!p.isPlaying && p.appState != AppState.loading) {
+        if (!p.isPlaying && p.appState != AppState.loading && !p.isLoading) {
           p.play();
         } else {
           if (!p.doublePressGuard) {
@@ -64,13 +64,13 @@ class PlayerControl extends StatelessWidget {
       }
 
       void handlePreviousSection() {
-        if (p.appState != AppState.loading) {
+        if (p.appState != AppState.loading && !p.isLoading) {
           p.skipToPreviousSection();
         }
       }
 
       void handleNextSection() {
-        if (p.appState != AppState.loading) {
+        if (p.appState != AppState.loading && !p.isLoading) {
           p.skipToNextSection();
         }
       }

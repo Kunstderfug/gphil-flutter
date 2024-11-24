@@ -94,23 +94,6 @@ class PlayerHeader extends StatelessWidget {
     );
   }
 
-  bool _hasTempoChanges(PlaylistProvider p, ScoreProvider s) {
-    if (s.currentScore?.id == p.sessionScore!.id) {
-      final originalSection = s.allSections
-          .firstWhere((section) => section.key == p.currentSectionKey);
-
-      if (originalSection.userTempo != null &&
-          originalSection.userTempo != p.currentSection?.userTempo) {
-        return true;
-      }
-      if (originalSection.defaultTempo != p.currentSection?.userTempo) {
-        return true;
-      }
-      return false;
-    }
-    return false;
-  }
-
   void _handleBackNavigation(BuildContext context, PlaylistProvider p,
       ScoreProvider s, NavigationProvider n, LibraryProvider l) {
     if (p.sessionChanged) {

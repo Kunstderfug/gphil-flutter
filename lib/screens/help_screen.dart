@@ -132,7 +132,10 @@ class _SectionContent extends StatelessWidget {
   final Widget? child;
 
   const _SectionContent(
-      {required this.title, required this.content, this.child});
+      {required this.title,
+      required this.content,
+      // ignore: unused_element
+      this.child});
 
   @override
   Widget build(BuildContext context) {
