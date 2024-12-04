@@ -32,6 +32,7 @@ dependencies:
   idb_shim: ^2.6.1
   cached_network_image: ^3.4.1
   logging: ^1.2.0
+  flutter_svg: ^2.0.16
   # background_downloader: ^8.5.3
   # desktop_multi_window: ^0.2.0
 

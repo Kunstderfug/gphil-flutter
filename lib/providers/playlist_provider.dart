@@ -135,11 +135,12 @@ class PlaylistProvider extends ChangeNotifier {
   Timer? metronomeTimer;
   int lastUsedTempo = 0;
   bool metronomeMuted = true;
-  double metronomeVolume = 0.75;
+  double metronomeVolume = 0.5;
   SoundHandle? metronomeHandle;
   AudioSource? metronomeClick;
   AudioSource? metronomeBell;
   SoundHandle? metronomeBellHandle;
+  final int _metronomeOffesetDelay = 40; //milliseconds
   late int? currentTempo =
       currentSection?.userTempo ?? currentSection?.defaultTempo;
 
@@ -1052,6 +1053,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
 // METRONOME
+  // also plays metronome sounds
   void setCurrentBeat() {
     if (currentBeatIndex < currentPlaylistDurationBeats.length - 1) {
       final index = currentClickData!.clickData.indexWhere(
@@ -1071,7 +1073,8 @@ class PlaylistProvider extends ChangeNotifier {
         if (_previousBeatIndex != currentBeatIndex &&
             currentBeatIndex != 0 &&
             !metronomeMuted) {
-          playMetronomeSound();
+          Future.delayed(Duration(milliseconds: _metronomeOffesetDelay),
+              () => playMetronomeSound());
           _previousBeatIndex = currentBeatIndex;
         }
       }
@@ -1147,17 +1150,19 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void setMetronomeVolume(double value) async {
+    final double metronomeAttenuation = 0.25;
     metronomeVolume = value;
-    if (value == 0) {
-      metronomeMuted = true;
-    }
+    value == 0 ? metronomeMuted = true : metronomeMuted = false;
+
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble('metronomeVolume', metronomeVolume);
     if (metronomeHandle != null) {
-      player.setVolume(metronomeHandle!, metronomeVolume);
+      player.setVolume(
+          metronomeHandle!, metronomeVolume * metronomeAttenuation);
     }
     if (metronomeBellHandle != null) {
-      player.setVolume(metronomeBellHandle!, metronomeVolume);
+      player.setVolume(
+          metronomeBellHandle!, metronomeVolume * metronomeAttenuation);
     }
     notifyListeners();
   }
@@ -1169,12 +1174,10 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void resetMetronomeVolume() async {
-    metronomeVolume = 0.75;
+    metronomeVolume = 0.5;
     final prefs = await SharedPreferences.getInstance();
     prefs.setDouble('metronomeVolume', metronomeVolume);
-    if (metronomeHandle != null) {
-      player.setVolume(metronomeHandle!, metronomeVolume);
-    }
+    setMetronomeVolume(metronomeVolume);
     notifyListeners();
   }
 

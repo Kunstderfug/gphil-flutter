@@ -55,11 +55,7 @@ class KeyboardShortcutsSection extends StatelessWidget {
         description: 'Toggle section loop',
       ),
       _Shortcut(
-        keys: ['P'],
-        description: 'Toggle performance mode',
-      ),
-      _Shortcut(
-        keys: ['M'],
+        keys: ['S'],
         description: 'Toggle section skip',
       ),
       _Shortcut(
@@ -67,8 +63,24 @@ class KeyboardShortcutsSection extends StatelessWidget {
         description: 'Toggle auto-continue',
       ),
       _Shortcut(
+        keys: ['M'],
+        description: 'Toggle metronome sound',
+      ),
+      _Shortcut(
+        keys: ['Comma'],
+        description: 'Increase metronome sound',
+      ),
+      _Shortcut(
+        keys: ['Period'],
+        description: 'Decrease metronome sound',
+      ),
+      _Shortcut(
         keys: ['O'],
         description: 'Save/Load session',
+      ),
+      _Shortcut(
+        keys: ['P'],
+        description: 'Toggle performance mode',
       ),
     ],
   );

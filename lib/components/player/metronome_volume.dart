@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'package:gphil/models/section.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
@@ -19,11 +19,17 @@ class MetronomeVolume extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
 
+    String assetName() {
+      return p.metronomeMuted
+          ? 'assets/images/metronome_muted.svg'
+          : 'assets/images/metronome_active.svg';
+    }
+
     return SizedBox(
-      width: 300,
+      width: 334,
       child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
+        // mainAxisSize: MainAxisSize.min,
+        // mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox.square(
@@ -31,10 +37,18 @@ class MetronomeVolume extends StatelessWidget {
             child: IconButton(
               padding: EdgeInsets.zero, // Remove padding
               constraints: BoxConstraints(), // Remove default constraints
-              tooltip: p.metronomeMuted ? "Unmute metronome" : "Mute metronome",
-              icon: Image.asset(p.metronomeMuted || metronomeVolume == 0.0
-                  ? 'assets/images/metronome-muted.png'
-                  : 'assets/images/metronome-active.png'),
+              tooltip: p.metronomeMuted
+                  ? "Enable metronome sound"
+                  : "Mute metronome",
+              icon: SvgPicture.asset(
+                assetName(),
+                colorFilter: ColorFilter.mode(
+                    p.metronomeMuted
+                        ? Colors.white.withOpacity(0.3)
+                        : p.setColor(),
+                    BlendMode.srcIn),
+                semanticsLabel: 'Metronome Icon',
+              ),
               iconSize: 24,
               color: p.metronomeMuted
                   ? Colors.white.withOpacity(0.5)
@@ -46,7 +60,7 @@ class MetronomeVolume extends StatelessWidget {
             ),
           ),
           SizedBox(
-            // height: 60,
+            width: 250,
             child: SfSliderTheme(
               data: SfSliderThemeData(
                 thumbColor: highlightColor,
@@ -61,7 +75,7 @@ class MetronomeVolume extends StatelessWidget {
                     ? Colors.white.withOpacity(0.3)
                     : p.setColor(),
                 thumbStrokeWidth: 1,
-                tooltipBackgroundColor: highlightColor,
+                // tooltipBackgroundColor: highlightColor,
                 tooltipTextStyle: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -72,10 +86,10 @@ class MetronomeVolume extends StatelessWidget {
                   min: 0.0,
                   max: 1.0,
                   interval: 0.5,
-                  stepSize: 0.25,
+                  stepSize: 0.1,
                   showTicks: true,
                   showLabels: true,
-                  minorTicksPerInterval: 1,
+                  minorTicksPerInterval: 4,
                   activeColor: p.metronomeMuted
                       ? Colors.white.withOpacity(0.3)
                       : p.setColor(),
@@ -83,9 +97,8 @@ class MetronomeVolume extends StatelessWidget {
                       ? Colors.white.withOpacity(0.1)
                       : p.setInactiveColor(),
                   enableTooltip: true,
-                  value: p.metronomeMuted ? 0.0 : metronomeVolume,
+                  value: metronomeVolume,
                   onChanged: (value) => p.setMetronomeVolume(value),
-                  onChangeEnd: (value) => p.setMetronomeVolume(value),
                 ),
               ),
             ),
