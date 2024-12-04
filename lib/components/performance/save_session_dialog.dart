@@ -48,6 +48,11 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
       _nameController.text = '${widget.scoreName}_$movementText';
     }
 
+    // Get PlaylistProvider and set initial session type
+    final p = Provider.of<PlaylistProvider>(context, listen: false);
+    _selectedType =
+        p.performanceMode ? SessionType.performance : SessionType.practice;
+
     // Select all text
     _nameController.selection = TextSelection(
       baseOffset: 0,
@@ -83,10 +88,39 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
 
     if (_sessions.any(
         (session) => session.name == name && session.type == _selectedType)) {
-      setState(() {
-        _errorText = 'A session with this name already exists';
-      });
-      return;
+      // Show confirmation dialog
+      final shouldOverwrite = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Overwrite Session?'),
+            content: Text(
+                'A session named "$name" already exists. Do you want to overwrite it?'),
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Cancel',
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.red,
+                ),
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Overwrite'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldOverwrite != true) {
+        return; // User cancelled or pressed No
+      }
     }
 
     if (widget.onSave != null) widget.onSave!(name, _selectedType);

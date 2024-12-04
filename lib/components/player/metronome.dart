@@ -38,6 +38,7 @@ class _MetronomeState extends State<Metronome>
     } else {
       setState(() {
         animationDuration = p.beatLength;
+
         _animationController.duration = Duration(
             milliseconds: animationDuration != 0 ? animationDuration : 3000);
         _animationController.repeat();

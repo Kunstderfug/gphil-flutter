@@ -52,7 +52,9 @@ class SectionTempos extends StatelessWidget {
         const SizedBox(height: paddingMd),
         Wrap(
             spacing: section.tempoRange.length > 6 ? -10 : 0,
+            runSpacing: 10,
             crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.center,
             runAlignment: WrapAlignment.center,
             children: [
               for (int tempo in section.tempoRange)

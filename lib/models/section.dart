@@ -206,7 +206,7 @@ class Section extends InitSection {
       userTempo: map['userTempo'],
       userLayerTempo: map['userLayerTempo'],
       tempoMultiplier: map['tempoMultiplier'],
-      sectionVolume: map['sectionVolume'] ?? 0.8,
+      sectionVolume: map['sectionVolume'] ?? 1.0,
       layers: map['layers'] != null ? List<String>.from(map['layers']) : null,
       muted: map['muted'] ?? false,
       looped: map['looped'] ?? false,
@@ -281,7 +281,7 @@ class Section extends InitSection {
         userTempo: json["userTempo"],
         userLayerTempo: json["userLayerTempo"],
         tempoMultiplier: json["tempoMultiplier"],
-        sectionVolume: json["sectionVolume"]?.toDouble() ?? 0.8,
+        sectionVolume: json["sectionVolume"]?.toDouble() ?? 1.0,
         layers:
             json["layers"] == null ? null : List<String>.from(json["layers"]),
         muted: json['muted'] ?? false,

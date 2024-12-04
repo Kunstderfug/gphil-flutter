@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gphil/components/player/metronome.dart';
+import 'package:gphil/components/player/metronome_volume.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/services/app_state.dart';
@@ -144,49 +145,54 @@ class PlayerControl extends StatelessWidget {
             autofocus: true,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: paddingXl),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+              child: Column(
                 children: [
-                  //previous button
-                  Expanded(
-                    child: IconButton(
-                        iconSize: iconSize,
-                        tooltip: 'Previous section. shortcut: left arrow',
-                        onPressed: () => !p.layerFilesDownloading
-                            ? handlePreviousSection()
-                            : null,
-                        icon: const Icon(Icons.skip_previous)),
-                  ),
-
-                  //play button
-                  Expanded(
-                    flex: 2,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        IconButton(
-                            padding: const EdgeInsets.all(0),
-                            tooltip: 'Play/Stop, shortcut: Enter/Space',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      //previous button
+                      Expanded(
+                        child: IconButton(
+                            iconSize: iconSize,
+                            tooltip: 'Previous section. shortcut: left arrow',
                             onPressed: () => !p.layerFilesDownloading
-                                ? startOrContinue()
+                                ? handlePreviousSection()
                                 : null,
-                            icon: const RepaintBoundary(
-                              child: Metronome(),
-                            )),
-                      ],
-                    ),
-                  ),
+                            icon: const Icon(Icons.skip_previous)),
+                      ),
 
-                  //next button
-                  Expanded(
-                    child: IconButton(
-                        iconSize: iconSize,
-                        tooltip: 'Next section. shortcut: right arrow',
-                        onPressed: () => !p.layerFilesDownloading
-                            ? handleNextSection()
-                            : null,
-                        icon: const Icon(Icons.skip_next)),
+                      //play button
+                      Expanded(
+                        flex: 2,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            IconButton(
+                                padding: const EdgeInsets.all(0),
+                                tooltip: 'Play/Stop, shortcut: Enter/Space',
+                                onPressed: () => !p.layerFilesDownloading
+                                    ? startOrContinue()
+                                    : null,
+                                icon: const RepaintBoundary(
+                                  child: Metronome(),
+                                )),
+                          ],
+                        ),
+                      ),
+
+                      //next button
+                      Expanded(
+                        child: IconButton(
+                            iconSize: iconSize,
+                            tooltip: 'Next section. shortcut: right arrow',
+                            onPressed: () => !p.layerFilesDownloading
+                                ? handleNextSection()
+                                : null,
+                            icon: const Icon(Icons.skip_next)),
+                      ),
+                    ],
                   ),
+                  MetronomeVolume(metronomeVolume: p.metronomeVolume),
                 ],
               ),
             ),

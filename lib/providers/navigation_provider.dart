@@ -27,16 +27,18 @@ class NavigationProvider extends ChangeNotifier {
   final _navigationScreens = <NavigationScreen>[
     NavigationScreen(
         title: 'L I B R A R Y',
-        icon: Icons.library_books_rounded,
+        icon: Icons.library_books,
         screen: const LibraryScreen()),
     NavigationScreen(
         title: 'P R A C T I C E',
-        icon: Icons.piano,
+        icon: Icons.piano_sharp,
         screen: const PerformanceScreen()),
     NavigationScreen(
-        title: 'S C O R E', icon: Icons.piano, screen: const ScoreScreen()),
+        title: 'S C O R E',
+        icon: Icons.book_sharp,
+        screen: const ScoreScreen()),
     NavigationScreen(
-        title: 'H E L P', icon: Icons.help, screen: const HelpScreen()),
+        title: 'H E L P', icon: Icons.help_sharp, screen: const HelpScreen()),
   ];
 
   void setNavigationIndex(int index) {
