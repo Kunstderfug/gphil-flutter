@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.bin</key>
 		<data>
-		jFtSTZOutsVU/LfnwmdnIi63Q3Q=
+		thr/Odwz2lz8wnuIqyXJZuF0/Yo=
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<data>
-		M9LFFRQhm4IMZge2Sxxsjx4yvTE=
+		3bBWKlRSqmSUxbIsj8vnkHB8qN4=
 		</data>
 		<key>Resources/flutter_assets/FontManifest.json</key>
 		<data>
@@ -22,7 +22,15 @@
 		</data>
 		<key>Resources/flutter_assets/NOTICES.Z</key>
 		<data>
-		rRfR/xH5wzQakGiAX92/k1DHFEE=
+		6obcCef2J1vHH1GMkIPH0knWrBA=
+		</data>
+		<key>Resources/flutter_assets/assets/audio/metronome_bell.wav</key>
+		<data>
+		fPGx95eoySxWwwTOOLMzBiNrCOY=
+		</data>
+		<key>Resources/flutter_assets/assets/audio/metronome_click.wav</key>
+		<data>
+		TAmlINuDb9ZDHjhomm5PX1feAm4=
 		</data>
 		<key>Resources/flutter_assets/assets/images/bg-dark-desktop.png</key>
 		<data>
@@ -48,9 +56,45 @@
 		<data>
 		vdugGrVCy5q71DfFZ/XGDR/N37I=
 		</data>
+		<key>Resources/flutter_assets/assets/images/library_main_window.png</key>
+		<data>
+		V7iEUvax3wS/CD31KH3Nrvj/kUk=
+		</data>
+		<key>Resources/flutter_assets/assets/images/library_score_progress.png</key>
+		<data>
+		IM5JuAVY4fyrrIeFntVrHQ5G/20=
+		</data>
+		<key>Resources/flutter_assets/assets/images/metronome.svg</key>
+		<data>
+		EZOn+AnZ/kaVIXYlcWzCriMnxSs=
+		</data>
+		<key>Resources/flutter_assets/assets/images/metronome_active.svg</key>
+		<data>
+		delKNswRah8sLHVS9k7fEN4CRNk=
+		</data>
+		<key>Resources/flutter_assets/assets/images/metronome_muted.svg</key>
+		<data>
+		EZOn+AnZ/kaVIXYlcWzCriMnxSs=
+		</data>
+		<key>Resources/flutter_assets/assets/images/score_add_movements.png</key>
+		<data>
+		qkihlcb1wnOcvQONPDwmGtYJs7o=
+		</data>
+		<key>Resources/flutter_assets/assets/images/score_download_update.png</key>
+		<data>
+		Cw3SZX+8jg7yo4r+FS8pafuapRA=
+		</data>
+		<key>Resources/flutter_assets/assets/images/score_movements.png</key>
+		<data>
+		1h/wgka/cegVYCyyiUeVg+cQ+pQ=
+		</data>
+		<key>Resources/flutter_assets/assets/images/score_sections.png</key>
+		<data>
+		g5VMEopN/8H83AF1zUvOAXMHgjg=
+		</data>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
-		snURZxx4JJ2ptPQQUfAeKpbQUJA=
+		cHyz++z2CpT6eZnEaPYzsC9A798=
 		</data>
 		<key>Resources/flutter_assets/fonts/Roboto-Black.ttf</key>
 		<data>
@@ -174,14 +218,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			RccYB++dnBQRqKccmrPqjx72sncTX0VUDon8hj5XORs=
+			Wq7b4SVcoJJJ16cKkTG2Q5Gad/VcOgCHbWGFa53/9lI=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			SjHb6GaS7SdnB7IYRQDKOHHaNv9TabQxF65T0NQ5TgE=
+			mTForuZDhA/p7RHK8/Ms+BHRy7FEkxB2gnZF7Vo/2gw=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/FontManifest.json</key>
@@ -195,7 +239,21 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jw4CH17BNYTlglBpzxwLXlvifoUEEgwLqav4PadV8B8=
+			0zZ7JON8oaAdgXQ6CCEhXUp4vRkbaQVr3Y8ajdyr7to=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/audio/metronome_bell.wav</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			K7b/cfsWBUZA3xLdaGXis+E26QOcKuiowMAU1CQ8+wo=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/audio/metronome_click.wav</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LIj/MSSi1v3jOw7/5/IvfiXwnqaH3r153Jh2DbUMgvQ=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/assets/images/bg-dark-desktop.png</key>
@@ -240,11 +298,74 @@
 			FrSJzHdMj4xFJ0lD+KNu7cvsPYCgOBbv2d4u0aMhcYQ=
 			</data>
 		</dict>
+		<key>Resources/flutter_assets/assets/images/library_main_window.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			SZQNd9XgcNPpCJp7P5Vw7+jAt3WC/ZiuApFQ1iNAh7g=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/library_score_progress.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZdVGrQ/ieR4lKe+afqf5xTTooGbjAJBDbXAGvYfRmQQ=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/metronome.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			y+Ts+MhWqUfbmLfnZmFpkBx5KN1/XvGp3RzY1aV/WA4=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/metronome_active.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			szNrFVZ7uFrEKXsFFwJ5N7PbK/wNLWHmyPqdQ9BoGmo=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/metronome_muted.svg</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			y+Ts+MhWqUfbmLfnZmFpkBx5KN1/XvGp3RzY1aV/WA4=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/score_add_movements.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			//qTM9RFUMTtMw0cc02vEAnkPYwMhxnn8qOvXC06BLI=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/score_download_update.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			toUD2DCbvKxX1BZ0BOtnuqqDSUFPjkfiBMBUl0B2pQw=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/score_movements.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			RyNYzLb4iqzd4EeOQCrILe7m5WzR4tsTRiRV7meUYEI=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/score_sections.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/xnOgSZHeWZO+aim8982BRB4Otg2jgnfFJbxifyMPeA=
+			</data>
+		</dict>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			IZ7mZcoSl3ZuDswG5RKXpx0X6C8ldATsZFJpNnEYS3c=
+			jHN0b3bwa28sHAe8p34Ujw3ueyUYeNxYDbMeaxJVxH4=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/fonts/Roboto-Black.ttf</key>

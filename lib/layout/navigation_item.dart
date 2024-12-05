@@ -19,20 +19,19 @@ class NavigationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final n = Provider.of<NavigationProvider>(context);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: paddingLg),
-      child: ListTile(
-        title: Text(title, style: TextStyles().textSm),
-        leading: Icon(
-          icon,
-          size: iconSizeSm,
-        ),
-        selected: isSelected,
-        selectedTileColor: isSelected ? highlightColor : Colors.transparent,
-        onTap: () {
-          n.setNavigationIndex(index);
-        },
+    return ListTile(
+      title: Text(title, style: TextStyles().textSm),
+      leading: Icon(
+        icon,
+        size: iconSizeSm,
       ),
+      // dense: true,
+      // visualDensity: VisualDensity(vertical: -4),
+      selected: isSelected,
+      selectedTileColor: isSelected ? highlightColor : Colors.transparent,
+      onTap: () {
+        n.setNavigationIndex(index);
+      },
     );
   }
 }

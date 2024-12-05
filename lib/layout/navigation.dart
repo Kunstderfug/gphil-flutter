@@ -78,28 +78,36 @@ class AppUpdateCol1 extends StatelessWidget {
                               style: TextStyles().textMd),
                           Text('Version: ${au.onlineBuild}'),
                           const SizedBox(height: 16),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Release notes:',
-                                      style: TextStyle(
-                                        fontStyle: FontStyle.italic,
-                                        decoration: TextDecoration.underline,
-                                        decorationStyle:
-                                            TextDecorationStyle.solid,
-                                        decorationThickness: 2,
-                                      )),
-                                  for (final String change
-                                      in au.appVersionInfo?.changes ?? [])
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(change),
-                                    ),
-                                  const SizedBox(height: 16),
-                                ]),
+                          // Wrap the changes list in Expanded and SingleChildScrollView
+                          SizedBox(
+                            height: 300,
+                            child: SingleChildScrollView(
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Release notes:',
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            decoration:
+                                                TextDecoration.underline,
+                                            decorationStyle:
+                                                TextDecorationStyle.solid,
+                                            decorationThickness: 2,
+                                          )),
+                                      for (final String change
+                                          in au.appVersionInfo?.changes ?? [])
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(change),
+                                        ),
+                                    ]),
+                              ),
+                            ),
                           ),
+                          const SizedBox(height: 16),
                           Align(
                             alignment: Alignment.bottomCenter,
                             child: !au.updateDownloaded
@@ -217,7 +225,7 @@ class Nav extends StatelessWidget {
         index: 3,
         isSelected: n.currentIndex == 3,
       ),
-      SeparatorLine(),
+      SeparatorLine(height: 18),
     ]);
   }
 }
