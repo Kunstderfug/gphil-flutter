@@ -63,6 +63,14 @@ class KeyboardShortcutsSection extends StatelessWidget {
         description: 'Toggle auto-continue',
       ),
       _Shortcut(
+        keys: ['Arrow Up'],
+        description: 'Increase current section volume',
+      ),
+      _Shortcut(
+        keys: ['Arrow Down'],
+        description: 'Decrease current section volume',
+      ),
+      _Shortcut(
         keys: ['M'],
         description: 'Toggle metronome sound',
       ),

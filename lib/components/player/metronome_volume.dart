@@ -72,7 +72,7 @@ class MetronomeVolume extends StatelessWidget {
                 inactiveTrackHeight: 4,
                 thumbRadius: 6,
                 thumbStrokeColor: p.metronomeMuted
-                    ? Colors.white.withOpacity(0.3)
+                    ? Colors.white.withOpacity(0.2)
                     : p.setColor(),
                 thumbStrokeWidth: 1,
                 // tooltipBackgroundColor: highlightColor,
@@ -91,7 +91,7 @@ class MetronomeVolume extends StatelessWidget {
                   showLabels: true,
                   minorTicksPerInterval: 4,
                   activeColor: p.metronomeMuted
-                      ? Colors.white.withOpacity(0.3)
+                      ? Colors.white.withOpacity(0.2)
                       : p.setColor(),
                   inactiveColor: p.metronomeMuted
                       ? Colors.white.withOpacity(0.1)

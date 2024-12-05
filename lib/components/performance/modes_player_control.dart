@@ -119,23 +119,46 @@ class ModesAndPlayerControl extends StatelessWidget {
     final n = Provider.of<NavigationProvider>(context);
     final l = Provider.of<LibraryProvider>(context);
 
-    return Shortcuts(
-        shortcuts: {
-          LogicalKeySet(LogicalKeyboardKey.keyO):
-              const OpenSessionDialogIntent(),
+    final Map<ShortcutActivator, Intent> shortcuts = {
+      LogicalKeySet(LogicalKeyboardKey.keyO): const OpenSessionDialogIntent(),
+      const SingleActivator(LogicalKeyboardKey.arrowUp):
+          const IncreaseSectionVolumeIntent(),
+      const SingleActivator(LogicalKeyboardKey.arrowDown):
+          const DecreaseSectionVolumeIntent(),
+    };
+
+    final Map<Type, Action<Intent>> actions = {
+      OpenSessionDialogIntent: CallbackAction<OpenSessionDialogIntent>(
+        onInvoke: (OpenSessionDialogIntent intent) {
+          _showSaveSessionDialog(context, p, s, l);
+          return null;
         },
+      ),
+      IncreaseSectionVolumeIntent: CallbackAction<IncreaseSectionVolumeIntent>(
+        onInvoke: (intent) {
+          if (p.currentSection != null) {
+            final currentVolume = p.currentSection!.sectionVolume ?? 1.0;
+            p.setSectionVolume(p.currentSection!, currentVolume + 0.1);
+          }
+          return null;
+        },
+      ),
+      DecreaseSectionVolumeIntent: CallbackAction<DecreaseSectionVolumeIntent>(
+        onInvoke: (intent) {
+          if (p.currentSection != null) {
+            final currentVolume = p.currentSection!.sectionVolume ?? 1.0;
+            p.setSectionVolume(p.currentSection!, currentVolume - 0.1);
+          }
+          return null;
+        },
+      ),
+    };
+
+    return Shortcuts(
+        shortcuts: shortcuts,
         child: Actions(
-          actions: {
-            OpenSessionDialogIntent: CallbackAction<OpenSessionDialogIntent>(
-              onInvoke: (OpenSessionDialogIntent intent) {
-                _showSaveSessionDialog(context, p, s, l);
-                return null;
-              },
-            ),
-          },
+          actions: actions,
           child: Focus(
-            // Add Focus widget to capture keyboard events
-            // autofocus: true,
             child: Stack(
               children: [
                 Row(
@@ -184,7 +207,7 @@ class ModesAndPlayerControl extends StatelessWidget {
                         width: separatorWidth,
                       ),
 
-                      //SECTIOn VOLUME, RIGHT SIDE, PLAYER CONTROLS
+                      //SECTION VOLUME, RIGHT SIDE, PLAYER CONTROLS
                       Expanded(
                         child: Column(
                           children: [
@@ -199,12 +222,19 @@ class ModesAndPlayerControl extends StatelessWidget {
                 Align(
                   child: SectionVolume(
                       section: p.currentSection!,
-                      sectionVolume:
-                          p.currentSection!.sectionVolume ?? p.playerVolume),
+                      sectionVolume: p.currentSection!.sectionVolume ?? 1.0),
                 ),
               ],
             ),
           ),
         ));
   }
+}
+
+class IncreaseSectionVolumeIntent extends Intent {
+  const IncreaseSectionVolumeIntent();
+}
+
+class DecreaseSectionVolumeIntent extends Intent {
+  const DecreaseSectionVolumeIntent();
 }

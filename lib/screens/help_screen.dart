@@ -116,6 +116,7 @@ class _HelpScreenState extends State<HelpScreen> {
                     controller: _scrollController,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _sections[_activeSection] ?? const SizedBox.shrink(),
                         Padding(
@@ -173,30 +174,27 @@ class _SectionContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
-          SizedBox(height: paddingLg),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: SingleChildScrollView(
-              child: Column(
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: content
-                    .map((text) => Text(text, style: textStyle))
-                    .toList(),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.headlineSmall),
+        SizedBox(height: paddingLg),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  content.map((text) => Text(text, style: textStyle)).toList(),
             ),
           ),
-          if (child != null) ...[
-            SizedBox(height: paddingXl),
-            Center(child: child!),
-          ],
-          SizedBox(height: paddingLg),
+        ),
+        if (child != null) ...[
+          SizedBox(height: paddingXl),
+          Center(child: child!),
         ],
-      ),
+        SizedBox(height: paddingLg),
+      ],
     );
   }
 }
@@ -315,12 +313,20 @@ class NavigationSection extends StatelessWidget {
             'You can listen to each section by pressing the Play button below the section image. The audio will start playing from the beginning of the section using the default tempo for the current section.\n',
           ],
           child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _image('score_movements', 500),
-                _image('score_sections', 500),
-              ]),
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                flex: 1,
+                child: _image('score_movements', 500),
+              ),
+              SizedBox(width: 16), // Add some spacing between images
+              Flexible(
+                flex: 1,
+                child: _image('score_sections', 500),
+              ),
+            ],
+          ),
         ),
         _SectionContent(
           title: 'Step 3',

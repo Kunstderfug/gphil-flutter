@@ -100,16 +100,22 @@ class PlayerControl extends StatelessWidget {
           intent: const DecreaseVolumeIntent(),
           shortcuts: const [SingleActivator(LogicalKeyboardKey.comma)],
           onInvoke: () {
-            final newVolume = (p.metronomeVolume - 0.1).clamp(0.0, 1.0);
-            p.setMetronomeVolume(newVolume);
+            // First calculate with clamp
+            final clampedVolume = (p.metronomeVolume - 0.1).clamp(0.0, 1.0);
+            // Then round to one decimal place
+            final roundedVolume = (clampedVolume * 10).round() / 10;
+            p.setMetronomeVolume(roundedVolume);
           },
         ),
         ShortcutAction(
           intent: const IncreaseVolumeIntent(),
           shortcuts: const [SingleActivator(LogicalKeyboardKey.period)],
           onInvoke: () {
-            final newVolume = (p.metronomeVolume + 0.1).clamp(0.0, 1.0);
-            p.setMetronomeVolume(newVolume);
+            // First calculate with clamp
+            final clampedVolume = (p.metronomeVolume + 0.1).clamp(0.0, 1.0);
+            // Then round to one decimal place
+            final roundedVolume = (clampedVolume * 10).round() / 10;
+            p.setMetronomeVolume(roundedVolume);
           },
         ),
       ];

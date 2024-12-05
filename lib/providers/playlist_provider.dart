@@ -140,6 +140,7 @@ class PlaylistProvider extends ChangeNotifier {
   AudioSource? metronomeClick;
   AudioSource? metronomeBell;
   SoundHandle? metronomeBellHandle;
+  bool metronomeBellEnabled = true;
   final int _metronomeOffesetDelay = 40; //milliseconds
   late int? currentTempo =
       currentSection?.userTempo ?? currentSection?.defaultTempo;
@@ -1096,12 +1097,7 @@ class PlaylistProvider extends ChangeNotifier {
         ? metronomeBellHandle = await player.play(metronomeBell!)
         : metronomeHandle = await player.play(metronomeClick!);
 
-    if (metronomeBellHandle != null) {
-      player.setVolume(metronomeBellHandle!, metronomeVolume);
-    }
-    if (metronomeHandle != null) {
-      player.setVolume(metronomeHandle!, metronomeVolume);
-    }
+    setMetronomeVolume(metronomeVolume);
   }
 
   void startMetronome() {
@@ -1153,9 +1149,8 @@ class PlaylistProvider extends ChangeNotifier {
     final double metronomeAttenuation = 0.25;
     metronomeVolume = value;
     value == 0 ? metronomeMuted = true : metronomeMuted = false;
+    notifyListeners();
 
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('metronomeVolume', metronomeVolume);
     if (metronomeHandle != null) {
       player.setVolume(
           metronomeHandle!, metronomeVolume * metronomeAttenuation);
@@ -1164,7 +1159,9 @@ class PlaylistProvider extends ChangeNotifier {
       player.setVolume(
           metronomeBellHandle!, metronomeVolume * metronomeAttenuation);
     }
-    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('metronomeVolume', metronomeVolume);
   }
 
   void getMetronomeVolume() async {
@@ -1761,9 +1758,14 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void setSectionVolume(Section section, double volume) async {
-    section.sectionVolume = volume;
+    final clampedVolume = volume.clamp(0.0, 2.0);
+    log('Clamped volume: $clampedVolume');
+    // Floor to 1 decimal place
+    final flooredVolume = (clampedVolume * 10).round() / 10;
+    log('Floored volume: $flooredVolume');
+    section.sectionVolume = flooredVolume;
     if (isPlaying) {
-      player.setVolume(activeHandle!, volume);
+      player.setVolume(activeHandle!, flooredVolume);
     }
     notifyListeners();
   }
