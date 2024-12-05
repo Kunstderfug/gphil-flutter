@@ -20,7 +20,7 @@ class SectionManagement extends StatelessWidget {
         children: [
           TooltipToggle(
             message:
-                'If enabled, will skip this section in Practice mode.\n Will be ignored in Performance mode.\nKeyboard shortcut [M]',
+                'If enabled, will skip this section in Practice mode.\n Will be ignored in Performance mode.\nKeyboard shortcut [S]',
             child: AutoSwitch(
               p: p,
               onToggle: (value) => !p.performanceMode

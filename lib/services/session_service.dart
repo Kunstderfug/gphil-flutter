@@ -73,40 +73,71 @@ class SessionService {
 
   Future<void> saveSession(String name, String scoreId, SessionType type,
       List<Section> sections, PlaylistProvider p) async {
-    final List<SectionPrefs> sectionPrefs = sections.map((section) {
-      return SectionPrefs(
-        sectionKey: section.key,
-        defaultTempo: section.defaultTempo,
-        userTempo: section.userTempo,
-        userLayerTempo: section.userLayerTempo,
-        autoContinue: section.autoContinue,
-        sectionVolume: section.sectionVolume,
-        muted: section.muted,
-        looped: section.looped,
-        layers:
-            section.layers?.map((layer) => Layer(layerName: layer)).toList(),
+    try {
+      // First, delete existing session if it exists
+      final existingSessions = await getSessions();
+      final existingSession = existingSessions.firstWhere(
+        (session) => session.name == name && session.type == type,
+        orElse: () => UserSession(
+          name: '',
+          timestamp: DateTime.now(),
+          scoreId: '',
+          type: SessionType.practice,
+          sectionPrefs: [],
+        ),
       );
-    }).toList();
 
-    final UserSession session = UserSession(
-      name: name,
-      timestamp: DateTime.now(),
-      scoreId: scoreId, // Added scoreId
-      sectionPrefs: sectionPrefs,
-      type: type,
-    );
-    final formattedDate =
-        DateFormat('MMM d, y HH:mm').format(session.timestamp);
+      if (existingSession.name.isNotEmpty) {
+        // Delete the old file
+        final oldFormattedDate =
+            DateFormat('MMM d, y HH:mm').format(existingSession.timestamp);
+        final oldFileName = '${name}_$oldFormattedDate'
+            .replaceAll(RegExp(r'[/\\<>:"|?*\s]'), '_');
+        await deleteSession(oldFileName, type);
+      }
 
-    //safe filename
-    final String safeFileName =
-        '${name}_$formattedDate'.replaceAll(RegExp(r'[/\\<>:"|?*\s]'), '_');
-    final File sessionFile = await _getSessionFile(safeFileName, type);
-    await sessionFile.writeAsString(json.encode(session.toJson()));
-    p.sessionChanged = false;
-    //saving session name to local storage
-    final pref = await SharedPreferences.getInstance();
-    await pref.setString('sessionName', safeFileName);
+      // Create new session with current timestamp
+      final List<SectionPrefs> sectionPrefs = sections.map((section) {
+        return SectionPrefs(
+          sectionKey: section.key,
+          defaultTempo: section.defaultTempo,
+          userTempo: section.userTempo,
+          userLayerTempo: section.userLayerTempo,
+          autoContinue: section.autoContinue,
+          sectionVolume: section.sectionVolume,
+          muted: section.muted,
+          looped: section.looped,
+          layers:
+              section.layers?.map((layer) => Layer(layerName: layer)).toList(),
+        );
+      }).toList();
+
+      final UserSession session = UserSession(
+        name: name,
+        timestamp: DateTime.now(),
+        scoreId: scoreId,
+        sectionPrefs: sectionPrefs,
+        type: type,
+      );
+
+      final formattedDate =
+          DateFormat('MMM d, y HH:mm').format(session.timestamp);
+      final safeFileName =
+          '${name}_$formattedDate'.replaceAll(RegExp(r'[/\\<>:"|?*\s]'), '_');
+
+      final File sessionFile = await _getSessionFile(safeFileName, type);
+      await sessionFile.writeAsString(json.encode(session.toJson()));
+      p.sessionChanged = false;
+
+      //saving session name to local storage
+      final pref = await SharedPreferences.getInstance();
+      await pref.setString('sessionName', safeFileName);
+
+      log('Session saved successfully: $safeFileName');
+    } catch (e) {
+      log('Error saving session: $e');
+      rethrow; // Re-throw the error so it can be handled by the caller
+    }
   }
 
   Future<void> deleteSession(String name, SessionType type) async {
@@ -114,8 +145,6 @@ class SessionService {
     if (await sessionFile.exists()) {
       await sessionFile.delete();
     }
-
-    //TODO: delete from shared preferences
   }
 
   Future<List<UserSession>> getSessions() async {

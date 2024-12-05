@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/theme/constants.dart';
 
 ThemeData darkMode = ThemeData(
     colorScheme: ColorScheme.dark(
@@ -14,8 +15,8 @@ ThemeData darkMode = ThemeData(
       // selectedTileColor: Colors.purple.shade800,
       selectedColor: Colors.grey.shade200,
     ),
-    hoverColor: Colors.purple.shade900,
-    highlightColor: Color.fromARGB(255, 86, 0, 170),
+    hoverColor: highlightColor.withOpacity(0.2),
+    highlightColor: highlightColor,
     fontFamily: 'Roboto',
     textTheme: TextTheme(
       titleLarge: TextStyle(color: Colors.grey.shade400),

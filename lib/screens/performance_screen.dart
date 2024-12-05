@@ -58,48 +58,67 @@ class PerformanceScreen extends StatelessWidget {
     if (p.playlist.isEmpty && !p.isLoading) {
       return const PlaylistIsEmpty();
     } else {
-      return p.filesDownloading
-          ? Column(
-              children: [
-                LoadingFiles(
-                  filesLoaded: p.filesDownloaded,
-                  filesLength: p.playlist.length,
-                ),
-                SizedBox(height: separatorXs),
-                StandartButton(
-                  iconColor: redColor,
-                  borderColor: redColor,
-                  icon: Icons.cancel,
-                  label: 'Cancel',
-                  callback: () {
-                    p.filesDownloading = false;
-                    n.setScoreScreen();
-                  },
-                ),
-              ],
-            )
-          : p.isLoading
-              ? Column(
-                  children: [
-                    LoadingFiles(
-                      filesLoaded: p.filesLoaded,
-                      filesLength: p.playlist.length,
-                    ),
-                    SizedBox(height: separatorXs),
-                    StandartButton(
-                      iconColor: redColor,
-                      borderColor: redColor,
-                      icon: Icons.cancel,
-                      label: 'Cancel',
-                      callback: () {
-                        p.filesDownloading = false;
-                        n.setScoreScreen();
-                      },
-                    ),
-                    if (kDebugMode) DebugInfo(p: p)
-                  ],
-                )
-              : layout;
+      Widget firstChild() {
+        if (p.filesDownloading) {
+          return Column(
+            children: [
+              LoadingFiles(
+                filesLoaded: p.filesDownloaded,
+                filesLength: p.playlist.length,
+              ),
+              SizedBox(height: separatorXs),
+              StandartButton(
+                iconColor: redColor,
+                borderColor: redColor,
+                icon: Icons.cancel,
+                label: 'Cancel',
+                callback: () {
+                  p.filesDownloading = false;
+                  n.setScoreScreen();
+                },
+              ),
+            ],
+          );
+        }
+        if (p.isLoading) {
+          return Column(
+            children: [
+              LoadingFiles(
+                filesLoaded: p.filesLoaded,
+                filesLength: p.playlist.length,
+              ),
+              SizedBox(height: separatorXs),
+              StandartButton(
+                iconColor: redColor,
+                borderColor: redColor,
+                icon: Icons.cancel,
+                label: 'Cancel',
+                callback: () {
+                  p.filesDownloading = false;
+                  n.setScoreScreen();
+                },
+              ),
+              if (kDebugMode) DebugInfo(p: p)
+            ],
+          );
+        }
+        return SizedBox();
+      }
+
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        child: p.playlist.isEmpty && !p.isLoading
+            ? const PlaylistIsEmpty()
+            : p.filesDownloading || p.isLoading
+                ? firstChild()
+                : layout,
+      );
     }
   }
 }

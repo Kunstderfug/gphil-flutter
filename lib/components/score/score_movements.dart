@@ -61,7 +61,7 @@ class ScoreMovements extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Performance Playlist', style: TextStyles().textMdBold),
+                Text('Practice Playlist', style: TextStyles().textMdBold),
                 const SizedBox(width: separatorSm),
                 isTablet(context)
                     ? Expanded(

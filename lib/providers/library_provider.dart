@@ -85,7 +85,15 @@ class LibraryProvider extends ChangeNotifier {
 
   Future<void> addToRecentlyAccessed(LibraryItem score) async {
     // Remove the score if it's already in the list
-    _recentlyAccessedItems.remove(score);
+    // Create a temporary list of items to remove
+    final itemsToRemove = _recentlyAccessedItems
+        .where((element) => element.id == score.id)
+        .toList();
+
+    // Remove the items from the list
+    for (var item in itemsToRemove) {
+      _recentlyAccessedItems.remove(item);
+    }
 
     // Add the score to the beginning of the list
     _recentlyAccessedItems.insert(0, score);

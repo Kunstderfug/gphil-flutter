@@ -27,7 +27,7 @@ class MainVolume extends StatelessWidget {
               thumbRadius: sizeSm,
               // thumbStrokeColor: p.layersEnabled ? greenColor : null,
               thumbStrokeWidth: 1,
-              tooltipBackgroundColor: highlightColor,
+              // tooltipBackgroundColor: highlightColor,
               tooltipTextStyle: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
               ),

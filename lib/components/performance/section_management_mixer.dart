@@ -15,15 +15,6 @@ class SectionManagementMixer extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
 
-    // Widget image = Stack(alignment: Alignment.topLeft, children: [
-    //   SectionImage(imageFile: p.currentSectionImage),
-    //   // if (p.isPlaying)
-    //   Positioned(
-    //     top: sizeXs,
-    //     child: ImageProgress(),
-    //   )
-    // ]);
-
     return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,7 +39,7 @@ class SectionManagementMixer extends StatelessWidget {
             width: separatorWidth,
           ),
 
-          //RIGHT SIDE, PLAYLIST CONTROLS
+          //RIGHT SIDE, MIXER
           Expanded(
             child: Column(
               children: [

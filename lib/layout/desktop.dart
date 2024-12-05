@@ -31,13 +31,13 @@ class DesktopLayout extends StatelessWidget {
           ? AppBar(
               backgroundColor: n.isLibraryScreen
                   ? AppColors().backroundColor(context)
-                  : p.performanceMode
+                  : p.performanceMode && p.playlist.isNotEmpty
                       ? p.setColor()
                       : AppColors().backroundColor(context),
               title: Text(
                   n.isLibraryScreen
                       ? n.navigationScreens[n.currentIndex].title
-                      : p.performanceMode
+                      : p.performanceMode && p.playlist.isNotEmpty
                           ? 'P E R F O R M A N C E  M O D E'
                           : n.navigationScreens[n.currentIndex].title,
                   style: Theme.of(context).textTheme.titleMedium),

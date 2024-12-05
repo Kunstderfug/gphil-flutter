@@ -30,7 +30,7 @@ class AppUpdateService extends ChangeNotifier {
   String downloadError = '';
   final ac = AppConnection();
 
-  bool get updateAvailable => onlineBuild != '' && localBuild != onlineBuild;
+  bool updateAvailable = false;
 
   String get platform => kIsWeb ? 'web' : Platform.operatingSystem;
 
@@ -46,6 +46,7 @@ class AppUpdateService extends ChangeNotifier {
   }
 
   Future<bool> isAppVersionUpdated() async {
+    bool result = false;
     if (!updateChecked) {
       log('Update checked: $updateChecked');
       try {
@@ -55,6 +56,9 @@ class AppUpdateService extends ChangeNotifier {
         appVersionInfo = await getAppVersionInfo();
         onlineBuild = appVersionInfo?.build ?? localBuild;
         appState = AppState.idle;
+        result = compareVersions(onlineBuild, localBuild);
+        updateAvailable = result;
+        log('$onlineBuild, $localBuild');
         notifyListeners();
       } catch (e) {
         reset();
@@ -67,14 +71,31 @@ class AppUpdateService extends ChangeNotifier {
     appState = AppState.idle;
     updateChecked = true;
     notifyListeners();
-    return compareVersions(onlineBuild, localBuild);
+    return result;
   }
 
   bool compareVersions(String online, String local) {
-    String replace(String str) => str.replaceAll(".", "").replaceAll('0', '');
-    int onlineBuild = int.parse(replace(online));
-    int localBuild = int.parse(replace(local));
-    return onlineBuild > localBuild;
+    // Remove beta suffix from local version if present
+    local = local.split('-')[0];
+
+    // Clean versions to only contain numbers and dots
+    String cleanVersion(String str) => str.replaceAll(RegExp(r'[^0-9.]'), '');
+
+    online = cleanVersion(online);
+    local = cleanVersion(local);
+
+    // Split versions into parts
+    List<int> onlineParts = online.split('.').map(int.parse).toList();
+    List<int> localParts = local.split('.').map(int.parse).toList();
+
+    // Compare each part
+    for (int i = 0; i < onlineParts.length && i < localParts.length; i++) {
+      if (onlineParts[i] > localParts[i]) return true;
+      if (onlineParts[i] < localParts[i]) return false;
+    }
+
+    // If all parts are equal, consider versions equal
+    return false;
   }
 
   Future<String> getVersionNumber() async {
@@ -97,7 +118,7 @@ class AppUpdateService extends ChangeNotifier {
       }
       appState = AppState.idle;
       notifyListeners();
-
+      log('App version info: $appVersionInfo');
       return appVersionInfo;
     } catch (e) {
       appState = AppState.genericError;

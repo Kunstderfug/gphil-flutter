@@ -21,7 +21,7 @@ import 'package:gphil/theme/constants.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final persistentController = PersistentDataController();
+final pc = PersistentDataController();
 
 class PlaylistProvider extends ChangeNotifier {
   final Logger _log = Logger('PlaylistProvider');
@@ -127,12 +127,21 @@ class PlaylistProvider extends ChangeNotifier {
   List<SectionClickData> playlistClickData = [];
   ClickData currentBeat = ClickData(time: 0, beat: 0);
   int currentBeatIndex = 0;
+  int? _previousBeatIndex;
   int beatLength = 0;
   List<PlaylistDuration> currentPlaylistDurations = [];
   bool isLeft = true;
   bool isStarted = false;
   Timer? metronomeTimer;
   int lastUsedTempo = 0;
+  bool metronomeMuted = true;
+  double metronomeVolume = 0.5;
+  SoundHandle? metronomeHandle;
+  AudioSource? metronomeClick;
+  AudioSource? metronomeBell;
+  SoundHandle? metronomeBellHandle;
+  bool metronomeBellEnabled = true;
+  final int _metronomeOffesetDelay = 40; //milliseconds
   late int? currentTempo =
       currentSection?.userTempo ?? currentSection?.defaultTempo;
 
@@ -477,7 +486,7 @@ class PlaylistProvider extends ChangeNotifier {
     final String layerAudioFileName = getAudioFileNAme(sectionLayer.audioUrl);
     log('audioFileName: $layerAudioFileName, audioUrl: ${sectionLayer.audioUrl}');
 
-    final layerFile = await persistentController.readAudioFile(
+    final layerFile = await pc.readAudioFile(
         sessionScore!.id, layerAudioFileName, sectionLayer.audioUrl);
 
     if (layerFile.bytes.isNotEmpty) {
@@ -621,8 +630,7 @@ class PlaylistProvider extends ChangeNotifier {
     final sectionPrefsList = <SectionPrefs>[];
     for (Section section
         in playlist.where((section) => section.layers != null)) {
-      final prefs = await persistentController.readSectionJsonFile(
-          sessionScore!.id, section.key);
+      final prefs = await pc.readSectionJsonFile(sessionScore!.id, section.key);
 
       if (prefs != null) {
         sectionPrefsList.add(SectionPrefs.fromJson(prefs));
@@ -725,7 +733,7 @@ class PlaylistProvider extends ChangeNotifier {
     final audioFileName = audioUrl.split('/').last;
     log('patchPoolIfNotInLayersTempoRange, audioFileName: $audioFileName');
     currentlyLoadedFiles.add(audioFileName);
-    final file = await persistentController.readAudioFile(
+    final file = await pc.readAudioFile(
         currentSection!.scoreId, audioFileName, audioUrl);
     if (file.bytes.isNotEmpty) {
       poolToPatch.audioSource = await player.loadFile(file.path);
@@ -764,8 +772,8 @@ class PlaylistProvider extends ChangeNotifier {
     final audioUrl = getAudioUrl(section);
     final audioFileName = getAudioFileNAme(audioUrl);
     currentlyLoadedFiles.add(audioFileName);
-    final file = await persistentController.readAudioFile(
-        section.scoreId, audioFileName, audioUrl);
+    final file =
+        await pc.readAudioFile(section.scoreId, audioFileName, audioUrl);
     dismissMessage();
     if (file.bytes.isNotEmpty) {
       // setMessage('audioSource loading');
@@ -816,6 +824,10 @@ class PlaylistProvider extends ChangeNotifier {
 
     try {
       await initPlayer();
+      //loading metronome sounds
+      metronomeClick =
+          await player.loadAsset('assets/audio/metronome_click.wav');
+      metronomeBell = await player.loadAsset('assets/audio/metronome_bell.wav');
     } catch (e) {
       setError('Player initialization error: $e');
     }
@@ -867,8 +879,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   Future<void> _loadDesktopFile(
       String scoreId, String audioFileName, AudioUrl audioUrl) async {
-    final file = await persistentController.readAudioFile(
-        scoreId, audioFileName, audioUrl.url);
+    final file = await pc.readAudioFile(scoreId, audioFileName, audioUrl.url);
     audioFilesUrls
         .add(AudioUrl(audioUrl.sectionIndex, audioUrl.sectionKey, file.path));
     filesDownloaded++;
@@ -941,8 +952,8 @@ class PlaylistProvider extends ChangeNotifier {
     resetPlayers();
 
     setMessage("Starting...");
-    await setPlayerPool(isSessionLoading);
     await loadClickFiles(playlist);
+    await setPlayerPool(isSessionLoading);
     setGlobalPlaylistLayers();
     if (layersEnabled) setLayersEnabled(layersEnabled);
 
@@ -1013,8 +1024,8 @@ class PlaylistProvider extends ChangeNotifier {
     final audioUrl = section.fileList[tempoindex];
     final audioFileName = audioUrl.split('/').last;
     currentlyLoadedFiles.add(audioFileName);
-    final file = await persistentController.readAudioFile(
-        section.scoreId, audioFileName, audioUrl);
+    final file =
+        await pc.readAudioFile(section.scoreId, audioFileName, audioUrl);
     if (file.bytes.isNotEmpty && currentPool != null) {
       await player.disposeSource(currentPool.audioSource);
       currentPool.audioSource = await player.loadFile(file.path);
@@ -1043,6 +1054,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
 // METRONOME
+  // also plays metronome sounds
   void setCurrentBeat() {
     if (currentBeatIndex < currentPlaylistDurationBeats.length - 1) {
       final index = currentClickData!.clickData.indexWhere(
@@ -1059,6 +1071,13 @@ class PlaylistProvider extends ChangeNotifier {
         } else {
           setBeatLength();
         }
+        if (_previousBeatIndex != currentBeatIndex &&
+            currentBeatIndex != 0 &&
+            !metronomeMuted) {
+          Future.delayed(Duration(milliseconds: _metronomeOffesetDelay),
+              () => playMetronomeSound());
+          _previousBeatIndex = currentBeatIndex;
+        }
       }
     } else {
       stopMetronome();
@@ -1071,6 +1090,14 @@ class PlaylistProvider extends ChangeNotifier {
           (currentPlaylistDurationBeats[currentBeatIndex] / tempoDiff).round();
       notifyListeners();
     }
+  }
+
+  Future<void> playMetronomeSound() async {
+    isFirstBeat && metronomeBellEnabled
+        ? metronomeBellHandle = await player.play(metronomeBell!)
+        : metronomeHandle = await player.play(metronomeClick!);
+
+    setMetronomeVolume(metronomeVolume);
   }
 
   void startMetronome() {
@@ -1099,6 +1126,68 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setMetronomeMuted() async {
+    final prefs = await SharedPreferences.getInstance();
+    metronomeMuted = !metronomeMuted;
+    if (metronomeHandle != null) {
+      player.setVolume(metronomeHandle!, metronomeVolume);
+    }
+    if (metronomeBellHandle != null) {
+      player.setVolume(metronomeBellHandle!, metronomeVolume);
+    }
+    notifyListeners();
+    prefs.setBool('metronomeMuted', metronomeMuted);
+  }
+
+  void setMetronomeBellEnabled() {
+    metronomeBellEnabled = !metronomeBellEnabled;
+    notifyListeners();
+  }
+
+  void getMetronomeMuted() async {
+    final prefs = await SharedPreferences.getInstance();
+    metronomeMuted = prefs.getBool('metronomeMuted') ?? true;
+    notifyListeners();
+  }
+
+  void setMetronomeVolume(double value) async {
+    final double metronomeAttenuation = 0.25;
+    metronomeVolume = value;
+    value == 0 ? metronomeMuted = true : metronomeMuted = false;
+    notifyListeners();
+
+    if (metronomeHandle != null) {
+      player.setVolume(
+          metronomeHandle!, metronomeVolume * metronomeAttenuation);
+    }
+    if (metronomeBellHandle != null) {
+      player.setVolume(
+          metronomeBellHandle!, metronomeVolume * metronomeAttenuation);
+    }
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('metronomeVolume', metronomeVolume);
+  }
+
+  void getMetronomeVolume() async {
+    final prefs = await SharedPreferences.getInstance();
+    metronomeVolume = prefs.getDouble('metronomeVolume') ?? 0.75;
+    notifyListeners();
+  }
+
+  void resetMetronomeVolume() async {
+    metronomeVolume = 0.5;
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setDouble('metronomeVolume', metronomeVolume);
+    setMetronomeVolume(metronomeVolume);
+    notifyListeners();
+  }
+
+  void getMetronomeData() {
+    getMetronomeMuted();
+    getMetronomeVolume();
+  }
+
 // PLAYBACK
   Future<void> play() async {
     ticker.stop();
@@ -1119,6 +1208,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     isPlaying = true;
     await playCurrentSection();
+    playerVolume = currentSection?.sectionVolume ?? 1;
     player.setVolume(activeHandle!, playerVolume);
     startMetronome();
     handleStartPlayback();
@@ -1493,7 +1583,7 @@ class PlaylistProvider extends ChangeNotifier {
     final SectionPrefs sectionPrefs = constructSectionPrefs(currentSection!);
     setAdjustedMarkerPosition();
 
-    persistentController.updateSectionPrefs(
+    pc.updateSectionPrefs(
         currentSection!.scoreId, currentSection!.key, sectionPrefs);
     return currentSection!.autoContinue;
   }
@@ -1516,7 +1606,7 @@ class PlaylistProvider extends ChangeNotifier {
   Future<List<ClickData>> loadClickData(Section section) async {
     List<ClickData> clickData;
     if (!kIsWeb) {
-      clickData = await persistentController.readClickJsonFile(
+      clickData = await pc.readClickJsonFile(
           section.scoreId, section.key, section.clickDataUrl!);
     } else {
       clickData = await DB().loadClickData(section);
@@ -1609,7 +1699,7 @@ class PlaylistProvider extends ChangeNotifier {
     Future.wait(futures);
   }
 
-// TEMPO MANAGEMENT
+// SECTION MANAGEMENT
   void setUserTempo(int tempo, Section section) async {
     currentTempo = tempo;
     if (currentTempo != section.userTempo ||
@@ -1649,7 +1739,7 @@ class PlaylistProvider extends ChangeNotifier {
 
     appState = AppState.idle;
     lastUsedTempo = tempo;
-    sessionChanged = true;
+    // sessionChanged = true;
     notifyListeners();
   }
 
@@ -1667,9 +1757,47 @@ class PlaylistProvider extends ChangeNotifier {
       for (Section section in currentMovementSections) {
         setUserTempo(tempo, section);
       }
-      sessionChanged = true;
+      // sessionChanged = true;
       notifyListeners();
     }
+  }
+
+  void setSectionVolume(Section section, double volume) async {
+    final clampedVolume = volume.clamp(0.0, 2.0);
+    log('Clamped volume: $clampedVolume');
+    // Floor to 1 decimal place
+    final flooredVolume = (clampedVolume * 10).round() / 10;
+    log('Floored volume: $flooredVolume');
+    section.sectionVolume = flooredVolume;
+    if (isPlaying) {
+      player.setVolume(activeHandle!, flooredVolume);
+    }
+    notifyListeners();
+  }
+
+  void resetSectionVolume(Section section) async {
+    section.sectionVolume = 1.0;
+    if (isPlaying) {
+      player.setVolume(activeHandle!, section.sectionVolume!);
+    }
+    notifyListeners();
+  }
+
+  void resetAllSectionsVolume() async {
+    final currentMovementSections = playlist.where((section) =>
+        section.movementKey == currentMovementKey &&
+        section.sectionVolume != 1.0);
+
+    if (currentMovementSections.isNotEmpty) {
+      for (Section section in currentMovementSections) {
+        section.sectionVolume = 1.0;
+        await saveSectionPrefs(section);
+      }
+    }
+    if (isPlaying) {
+      player.setVolume(activeHandle!, 1.0);
+    }
+    notifyListeners();
   }
 
 // PLAYLIST MANAGEMENT
@@ -1838,15 +1966,15 @@ class PlaylistProvider extends ChangeNotifier {
     }
     final SectionPrefs sectionPrefs = constructSectionPrefs(currentSection!);
     log('updateLayersPrefs: $sectionPrefs');
-    persistentController.updateSectionPrefs(
+    pc.updateSectionPrefs(
         currentSection!.scoreId, currentSection!.key, sectionPrefs);
     notifyListeners();
   }
 
   Future<void> loadSectionPrefs(Section section) async {
     //read from file if exists
-    final sectionPrefs = await persistentController.readSectionJsonFile(
-        section.scoreId, section.key);
+    final sectionPrefs =
+        await pc.readSectionJsonFile(section.scoreId, section.key);
 
     //transform to SectionPrefs
     final currentPrefs =
@@ -1860,6 +1988,7 @@ class PlaylistProvider extends ChangeNotifier {
       section.autoContinue = currentPrefs.autoContinue;
       section.muted = currentPrefs.muted ?? false;
       section.looped = currentPrefs.looped ?? false;
+      section.sectionVolume = currentPrefs.sectionVolume;
       // section.layers = currentPrefs.layers;
     }
     notifyListeners();
@@ -1874,6 +2003,7 @@ class PlaylistProvider extends ChangeNotifier {
       autoContinue: section.autoContinue,
       muted: section.muted,
       looped: section.looped,
+      sectionVolume: section.sectionVolume,
       layers: layerPlayersPool.globalLayers.isNotEmpty
           ? layerPlayersPool.globalLayers
           : null,
@@ -1886,8 +2016,7 @@ class PlaylistProvider extends ChangeNotifier {
     final SectionPrefs sectionPrefs = constructSectionPrefs(section);
 
     try {
-      await persistentController.writeSectionJsonFile(
-          section.scoreId, section.key, sectionPrefs);
+      await pc.writeSectionJsonFile(section.scoreId, section.key, sectionPrefs);
       sessionChanged = true;
     } catch (e) {
       setError(e.toString());
@@ -1912,7 +2041,7 @@ class PlaylistProvider extends ChangeNotifier {
     // currentSectionImage = null;
     if (sessionScore?.id != null && currentSection?.sectionImage != null) {
       log('currentSectionImage: ${currentSection!.sectionImage!.asset.ref}');
-      currentSectionImage = await persistentController.readImageFile(
+      currentSectionImage = await pc.readImageFile(
           sessionScore!.id, currentSection!.sectionImage!.asset.ref);
       notifyListeners();
     }
@@ -1920,7 +2049,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   Future<void> setNextSectionImage() async {
     if (nextSection?.sectionImage != null) {
-      nextSectionImage = await persistentController.readImageFile(
+      nextSectionImage = await pc.readImageFile(
           sessionScore!.id, nextSection!.sectionImage!.asset.ref);
       notifyListeners();
     }

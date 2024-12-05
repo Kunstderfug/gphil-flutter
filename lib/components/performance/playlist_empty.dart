@@ -21,7 +21,6 @@ class PlaylistIsEmpty extends StatelessWidget {
       sessionService: SessionService(s),
       onLoad: (UserSession session) async {
         p.isLoading = true;
-        //TODO Handle loading the selected session
         final formattedDate =
             DateFormat('MMM d, y HH:mm').format(session.timestamp);
         try {

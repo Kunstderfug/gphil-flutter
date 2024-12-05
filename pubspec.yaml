@@ -1,7 +1,7 @@
 name: gphil
 description: "Your Personal Orchestra"
 publish_to: "none"
-version: 0.1.5
+version: 1.0.0-beta
 environment:
   sdk: ">=3.3.0 <4.0.0"
 
@@ -32,6 +32,7 @@ dependencies:
   idb_shim: ^2.6.1
   cached_network_image: ^3.4.1
   logging: ^1.2.0
+  flutter_svg: ^2.0.16
   # background_downloader: ^8.5.3
   # desktop_multi_window: ^0.2.0
 
@@ -40,6 +41,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   google_fonts: ^6.2.1
+  mockito: ^5.4.2
+  build_runner: ^2.4.6
   flutter_launcher_icons: ^0.14.1
   integration_test:
     sdk: flutter
@@ -47,6 +50,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/audio/
     - assets/images/
     - fonts/
     - shorebird.yaml

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/components/help/keyboard_shortcuts.dart';
 import 'package:gphil/components/standart_button.dart';
 import 'package:gphil/theme/constants.dart';
 
@@ -14,6 +15,30 @@ class HelpScreen extends StatefulWidget {
 
 class _HelpScreenState extends State<HelpScreen> {
   String _activeSection = 'about';
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _changeSection(String newSection) {
+    setState(() {
+      _activeSection = newSection;
+    });
+
+    // Scroll to top after state update
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   final Map<String, Widget> _sections = {
     'about': const _SectionContent(title: 'About GPhil', content: [
@@ -25,6 +50,7 @@ class _HelpScreenState extends State<HelpScreen> {
     ]),
     'navigation': const NavigationSection(),
     'practice': const PracticeSection(),
+    'shortcuts': const KeyboardShortcutsSection(),
     'faq': const _FAQSection(),
   };
 
@@ -34,6 +60,9 @@ class _HelpScreenState extends State<HelpScreen> {
     final nextIndex = (currentIndex + 1) % _sections.length;
     final int previousIndex =
         (currentIndex - 1 + _sections.length) % _sections.length;
+
+    // Create a unique key for the scroll view
+    final scrollKey = ValueKey('scroll_$_activeSection');
 
     return ConstrainedBox(
       constraints: BoxConstraints(
@@ -59,8 +88,7 @@ class _HelpScreenState extends State<HelpScreen> {
                       return Padding(
                         padding: const EdgeInsets.only(right: 16.0),
                         child: ElevatedButton(
-                          onPressed: () =>
-                              setState(() => _activeSection = section),
+                          onPressed: () => _changeSection(section),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _activeSection == section
                                 ? highlightColor
@@ -84,33 +112,40 @@ class _HelpScreenState extends State<HelpScreen> {
                 const SizedBox(height: 24),
                 Expanded(
                   child: SingleChildScrollView(
+                    key: scrollKey,
+                    controller: _scrollController,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _sections[_activeSection] ?? const SizedBox.shrink(),
                         Padding(
                           padding: const EdgeInsets.all(paddingMd),
-                          child: Row(
-                            children: [
-                              StandartButton(
-                                label: 'Previous',
-                                icon: Icons.arrow_back,
-                                iconAlignment: IconAlignment.start,
-                                callback: () {
-                                  setState(() => _activeSection =
-                                      _sections.keys.elementAt(previousIndex));
-                                },
-                              ),
-                              const SizedBox(width: paddingLg),
-                              StandartButton(
+                          child: Center(
+                            // Center the row
+                            child: Row(
+                              mainAxisSize: MainAxisSize
+                                  .min, // Make row wrap its contents
+                              children: [
+                                StandartButton(
+                                  label: 'Previous',
+                                  icon: Icons.arrow_back,
+                                  iconAlignment: IconAlignment.start,
+                                  borderColor: greenColor,
+                                  callback: () => _changeSection(
+                                      _sections.keys.elementAt(previousIndex)),
+                                ),
+                                const SizedBox(width: paddingLg),
+                                StandartButton(
                                   label: 'Next',
                                   icon: Icons.arrow_forward,
                                   iconAlignment: IconAlignment.end,
-                                  callback: () {
-                                    setState(() => _activeSection =
-                                        _sections.keys.elementAt(nextIndex));
-                                  }),
-                            ],
+                                  borderColor: greenColor,
+                                  callback: () => _changeSection(
+                                      _sections.keys.elementAt(nextIndex)),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -131,31 +166,34 @@ class _SectionContent extends StatelessWidget {
   final List<String> content;
   final Widget? child;
 
-  const _SectionContent(
-      {required this.title,
-      // ignore: unused_element
-      this.child,
-      required this.content});
+  const _SectionContent({
+    required this.title,
+    required this.content,
+    this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
-              SizedBox(height: paddingLg),
-              for (String text in content) Text(text, style: textStyle),
-              SizedBox(height: paddingLg),
-            ],
+        Text(title, style: Theme.of(context).textTheme.headlineSmall),
+        SizedBox(height: paddingLg),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 900),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  content.map((text) => Text(text, style: textStyle)).toList(),
+            ),
           ),
         ),
-        SizedBox(width: paddingLg),
-        if (child != null) Expanded(child: child!),
+        if (child != null) ...[
+          SizedBox(height: paddingXl),
+          Center(child: child!),
+        ],
+        SizedBox(height: paddingLg),
       ],
     );
   }
@@ -261,23 +299,60 @@ class NavigationSection extends StatelessWidget {
         Text('Navigating GPhil',
             style: Theme.of(context).textTheme.headlineMedium),
         const SizedBox(height: 24),
-        _SectionContent(title: 'Step 1', content: [
-          'Select a score from the library. Currently newly updated/finished scores, as well as recently accessed ones are shown in the lower part of the library screen.\n',
-        ]),
-        _SectionContent(title: 'Step 2', content: [
-          'Explore the contents of the score. Click on the movement - you\'ll see the list of sections with a visual representation where the section starts exactly (locate a red line).\n',
-          'You can listen to each section by pressing the Play button belowe the section image. The audio will start playing from the beginning of the section using the default tempo for the current section.\n',
-        ]),
-        _SectionContent(title: 'Step 3', content: [
-          'You can download the audio files associated with the score by clicking the Download button in the score details screen. This will download all audio files for the score. Once downloaded, you can access these files without an internet connection and loading them will be almost instant.\n',
-          'If there is an update for the current score, you\'ll see an Update button in the score details screen. Clicking on it will update the score to the latest version.\n',
-        ]),
-        _SectionContent(title: 'Step 4', content: [
-          'To listen to all available tempos, add the movement (or all movements) to the Practice Playlist by clicking the + button on the right side of the movement name. This will add all sections of the movement to the Practice Playlist. You can then navigate to the Practice screen and start practicing.\n',
-        ]),
+        _SectionContent(
+          title: 'Step 1',
+          content: [
+            'Select a score from the library. Currently newly updated/finished scores, as well as recently accessed ones are shown in the lower part of the library screen.\nYou can also see a work in progress indicator when a concerto is in development.\n',
+          ],
+          child: _image('library_score_progress', 900),
+        ),
+        _SectionContent(
+          title: 'Step 2',
+          content: [
+            'Explore the contents of the score. Click on the movement - you\'ll see the list of sections with a visual representation where the section starts exactly (locate a red line).\n',
+            'You can listen to each section by pressing the Play button below the section image. The audio will start playing from the beginning of the section using the default tempo for the current section.\n',
+          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                flex: 1,
+                child: _image('score_movements', 500),
+              ),
+              SizedBox(width: 16), // Add some spacing between images
+              Flexible(
+                flex: 1,
+                child: _image('score_sections', 500),
+              ),
+            ],
+          ),
+        ),
+        _SectionContent(
+          title: 'Step 3',
+          content: [
+            'You can download the audio files associated with the score by clicking the Download button in the score details screen. This will download all audio files for the score. Once downloaded, you can access these files without an internet connection and loading them will be almost instant.\n',
+            'If there is an update for the current score, you\'ll see an Update button in the score details screen. Clicking on it will update the score to the latest version.\n',
+          ],
+          child: _image('score_download_update', 500),
+        ),
+        _SectionContent(
+          title: 'Step 4',
+          content: [
+            'To start a practice or performance session, add the movement (or all movements) to the Practice Playlist by clicking the + button on the right side of the movement name. This will add all sections of the movement to the Practice Playlist and activate Start Session button. Press this button and you will be navigated to the Practice screen. Wait a little for the initial process of downloaing audio to be completed and have fun!.\n',
+          ],
+          child: _image('score_add_movements', 500),
+        ),
       ],
     );
   }
+}
+
+Widget _image(String assetName, double constraints) {
+  return ConstrainedBox(
+    constraints: BoxConstraints(maxWidth: constraints),
+    child: Image.asset('assets/images/$assetName.png'),
+  );
 }
 
 class PracticeSection extends StatelessWidget {
