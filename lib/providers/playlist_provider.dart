@@ -1093,7 +1093,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> playMetronomeSound() async {
-    isFirstBeat
+    isFirstBeat && metronomeBellEnabled
         ? metronomeBellHandle = await player.play(metronomeBell!)
         : metronomeHandle = await player.play(metronomeClick!);
 
@@ -1137,6 +1137,11 @@ class PlaylistProvider extends ChangeNotifier {
     }
     notifyListeners();
     prefs.setBool('metronomeMuted', metronomeMuted);
+  }
+
+  void setMetronomeBellEnabled() {
+    metronomeBellEnabled = !metronomeBellEnabled;
+    notifyListeners();
   }
 
   void getMetronomeMuted() async {

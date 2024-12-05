@@ -18,6 +18,9 @@ class MetronomeVolume extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
+    final double iconSize = 32;
+    final double metronomeSize = 50;
+    double opacity() => p.metronomeMuted ? 0.2 : 1;
 
     String assetName() {
       return p.metronomeMuted
@@ -26,17 +29,16 @@ class MetronomeVolume extends StatelessWidget {
     }
 
     return SizedBox(
-      width: 334,
+      width: 360,
       child: Row(
-        // mainAxisSize: MainAxisSize.min,
-        // mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           SizedBox.square(
-            dimension: 40,
+            dimension: metronomeSize,
             child: IconButton(
-              padding: EdgeInsets.zero, // Remove padding
-              constraints: BoxConstraints(), // Remove default constraints
+              padding: EdgeInsets.all(4),
+              constraints: BoxConstraints(),
               tooltip: p.metronomeMuted
                   ? "Enable metronome sound"
                   : "Mute metronome",
@@ -44,16 +46,16 @@ class MetronomeVolume extends StatelessWidget {
                 assetName(),
                 colorFilter: ColorFilter.mode(
                     p.metronomeMuted
-                        ? Colors.white.withOpacity(0.3)
+                        ? Colors.white.withOpacity(opacity())
                         : p.setColor(),
                     BlendMode.srcIn),
                 semanticsLabel: 'Metronome Icon',
               ),
-              iconSize: 24,
+              iconSize: iconSize,
               color: p.metronomeMuted
-                  ? Colors.white.withOpacity(0.5)
+                  ? Colors.white.withOpacity(opacity())
                   : p.setColor(),
-              splashRadius: 8.0,
+              splashRadius: iconSize,
               onPressed: () {
                 p.setMetronomeMuted();
               },
@@ -65,14 +67,14 @@ class MetronomeVolume extends StatelessWidget {
               data: SfSliderThemeData(
                 thumbColor: highlightColor,
                 activeTrackColor: p.metronomeMuted
-                    ? Colors.white.withOpacity(0.3)
+                    ? Colors.white.withOpacity(opacity())
                     : p.setColor(),
                 inactiveTrackColor: p.setInactiveColor(),
                 activeTrackHeight: 4,
                 inactiveTrackHeight: 4,
                 thumbRadius: 6,
                 thumbStrokeColor: p.metronomeMuted
-                    ? Colors.white.withOpacity(0.2)
+                    ? Colors.white.withOpacity(opacity())
                     : p.setColor(),
                 thumbStrokeWidth: 1,
                 // tooltipBackgroundColor: highlightColor,
@@ -91,7 +93,7 @@ class MetronomeVolume extends StatelessWidget {
                   showLabels: true,
                   minorTicksPerInterval: 4,
                   activeColor: p.metronomeMuted
-                      ? Colors.white.withOpacity(0.2)
+                      ? Colors.white.withOpacity(opacity())
                       : p.setColor(),
                   inactiveColor: p.metronomeMuted
                       ? Colors.white.withOpacity(0.1)
@@ -102,6 +104,26 @@ class MetronomeVolume extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          SizedBox.square(
+            dimension: metronomeSize,
+            child: IconButton(
+                padding: EdgeInsets.all(4),
+                constraints: BoxConstraints(),
+                tooltip: p.metronomeBellEnabled
+                    ? "Enable downbeat bell"
+                    : "Disable downbeat bell",
+                icon: Icon(
+                  p.metronomeBellEnabled
+                      ? Icons.notifications_on_outlined
+                      : Icons.notifications_off_outlined,
+                ),
+                iconSize: iconSize,
+                color: p.metronomeMuted
+                    ? Colors.white.withOpacity(opacity())
+                    : p.setColor(),
+                splashRadius: iconSize,
+                onPressed: p.setMetronomeBellEnabled),
           ),
         ],
       ),
