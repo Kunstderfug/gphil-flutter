@@ -839,6 +839,8 @@ class PlaylistProvider extends ChangeNotifier {
         await loadSectionPrefs(section);
       }
     }
+
+    getMetronomeData();
   }
 
   List<AudioUrl> _getAudioUrls() {
@@ -1127,7 +1129,6 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void setMetronomeMuted() async {
-    final prefs = await SharedPreferences.getInstance();
     metronomeMuted = !metronomeMuted;
     if (metronomeHandle != null) {
       player.setVolume(metronomeHandle!, metronomeVolume);
@@ -1136,11 +1137,20 @@ class PlaylistProvider extends ChangeNotifier {
       player.setVolume(metronomeBellHandle!, metronomeVolume);
     }
     notifyListeners();
-    prefs.setBool('metronomeMuted', metronomeMuted);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('metronomeMuted', metronomeMuted);
   }
 
-  void setMetronomeBellEnabled() {
+  void setMetronomeBellEnabled() async {
     metronomeBellEnabled = !metronomeBellEnabled;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('metronomeBellEnabled', metronomeBellEnabled);
+  }
+
+  void getMetronomeBellEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    metronomeBellEnabled = prefs.getBool('metronomeBellEnabled') ?? true;
     notifyListeners();
   }
 
@@ -1166,19 +1176,19 @@ class PlaylistProvider extends ChangeNotifier {
     }
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('metronomeVolume', metronomeVolume);
+    await prefs.setDouble('metronomeVolume', metronomeVolume);
   }
 
   void getMetronomeVolume() async {
     final prefs = await SharedPreferences.getInstance();
-    metronomeVolume = prefs.getDouble('metronomeVolume') ?? 0.75;
+    metronomeVolume = prefs.getDouble('metronomeVolume') ?? 0.5;
     notifyListeners();
   }
 
   void resetMetronomeVolume() async {
     metronomeVolume = 0.5;
     final prefs = await SharedPreferences.getInstance();
-    prefs.setDouble('metronomeVolume', metronomeVolume);
+    await prefs.setDouble('metronomeVolume', metronomeVolume);
     setMetronomeVolume(metronomeVolume);
     notifyListeners();
   }
@@ -1186,6 +1196,7 @@ class PlaylistProvider extends ChangeNotifier {
   void getMetronomeData() {
     getMetronomeMuted();
     getMetronomeVolume();
+    getMetronomeBellEnabled();
   }
 
 // PLAYBACK

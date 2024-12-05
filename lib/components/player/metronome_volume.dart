@@ -110,7 +110,7 @@ class MetronomeVolume extends StatelessWidget {
             child: IconButton(
                 padding: EdgeInsets.all(4),
                 constraints: BoxConstraints(),
-                tooltip: p.metronomeBellEnabled
+                tooltip: !p.metronomeBellEnabled
                     ? "Enable downbeat bell"
                     : "Disable downbeat bell",
                 icon: Icon(
