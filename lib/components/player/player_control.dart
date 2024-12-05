@@ -118,6 +118,13 @@ class PlayerControl extends StatelessWidget {
             p.setMetronomeVolume(roundedVolume);
           },
         ),
+        ShortcutAction(
+          intent: const EnableMetronomeBellIntent(),
+          shortcuts: const [SingleActivator(LogicalKeyboardKey.keyB)],
+          onInvoke: () {
+            p.setMetronomeBellEnabled();
+          },
+        ),
       ];
 
       // Convert actions to shortcuts map
@@ -261,4 +268,8 @@ class DecreaseVolumeIntent extends Intent {
 
 class IncreaseVolumeIntent extends Intent {
   const IncreaseVolumeIntent();
+}
+
+class EnableMetronomeBellIntent extends Intent {
+  const EnableMetronomeBellIntent();
 }

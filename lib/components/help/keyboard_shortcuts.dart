@@ -83,6 +83,10 @@ class KeyboardShortcutsSection extends StatelessWidget {
         description: 'Decrease metronome sound',
       ),
       _Shortcut(
+        keys: ['B'],
+        description: 'Toggle metronome downbeat bell',
+      ),
+      _Shortcut(
         keys: ['O'],
         description: 'Save/Load session',
       ),
