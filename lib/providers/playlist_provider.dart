@@ -1848,7 +1848,7 @@ class PlaylistProvider extends ChangeNotifier {
     sessionMovements.removeWhere(
         (SessionMovement item) => item.movementKey == movement.key);
     sessionMovements.sort((a, b) => a.index.compareTo(b.index));
-    if (playlist.isEmpty) {
+    if (sessionMovements.isEmpty) {
       sessionScore = null;
     }
     notifyListeners();

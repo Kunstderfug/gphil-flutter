@@ -41,24 +41,35 @@ class _ScoreScreenState extends State<ScoreScreen> {
   Widget build(BuildContext context) {
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
+
+    // Calculate available height
+    final double availableHeight = MediaQuery.of(context).size.height -
+        (isTablet(context) ? appBarSizeDesktop : appBarSize);
+
     return s.currentScore == null
         ? const Center(child: Text('There was a problem loading the score'))
-        : Stack(children: [
-            const Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  RepaintBoundary(child: ScoreNavigation()),
-                  SizedBox(height: separatorXs),
-                  MvtSectionsHead(),
-                  MvtSections(),
-                  SizedBox(height: separatorXl),
-                ]),
-              ],
+        : SizedBox(
+            height:
+                availableHeight - (isTablet(context) ? appBarSizeDesktop : 0),
+            child: SingleChildScrollView(
+              child: Stack(
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RepaintBoundary(child: ScoreNavigation()),
+                      SizedBox(height: separatorXs),
+                      MvtSectionsHead(),
+                      MvtSections(),
+                      // SizedBox(height: separatorXl),
+                    ],
+                  ),
+                  if (p.showPrompt) const ShowPrompt(),
+                ],
+              ),
             ),
-            if (p.showPrompt) const ShowPrompt(),
-          ]);
+          );
   }
 }
 
@@ -114,6 +125,76 @@ class MvtSections extends StatelessWidget {
     final s = Provider.of<ScoreProvider>(context);
     final p = Provider.of<PlaylistProvider>(context);
 
+    if (isTablet(context)) {
+      // Tablet layout
+      return Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 2,
+                child: ScoreMovements(movements: s.currentMovements),
+              ),
+              const SizedBox(width: separatorLg),
+              Expanded(
+                flex: 3,
+                child: ScoreSections(sections: s.currentSections),
+              ),
+            ],
+          ),
+          const SizedBox(height: separatorSm),
+          // Section image and controls centered below
+          Center(
+            child: ConstrainedBox(
+              constraints:
+                  const BoxConstraints(maxWidth: 700), // Adjust as needed
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Section starts at:',
+                        style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 60, vertical: 20),
+                    child: SectionImage(imageFile: s.sectionImageFile),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                              'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
+                              style: Theme.of(context).textTheme.titleMedium),
+                        ),
+                      ),
+                      IconButton(
+                          icon: p.isPlaying
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                          onPressed: () async {
+                            p.isPlaying
+                                ? await p.stop()
+                                : await p.playSection(s.currentSection);
+                          },
+                          iconSize: sizeXl,
+                          padding: const EdgeInsets.all(paddingMd),
+                          tooltip: "Play section"),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Desktop layout (original layout)
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -122,84 +203,72 @@ class MvtSections extends StatelessWidget {
           child: ScoreMovements(movements: s.currentMovements),
         ),
         const SizedBox(width: separatorLg),
-
-        //SECTIONS
         Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                ScoreSections(
-                  sections: s.currentSections,
-                ),
-                //SECTION IMAGE
-                SizedBox(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          const SizedBox(height: separatorMd),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text('Section starts at:',
-                                style: Theme.of(context).textTheme.titleMedium),
-                          ),
-                          // const SizedBox(height: separatorXs),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 60, vertical: 20),
-                            child: SectionImage(imageFile: s.sectionImageFile),
-                          ),
-                          // const SizedBox(height: separatorXs),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                    'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium),
+          flex: 3,
+          child: Column(
+            children: [
+              ScoreSections(sections: s.currentSections),
+              SizedBox(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: separatorMd),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Section starts at:',
+                              style: Theme.of(context).textTheme.titleMedium),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 60, vertical: 20),
+                          child: SectionImage(imageFile: s.sectionImageFile),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                  'Available tempos: ${s.currentSection.tempoRange.first} - ${s.currentSection.tempoRange.last} bpm, with a step of ${s.currentSection.step}',
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
+                            ),
+                            IconButton(
+                                icon: p.isPlaying
+                                    ? const Icon(Icons.stop)
+                                    : const Icon(Icons.play_arrow),
+                                onPressed: () async {
+                                  p.isPlaying
+                                      ? await p.stop()
+                                      : await p.playSection(s.currentSection);
+                                },
+                                iconSize: sizeXl,
+                                padding: const EdgeInsets.all(paddingMd),
+                                tooltip: "Play section"),
+                          ],
+                        ),
+                        if (p.error.isNotEmpty && kDebugMode)
+                          Text('error: ${p.error}'),
+                        if (p.playerAudioSources.isNotEmpty)
+                          for (PlayerAudioSource source in p.playerAudioSources)
+                            SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  Text(
+                                      '${source.audioSource}: ${source.sectionKey}'),
+                                ],
                               ),
-                              IconButton(
-                                  icon: p.isPlaying
-                                      ? Icon(Icons.stop)
-                                      : Icon(Icons.play_arrow),
-                                  onPressed: () async {
-                                    p.isPlaying
-                                        ? await p.stop()
-                                        : await p.playSection(s.currentSection);
-                                  },
-                                  iconSize: sizeXl,
-                                  padding: const EdgeInsets.all(paddingMd),
-                                  tooltip: "Play section"),
-                            ],
-                          ),
-                          if (p.error.isNotEmpty && kDebugMode)
-                            Text('error: ${p.error}'),
-
-                          // if (p.message.isNotEmpty && kDebugMode)
-                          //   Text('Message: ${p.message}'),
-
-                          if (p.playerAudioSources.isNotEmpty)
-                            for (PlayerAudioSource source
-                                in p.playerAudioSources)
-                              SingleChildScrollView(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                        '${source.audioSource}: ${source.sectionKey}'),
-                                  ],
-                                ),
-                              ),
-                        ],
-                      ),
+                            ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ))
+              ),
+            ],
+          ),
+        )
       ],
     );
   }

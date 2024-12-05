@@ -17,10 +17,43 @@ class _HelpScreenState extends State<HelpScreen> {
   String _activeSection = 'about';
   final ScrollController _scrollController = ScrollController();
 
+  bool _showBackToTopButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    // Show button if user has scrolled down 500 pixels or more
+    if (_scrollController.offset >= 500) {
+      if (!_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = true;
+        });
+      }
+    } else {
+      if (_showBackToTopButton) {
+        setState(() {
+          _showBackToTopButton = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOut,
+    );
   }
 
   void _changeSection(String newSection) {
@@ -57,17 +90,21 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     final currentIndex = _sections.keys.toList().indexOf(_activeSection);
-    final nextIndex = (currentIndex + 1) % _sections.length;
-    final int previousIndex =
-        (currentIndex - 1 + _sections.length) % _sections.length;
+    final isFirstSection = currentIndex == 0;
+    final isLastSection = currentIndex == _sections.length - 1;
 
     // Create a unique key for the scroll view
     final scrollKey = ValueKey('scroll_$_activeSection');
 
+    // Calculate available height by subtracting AppBar height
+    final double availableHeight = MediaQuery.of(context).size.height -
+        (isTablet(context) ? appBarSizeDesktop : appBarSize) -
+        bottom;
+
     return ConstrainedBox(
       constraints: BoxConstraints(
-        minHeight: MediaQuery.sizeOf(context).height - bottom,
-        maxHeight: MediaQuery.sizeOf(context).height - bottom,
+        minHeight: availableHeight,
+        maxHeight: availableHeight,
       ),
       child: Padding(
         padding: const EdgeInsets.only(
@@ -122,28 +159,31 @@ class _HelpScreenState extends State<HelpScreen> {
                         Padding(
                           padding: const EdgeInsets.all(paddingMd),
                           child: Center(
-                            // Center the row
                             child: Row(
-                              mainAxisSize: MainAxisSize
-                                  .min, // Make row wrap its contents
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                StandartButton(
-                                  label: 'Previous',
-                                  icon: Icons.arrow_back,
-                                  iconAlignment: IconAlignment.start,
-                                  borderColor: greenColor,
-                                  callback: () => _changeSection(
-                                      _sections.keys.elementAt(previousIndex)),
-                                ),
-                                const SizedBox(width: paddingLg),
-                                StandartButton(
-                                  label: 'Next',
-                                  icon: Icons.arrow_forward,
-                                  iconAlignment: IconAlignment.end,
-                                  borderColor: greenColor,
-                                  callback: () => _changeSection(
-                                      _sections.keys.elementAt(nextIndex)),
-                                ),
+                                if (!isFirstSection) ...[
+                                  StandartButton(
+                                    label: 'Previous',
+                                    icon: Icons.arrow_back,
+                                    iconAlignment: IconAlignment.start,
+                                    borderColor: greenColor,
+                                    callback: () => _changeSection(_sections
+                                        .keys
+                                        .elementAt(currentIndex - 1)),
+                                  ),
+                                  const SizedBox(width: paddingLg),
+                                ],
+                                if (!isLastSection)
+                                  StandartButton(
+                                    label: 'Next',
+                                    icon: Icons.arrow_forward,
+                                    iconAlignment: IconAlignment.end,
+                                    borderColor: greenColor,
+                                    callback: () => _changeSection(_sections
+                                        .keys
+                                        .elementAt(currentIndex + 1)),
+                                  ),
                               ],
                             ),
                           ),
@@ -154,6 +194,26 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
               ],
             ),
+            // Only show the back to top button in tablet mode and when scrolled down
+            if (isTablet(context) && _showBackToTopButton)
+              Positioned(
+                right: 30,
+                bottom: 30,
+                child: AnimatedOpacity(
+                  opacity: _showBackToTopButton ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: FloatingActionButton(
+                    mini: true, // Makes the FAB smaller
+                    backgroundColor: highlightColor.withOpacity(0.8),
+                    onPressed: _scrollToTop,
+                    tooltip: 'Scroll to top',
+                    child: const Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

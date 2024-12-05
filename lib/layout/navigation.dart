@@ -210,22 +210,24 @@ class Nav extends StatelessWidget {
         )),
       ),
 
-      //NAVIGATION
-      ...screens.getRange(0, 2).map(
-            (screen) => NavigationItem(
-              title: screen.title,
-              icon: screen.icon,
-              index: screens.indexOf(screen),
-              isSelected: n.selectedIndex == screens.indexOf(screen),
+      if (!isTablet(context))
+        //NAVIGATION
+        ...screens.getRange(0, 2).map(
+              (screen) => NavigationItem(
+                title: screen.title,
+                icon: screen.icon,
+                index: screens.indexOf(screen),
+                isSelected: n.selectedIndex == screens.indexOf(screen),
+              ),
             ),
-          ),
-      NavigationItem(
-        title: 'H E L P',
-        icon: Icons.help,
-        index: 3,
-        isSelected: n.currentIndex == 3,
-      ),
-      SeparatorLine(height: 18),
+      if (!isTablet(context))
+        NavigationItem(
+          title: 'H E L P',
+          icon: Icons.help,
+          index: 3,
+          isSelected: n.currentIndex == 3,
+        ),
+      if (!isTablet(context)) SeparatorLine(height: 18),
     ]);
   }
 }

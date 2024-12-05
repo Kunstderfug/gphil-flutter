@@ -9,7 +9,7 @@ class LibrarySection extends StatelessWidget {
   final LibraryProvider l;
 
   int gridCount(double pixels) {
-    return (pixels / 520).ceil();
+    return ((pixels - 100) / 520).ceil();
   }
 
   @override
@@ -23,12 +23,11 @@ class LibrarySection extends StatelessWidget {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount:
-                    gridCount(MediaQuery.sizeOf(context).width - 100),
+                crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
                 crossAxisSpacing: separatorMd,
                 mainAxisSpacing: separatorLg,
                 childAspectRatio:
-                    gridCount(MediaQuery.sizeOf(context).width - 100) < 5
+                    gridCount(MediaQuery.sizeOf(context).width) < 5
                         ? 4 / 3
                         : 7 / 5,
               ),
