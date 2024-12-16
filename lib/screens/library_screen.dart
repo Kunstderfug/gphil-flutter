@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/components/library/library_search.dart';
 import 'package:gphil/components/library/library_section.dart';
 import 'package:gphil/components/library/recent_items.dart';
 import 'package:gphil/components/library/recently_updated_items.dart';
@@ -40,6 +41,7 @@ class LibraryScreen extends StatelessWidget {
         height: MediaQuery.sizeOf(context).height - 140,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          // spacing: separatorXs,
           children: [
             SizedBox(
               height: 60,
@@ -49,7 +51,14 @@ class LibraryScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: separatorMd),
-            const Text('L I B R A R Y', style: TextStyle(fontSize: fontSizeLg)),
+            Row(
+              spacing: separatorMd,
+              children: [
+                const Text('L I B R A R Y',
+                    style: TextStyle(fontSize: fontSizeLg)),
+                LibrarySearch(l: l),
+              ],
+            ),
             const SeparatorLine(),
             const SizedBox(height: separatorMd),
             LibrarySection(l: l),

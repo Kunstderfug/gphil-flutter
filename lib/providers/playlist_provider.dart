@@ -818,6 +818,7 @@ class PlaylistProvider extends ChangeNotifier {
     currentlyLoadedFiles.clear();
     webAudioUrls.clear();
     audioFilesUrls.clear();
+    playlistClickData.clear();
     filesLoaded = 0;
     filesDownloaded = 0;
     filesDownloading = true;

@@ -11,28 +11,28 @@ class LibraryComposer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          composerName.toUpperCase(),
-          style: TextStyles().textLg,
-        ),
-        const SizedBox(height: separatorSm),
-        SizedBox(
-          height: 200,
-          child: SingleChildScrollView(
-            child: Column(
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: separatorXs,
+        children: [
+          Text(
+            '${composerName.toUpperCase()} ${composerScores.length != 1 ? '(${composerScores.length})' : ''}',
+            softWrap: true,
+            overflow: TextOverflow.fade,
+            style: TextStyles().textLg,
+          ),
+          Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2.0,
               children: [
                 for (final LibraryItem score in composerScores)
                   LibraryItemCard(
                     libraryItem: score,
                   ),
-              ],
-            ),
-          ),
-        ),
-      ],
+              ]),
+        ],
+      ),
     );
   }
 }

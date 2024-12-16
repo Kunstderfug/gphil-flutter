@@ -14,15 +14,12 @@ dependencies:
   shared_preferences: ^2.2.2
   path_provider: ^2.1.3
   intl: ^0.19.0
-  http: ^1.2.1
-  # signals: ^5.2.0
+  flutter_localizations:
+    sdk: flutter
   flutter_soloud: ^2.0.2
-  # flutter_rust_bridge: 2.1.0
-  # rust_lib_gphil:
-  #   path: rust_builder
-  syncfusion_flutter_sliders: ^27.1.48
-  syncfusion_flutter_core: ^27.1.48
-  syncfusion_flutter_pdfviewer: ^27.1.48
+  syncfusion_flutter_sliders: ^28.1.33
+  syncfusion_flutter_core: ^28.1.33
+  syncfusion_flutter_pdfviewer: ^28.1.33
   url_launcher: ^6.3.0
   package_info_plus: ^8.0.2
   dio: ^5.5.0+1
@@ -33,8 +30,6 @@ dependencies:
   cached_network_image: ^3.4.1
   logging: ^1.2.0
   flutter_svg: ^2.0.16
-  # background_downloader: ^8.5.3
-  # desktop_multi_window: ^0.2.0
 
 dev_dependencies:
   flutter_lints: ^5.0.0

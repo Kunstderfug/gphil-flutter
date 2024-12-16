@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gphil/components/library/library_search.dart';
 import 'package:gphil/components/player/metronome.dart';
 import 'package:gphil/components/player/metronome_volume.dart';
+import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/services/app_state.dart';
@@ -15,6 +17,7 @@ class PlayerControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PlaylistProvider>(builder: (context, p, child) {
       final n = Provider.of<NavigationProvider>(context);
+      final l = Provider.of<LibraryProvider>(context);
 
       final List<ShortcutAction> actions = [
         ShortcutAction(
@@ -123,6 +126,26 @@ class PlayerControl extends StatelessWidget {
           shortcuts: const [SingleActivator(LogicalKeyboardKey.keyB)],
           onInvoke: () {
             p.setMetronomeBellEnabled();
+          },
+        ),
+        ShortcutAction(
+          intent: const OpenGlobalSearchIntent(),
+          shortcuts: const [SingleActivator(LogicalKeyboardKey.keyJ)],
+          onInvoke: () {
+            showDialog(
+              context: context,
+              useRootNavigator: false,
+              builder: (context) => AnimatedScale(
+                scale: 1.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                child: LibrarySearch(
+                  l: l,
+                  isGlobalSearch: true,
+                  closeParentDialog: true,
+                ),
+              ),
+            );
           },
         ),
       ];
@@ -272,4 +295,8 @@ class IncreaseVolumeIntent extends Intent {
 
 class EnableMetronomeBellIntent extends Intent {
   const EnableMetronomeBellIntent();
+}
+
+class OpenGlobalSearchIntent extends Intent {
+  const OpenGlobalSearchIntent();
 }

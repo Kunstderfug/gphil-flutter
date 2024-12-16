@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.bin</key>
 		<data>
-		thr/Odwz2lz8wnuIqyXJZuF0/Yo=
+		b7zHqvKmkhPlLXVY1g3ydHIktrg=
 		</data>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<data>
-		3bBWKlRSqmSUxbIsj8vnkHB8qN4=
+		1gOL72LAiD5zLl/D7rxqGHrJpyc=
 		</data>
 		<key>Resources/flutter_assets/FontManifest.json</key>
 		<data>
@@ -76,6 +76,18 @@
 		<data>
 		EZOn+AnZ/kaVIXYlcWzCriMnxSs=
 		</data>
+		<key>Resources/flutter_assets/assets/images/practice_metronome.png</key>
+		<data>
+		1Vn3UNiZrwfXLrqyx8Y0xs5iKd4=
+		</data>
+		<key>Resources/flutter_assets/assets/images/practice_section_management.png</key>
+		<data>
+		JwLQK2H9Nb9A4p5WooBZtmJg564=
+		</data>
+		<key>Resources/flutter_assets/assets/images/practice_sections_area.png</key>
+		<data>
+		CE0+ahk6UvEkK+6rRDTlIS/4QyA=
+		</data>
 		<key>Resources/flutter_assets/assets/images/score_add_movements.png</key>
 		<data>
 		qkihlcb1wnOcvQONPDwmGtYJs7o=
@@ -94,7 +106,7 @@
 		</data>
 		<key>Resources/flutter_assets/fonts/MaterialIcons-Regular.otf</key>
 		<data>
-		cHyz++z2CpT6eZnEaPYzsC9A798=
+		Kbf2SQGsmjquHpi2NzupLGvFwrk=
 		</data>
 		<key>Resources/flutter_assets/fonts/Roboto-Black.ttf</key>
 		<data>
@@ -218,14 +230,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Wq7b4SVcoJJJ16cKkTG2Q5Gad/VcOgCHbWGFa53/9lI=
+			rtyJnWn7EeoK5ibzwa15K6I8HH4GauyGZMIPV4kIiRM=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/AssetManifest.json</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			mTForuZDhA/p7RHK8/Ms+BHRy7FEkxB2gnZF7Vo/2gw=
+			Ywr/pi2tdRJQC774y4k1ZTA+Fu5a25TCS+nk3Vt/PKY=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/FontManifest.json</key>
@@ -333,6 +345,27 @@
 			y+Ts+MhWqUfbmLfnZmFpkBx5KN1/XvGp3RzY1aV/WA4=
 			</data>
 		</dict>
+		<key>Resources/flutter_assets/assets/images/practice_metronome.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			ZZeAUCkRjKjBAPixtwlZL3oPf+VzoCIDd0b3JOFM7/o=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/practice_section_management.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			6MWqboXoqw3C0Z+RFtdMX/nNal6pwT7kPHAuZokdS3I=
+			</data>
+		</dict>
+		<key>Resources/flutter_assets/assets/images/practice_sections_area.png</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			LGVqNK89vTHmnYHTDmQoI1PTqT43i2uR1S5xzRJ1Qao=
+			</data>
+		</dict>
 		<key>Resources/flutter_assets/assets/images/score_add_movements.png</key>
 		<dict>
 			<key>hash2</key>
@@ -365,7 +398,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jHN0b3bwa28sHAe8p34Ujw3ueyUYeNxYDbMeaxJVxH4=
+			m4xEkkLb2Sdv1OzDK7kudaPNzbjyyA7kGcDyilN9ahg=
 			</data>
 		</dict>
 		<key>Resources/flutter_assets/fonts/Roboto-Black.ttf</key>

@@ -18,22 +18,26 @@ class LibraryItemCard extends StatelessWidget {
     final s = Provider.of<ScoreProvider>(context, listen: false);
     final l = Provider.of<LibraryProvider>(context, listen: false);
 
+    Future<void> setScore() async {
+      s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);
+      l.setScoreId(libraryItem.id);
+      await s.getScore(libraryItem.id);
+      n.setScoreScreen();
+      l.addToRecentlyAccessed(libraryItem);
+    }
+
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(32),
       ),
       child: SizedBox(
-        height: sizeXl,
+        height: sizeLg,
         child: InkWell(
           hoverColor: highlightColor,
           borderRadius: BorderRadius.circular(32),
           onTap: () async {
-            s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);
-            l.setScoreId(libraryItem.id);
-            await s.getScore(libraryItem.id);
-            n.setScoreScreen();
-            l.addToRecentlyAccessed(libraryItem);
+            await setScore();
           },
           child: Stack(alignment: Alignment.bottomLeft, children: [
             if (libraryItem.complete < 100)
@@ -55,6 +59,8 @@ class LibraryItemCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
+                  // softWrap: true,
+                  overflow: TextOverflow.fade,
                   libraryItem.shortTitle,
                   style: TextStyles().textSm,
                   textScaler: const TextScaler.linear(1.1),

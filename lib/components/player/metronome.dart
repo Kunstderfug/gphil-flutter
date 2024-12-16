@@ -66,7 +66,7 @@ class _MetronomeState extends State<Metronome>
       width: size,
       height: size,
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.7),
           shape: BoxShape.circle,
           border: Border.all(
               color: p.isFirstBeat && p.isStarted ? setColor() : Colors.white24,

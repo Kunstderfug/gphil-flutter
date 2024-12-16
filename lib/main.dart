@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';
@@ -86,6 +87,16 @@ class MyApp extends StatelessWidget {
         child: MaterialApp(
           title: 'GPhil Project',
           debugShowCheckedModeBanner: false,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'), // English
+            Locale('fr'), // French
+            Locale('gb'), // British English
+          ],
           home: const ResponsiveLayout(
               tabletLayout: TabletLayout(), desktopLayout: DesktopLayout()),
           routes: {

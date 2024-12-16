@@ -9,7 +9,7 @@ class LibrarySection extends StatelessWidget {
   final LibraryProvider l;
 
   int gridCount(double pixels) {
-    return ((pixels - 100) / 520).ceil();
+    return ((pixels - 100) / 460).ceil();
   }
 
   @override
@@ -26,10 +26,7 @@ class LibrarySection extends StatelessWidget {
                 crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
                 crossAxisSpacing: separatorMd,
                 mainAxisSpacing: separatorLg,
-                childAspectRatio:
-                    gridCount(MediaQuery.sizeOf(context).width) < 5
-                        ? 4 / 3
-                        : 7 / 5,
+                childAspectRatio: 7 / 5,
               ),
               itemCount: l.indexedLibrary.composers.length,
               itemBuilder: (context, index) {
