@@ -47,8 +47,9 @@ class PerformanceSection extends StatelessWidget {
       height: calculateHeight() < 40 ? calculateHeight() : 40,
       decoration: BoxDecoration(
           color: section.key == p.currentSectionKey
-              ? setColor(section).withOpacity(1)
-              : setColor(section).withOpacity(isSelected ? 1 : o.userOpacity),
+              ? setColor(section).withValues(alpha: 1)
+              : setColor(section)
+                  .withValues(alpha: isSelected ? 1 : o.userOpacity),
           border: isSelected
               ? Border.all(
                   color: Colors.white,

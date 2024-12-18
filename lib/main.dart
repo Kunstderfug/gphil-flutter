@@ -97,8 +97,16 @@ class MyApp extends StatelessWidget {
             Locale('fr'), // French
             Locale('gb'), // British English
           ],
-          home: const ResponsiveLayout(
-              tabletLayout: TabletLayout(), desktopLayout: DesktopLayout()),
+          home: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: 600,
+              maxWidth: 2400,
+              minHeight: 600,
+              maxHeight: 800,
+            ),
+            child: const ResponsiveLayout(
+                tabletLayout: TabletLayout(), desktopLayout: DesktopLayout()),
+          ),
           routes: {
             '/performance': (context) => const PerformanceScreen(),
             '/score': (context) => const ScoreScreen(),

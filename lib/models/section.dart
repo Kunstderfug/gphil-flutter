@@ -175,7 +175,7 @@ class Section extends InitSection {
       this.clickDataUrl,
       this.scoreId = '',
       this.movementKey = '',
-      this.sectionVolume = 0.8,
+      this.sectionVolume = 1.0,
       this.muted = false,
       this.looped = false});
 

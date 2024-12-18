@@ -352,6 +352,7 @@ Future<Score> setupScore(InitScore score) async {
           beatsPerBar: section.beatsPerBar,
           beatLength: section.beatLength,
           tempoMultiplier: section.tempoMultiplier,
+          sectionVolume: 1.0,
           layers: section.layers,
           muted: false,
           looped: false,
