@@ -23,7 +23,7 @@ class PerformanceSection extends StatelessWidget {
     final o = Provider.of<OpacityProvider>(context);
 
     double calculateHeight() =>
-        (MediaQuery.sizeOf(context).height - 400) /
+        (MediaQuery.sizeOf(context).height - 300) /
         p.currentMovementSections.length;
 
     Color setColor(Section section) =>

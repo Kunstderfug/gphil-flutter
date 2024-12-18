@@ -16,27 +16,30 @@ class LibrarySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
-                crossAxisSpacing: separatorMd,
-                mainAxisSpacing: separatorLg,
-                childAspectRatio: 7 / 5,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridCount(MediaQuery.sizeOf(context).width),
+                  crossAxisSpacing: separatorMd,
+                  mainAxisSpacing: separatorLg,
+                  childAspectRatio: 7 / 5,
+                ),
+                itemCount: l.indexedLibrary.composers.length,
+                itemBuilder: (context, index) {
+                  return LibraryComposer(
+                    composerName: l.indexedLibrary.composers[index].name,
+                    composerScores: l.indexedLibrary.composers[index].scores,
+                  );
+                },
               ),
-              itemCount: l.indexedLibrary.composers.length,
-              itemBuilder: (context, index) {
-                return LibraryComposer(
-                  composerName: l.indexedLibrary.composers[index].name,
-                  composerScores: l.indexedLibrary.composers[index].scores,
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

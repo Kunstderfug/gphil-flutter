@@ -39,7 +39,7 @@ class PerformanceSections extends StatelessWidget {
         SizedBox(height: sizeMd),
         Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade900.withOpacity(0.7),
+              color: Colors.grey.shade900.withValues(alpha: 0.7),
             ),
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

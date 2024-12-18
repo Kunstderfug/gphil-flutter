@@ -822,6 +822,7 @@ class PlaylistProvider extends ChangeNotifier {
     filesLoaded = 0;
     filesDownloaded = 0;
     filesDownloading = true;
+    sessionChanged = false;
 
     try {
       await initPlayer();

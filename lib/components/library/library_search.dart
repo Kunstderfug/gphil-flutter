@@ -49,7 +49,6 @@ class _LibrarySearchState extends State<LibrarySearch> {
     final l = Provider.of<LibraryProvider>(context, listen: false);
 
     Future<void> setScore(LibraryItem libraryItem) async {
-      // Then handle the score selection
       s.setCurrentScoreIdAndRevision(libraryItem.id, libraryItem.rev);
       l.setScoreId(libraryItem.id);
       await s.getScore(libraryItem.id);
@@ -63,14 +62,12 @@ class _LibrarySearchState extends State<LibrarySearch> {
       int currentIndex = 0;
 
       for (final match in matches) {
-        // Add non-matching text before the match
         if (currentIndex < match.$1) {
           spans.add(TextSpan(
             text: text.substring(currentIndex, match.$1),
           ));
         }
 
-        // Add matching text with bold style
         spans.add(TextSpan(
           text: text.substring(match.$1, match.$2),
           style: const TextStyle(
@@ -82,7 +79,6 @@ class _LibrarySearchState extends State<LibrarySearch> {
         currentIndex = match.$2;
       }
 
-      // Add remaining text after last match
       if (currentIndex < text.length) {
         spans.add(TextSpan(
           text: text.substring(currentIndex),
@@ -111,14 +107,18 @@ class _LibrarySearchState extends State<LibrarySearch> {
       }
     }
 
-    Widget searchBar = SearchAnchor.bar(
+    final Widget searchBar = SearchAnchor.bar(
+      constraints: BoxConstraints(
+        minHeight: 40,
+        maxWidth: 500,
+        minWidth: 200,
+      ),
       searchController: searchController,
       barHintText: 'Search scores...',
       viewHintText: 'Type to search scores...',
       barLeading: const Icon(Icons.search),
       viewLeading: const Icon(Icons.search),
       viewHeaderTextStyle: const TextStyle(
-        // fontSize: 16,
         color: Colors.grey,
       ),
       viewTrailing: [
@@ -140,14 +140,12 @@ class _LibrarySearchState extends State<LibrarySearch> {
           ];
         }
 
-        // Filter scores
         final filteredScores = l.library.where((LibraryItem score) {
           final title = score.shortTitle.toLowerCase();
           final composer = score.composer.toLowerCase();
           return title.contains(query) || composer.contains(query);
         }).toList();
 
-        // Show "No results found" message if filteredScores is empty
         if (filteredScores.isEmpty) {
           return [
             Center(
@@ -172,20 +170,17 @@ class _LibrarySearchState extends State<LibrarySearch> {
           ];
         }
 
-        // Group by composer
         final groupedScores = <String, List<LibraryItem>>{};
         for (var score in filteredScores) {
           groupedScores.putIfAbsent(score.composer, () => []);
           groupedScores[score.composer]!.add(score);
         }
 
-        // Sort composers alphabetically
         final sortedComposers = groupedScores.keys.toList()..sort();
 
         return sortedComposers.expand((composer) {
           final scores = groupedScores[composer]!;
           return [
-            // Composer header
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
               color: Colors.black87,
@@ -197,7 +192,6 @@ class _LibrarySearchState extends State<LibrarySearch> {
                 ),
               ),
             ),
-            // Score items
             ...scores.map((score) {
               final titleMatches =
                   getMatchedRanges(score.shortTitle.toLowerCase(), query);
@@ -209,16 +203,14 @@ class _LibrarySearchState extends State<LibrarySearch> {
                   text: TextSpan(
                     children:
                         buildHighlightedSpans(score.shortTitle, titleMatches),
-                    style:
-                        const TextStyle(color: Colors.white), // Base text style
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 subtitle: RichText(
                   text: TextSpan(
                     children:
                         buildHighlightedSpans(score.composer, composerMatches),
-                    style: const TextStyle(
-                        color: Colors.grey), // Subtitle text style
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ),
                 onTap: () async {
@@ -232,12 +224,15 @@ class _LibrarySearchState extends State<LibrarySearch> {
       },
     );
 
-    return !widget.isGlobalSearch
-        ? searchBar
-        : Dialog(
-            child: SizedBox(
-            width: 600,
-            child: searchBar,
-          ));
+    if (!widget.isGlobalSearch) {
+      return searchBar;
+    }
+
+    return Dialog(
+      child: SizedBox(
+        width: 600,
+        child: searchBar,
+      ),
+    );
   }
 }

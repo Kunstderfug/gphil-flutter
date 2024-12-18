@@ -38,15 +38,10 @@ class DesktopLayout extends StatelessWidget {
               showDialog(
                 context: context,
                 useRootNavigator: false,
-                builder: (context) => AnimatedScale(
-                  scale: 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutCubic,
-                  child: LibrarySearch(
-                    l: l,
-                    closeParentDialog: true,
-                    isGlobalSearch: true,
-                  ),
+                builder: (context) => LibrarySearch(
+                  l: l,
+                  closeParentDialog: true,
+                  isGlobalSearch: true,
                 ),
               );
               return null;

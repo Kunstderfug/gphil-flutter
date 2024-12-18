@@ -37,7 +37,7 @@ class GlobalMixer extends StatelessWidget {
                   width: separatorXl,
                 ),
                 SizedBox(
-                  height: 340,
+                  height: 240,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [

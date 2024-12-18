@@ -16,7 +16,7 @@ class MainVolume extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         SizedBox(
-          height: 300,
+          height: 240,
           child: SfSliderTheme(
             data: SfSliderThemeData(
               thumbColor: highlightColor,
