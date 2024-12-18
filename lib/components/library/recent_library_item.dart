@@ -25,7 +25,7 @@ class RecentLibraryitem extends StatelessWidget {
       },
       style: TextButton.styleFrom(
         padding: const EdgeInsets.all(8),
-        backgroundColor: Colors.grey.withOpacity(0.1),
+        backgroundColor: Colors.grey.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

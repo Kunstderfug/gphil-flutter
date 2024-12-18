@@ -30,7 +30,7 @@ class LoadingFiles extends StatelessWidget {
               LinearProgressIndicator(
                 minHeight: 2,
                 color: greenColor,
-                backgroundColor: greenColor.withOpacity(0.5),
+                backgroundColor: greenColor.withValues(alpha: 0.5),
                 value: progress,
               ),
             ],

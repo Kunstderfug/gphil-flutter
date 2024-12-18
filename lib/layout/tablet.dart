@@ -79,7 +79,7 @@ class _TabletLayoutState extends State<TabletLayout>
         child: AppBar(
           elevation: 0,
           backgroundColor:
-              Theme.of(context).colorScheme.surface.withOpacity(0.9),
+              Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
           leading: Builder(
             builder: (BuildContext context) {
               return IconButton(
@@ -141,7 +141,7 @@ class _TabletLayoutState extends State<TabletLayout>
             overlayColor: WidgetStateProperty.resolveWith<Color?>(
               (Set<WidgetState> states) {
                 if (states.contains(WidgetState.hovered)) {
-                  return highlightColor.withOpacity(0.1);
+                  return highlightColor.withValues(alpha: 0.1);
                 }
                 return null;
               },

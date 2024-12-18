@@ -209,14 +209,14 @@ class _ShortcutCategory extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: redColor.withOpacity(0.3),
+                    color: redColor.withValues(alpha: 0.3),
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   icon,
-                  color: redColor.withOpacity(0.7),
+                  color: redColor.withValues(alpha: 0.7),
                   size: 20,
                 ),
               ),
@@ -266,10 +266,10 @@ class _Shortcut extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: highlightColor.withOpacity(0.1),
+                          color: highlightColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(
-                            color: greenColor.withOpacity(0.3),
+                            color: greenColor.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Text(

@@ -30,7 +30,7 @@ class SocialButton extends StatelessWidget {
           backgroundColor: WidgetStateProperty.resolveWith<Color?>(
             (Set<WidgetState> states) {
               if (states.contains(WidgetState.hovered)) {
-                return borderColor.withOpacity(0.2);
+                return borderColor.withValues(alpha: 0.2);
               }
               return null;
             },

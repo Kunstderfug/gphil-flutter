@@ -92,7 +92,7 @@ class ShowPrompt extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Theme.of(context).colorScheme.onPrimary,
-                Theme.of(context).colorScheme.onPrimary.withOpacity(0.5),
+                Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.5),
               ],
             ),
             borderRadius: BorderRadius.circular(16),

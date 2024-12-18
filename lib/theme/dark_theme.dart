@@ -15,7 +15,7 @@ ThemeData darkMode = ThemeData(
       // selectedTileColor: Colors.purple.shade800,
       selectedColor: Colors.grey.shade200,
     ),
-    hoverColor: highlightColor.withOpacity(0.2),
+    hoverColor: highlightColor.withValues(alpha: 0.2),
     highlightColor: highlightColor,
     fontFamily: 'Roboto',
     textTheme: TextTheme(

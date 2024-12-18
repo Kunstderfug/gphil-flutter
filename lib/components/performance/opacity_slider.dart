@@ -26,7 +26,7 @@ class OpacitySlider extends StatelessWidget {
               data: SfSliderThemeData(
                 thumbColor: highlightColor,
                 activeTrackColor: p.setColor(),
-                inactiveTrackColor: p.setColor().withOpacity(0.5),
+                inactiveTrackColor: p.setColor().withValues(alpha: 0.5),
                 activeTrackHeight: 4,
                 inactiveTrackHeight: 4,
                 thumbRadius: 6,
@@ -43,7 +43,7 @@ class OpacitySlider extends StatelessWidget {
                   showTicks: true,
                   minorTicksPerInterval: 1,
                   activeColor: p.setColor(),
-                  inactiveColor: p.setColor().withOpacity(0.5),
+                  inactiveColor: p.setColor().withValues(alpha: 0.5),
                   enableTooltip: false,
                   value: o.userOpacity,
                   onChangeEnd: (value) => o.setOpacity(value),

@@ -18,7 +18,8 @@ class MovementsArea extends StatelessWidget {
             onPressed: () {
               p.setMovementIndexByKey(movement.movementKey);
             },
-            hoverColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+            hoverColor:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
             icon: Container(
               padding: const EdgeInsets.symmetric(
                   horizontal: paddingLg, vertical: paddingSm),

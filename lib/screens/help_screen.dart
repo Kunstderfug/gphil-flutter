@@ -129,13 +129,13 @@ class _HelpScreenState extends State<HelpScreen> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _activeSection == section
                                 ? highlightColor
-                                : Colors.grey.withOpacity(0.1),
+                                : Colors.grey.withValues(alpha: 0.1),
                             foregroundColor: Colors.white,
                             textStyle: TextStyles().textMd,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 32, vertical: 16),
                             // side: BorderSide(
-                            //     color: Colors.white.withOpacity(0.2), width: 1),
+                            //     color: Colors.white.withValues(alpha: 0.2), width: 1),
                           ),
                           child: Text(
                               section[0].toUpperCase() + section.substring(1)),
@@ -166,6 +166,7 @@ class _HelpScreenState extends State<HelpScreen> {
                                   StandartButton(
                                     label: 'Previous',
                                     icon: Icons.arrow_back,
+                                    iconColor: greenColor,
                                     iconAlignment: IconAlignment.start,
                                     borderColor: greenColor,
                                     callback: () => _changeSection(_sections
@@ -178,6 +179,7 @@ class _HelpScreenState extends State<HelpScreen> {
                                   StandartButton(
                                     label: 'Next',
                                     icon: Icons.arrow_forward,
+                                    iconColor: greenColor,
                                     iconAlignment: IconAlignment.end,
                                     borderColor: greenColor,
                                     callback: () => _changeSection(_sections
@@ -195,7 +197,7 @@ class _HelpScreenState extends State<HelpScreen> {
               ],
             ),
             // Only show the back to top button in tablet mode and when scrolled down
-            if (isTablet(context) && _showBackToTopButton)
+            if (_showBackToTopButton)
               Positioned(
                 right: 30,
                 bottom: 30,
@@ -204,7 +206,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   duration: const Duration(milliseconds: 200),
                   child: FloatingActionButton(
                     mini: true, // Makes the FAB smaller
-                    backgroundColor: highlightColor.withOpacity(0.8),
+                    backgroundColor: highlightColor.withValues(alpha: 0.8),
                     onPressed: _scrollToTop,
                     tooltip: 'Scroll to top',
                     child: const Icon(
@@ -288,7 +290,7 @@ class _FAQSection extends StatelessWidget {
         _FAQItem(
           question: 'Credits and Copyright',
           answer:
-              "GPhil's concept, software realization and contents of the GPhil library are made by Vyacheslav Gryaznov.\nAll rights reserved © 2024",
+              "GPhil's concept, software realization and contents of the GPhil library are made by Vyacheslav Gryaznov.\nAll rights reserved © ${DateTime.now().year}",
         ),
       ],
     );

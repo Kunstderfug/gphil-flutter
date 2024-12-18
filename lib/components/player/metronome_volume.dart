@@ -46,14 +46,14 @@ class MetronomeVolume extends StatelessWidget {
                 assetName(),
                 colorFilter: ColorFilter.mode(
                     p.metronomeMuted
-                        ? Colors.white.withOpacity(opacity())
+                        ? Colors.white.withValues(alpha: opacity())
                         : p.setColor(),
                     BlendMode.srcIn),
                 semanticsLabel: 'Metronome Icon',
               ),
               iconSize: iconSize,
               color: p.metronomeMuted
-                  ? Colors.white.withOpacity(opacity())
+                  ? Colors.white.withValues(alpha: opacity())
                   : p.setColor(),
               splashRadius: iconSize,
               onPressed: () {
@@ -67,14 +67,14 @@ class MetronomeVolume extends StatelessWidget {
               data: SfSliderThemeData(
                 thumbColor: highlightColor,
                 activeTrackColor: p.metronomeMuted
-                    ? Colors.white.withOpacity(opacity())
+                    ? Colors.white.withValues(alpha: opacity())
                     : p.setColor(),
                 inactiveTrackColor: p.setInactiveColor(),
                 activeTrackHeight: 4,
                 inactiveTrackHeight: 4,
                 thumbRadius: 6,
                 thumbStrokeColor: p.metronomeMuted
-                    ? Colors.white.withOpacity(opacity())
+                    ? Colors.white.withValues(alpha: opacity())
                     : p.setColor(),
                 thumbStrokeWidth: 1,
                 // tooltipBackgroundColor: highlightColor,
@@ -93,10 +93,10 @@ class MetronomeVolume extends StatelessWidget {
                   showLabels: true,
                   minorTicksPerInterval: 4,
                   activeColor: p.metronomeMuted
-                      ? Colors.white.withOpacity(opacity())
+                      ? Colors.white.withValues(alpha: opacity())
                       : p.setColor(),
                   inactiveColor: p.metronomeMuted
-                      ? Colors.white.withOpacity(0.1)
+                      ? Colors.white.withValues(alpha: 0.1)
                       : p.setInactiveColor(),
                   enableTooltip: true,
                   value: metronomeVolume,
@@ -120,7 +120,7 @@ class MetronomeVolume extends StatelessWidget {
                 ),
                 iconSize: iconSize,
                 color: p.metronomeMuted
-                    ? Colors.white.withOpacity(opacity())
+                    ? Colors.white.withValues(alpha: opacity())
                     : p.setColor(),
                 splashRadius: iconSize,
                 onPressed: p.setMetronomeBellEnabled),

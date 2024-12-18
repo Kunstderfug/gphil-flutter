@@ -1221,7 +1221,8 @@ class PlaylistProvider extends ChangeNotifier {
 
     isPlaying = true;
     await playCurrentSection();
-    playerVolume = currentSection?.sectionVolume ?? 1;
+    playerVolume =
+        layersEnabled ? playerVolume : (currentSection?.sectionVolume ?? 1);
     player.setVolume(activeHandle!, playerVolume);
     startMetronome();
     handleStartPlayback();
@@ -1611,8 +1612,8 @@ class PlaylistProvider extends ChangeNotifier {
   Color setInactiveColor() {
     return currentSection?.autoContinueMarker != null &&
             currentSection?.autoContinue != false
-        ? greenColor.withOpacity(0.3)
-        : redColor.withOpacity(0.3);
+        ? greenColor.withValues(alpha: 0.3)
+        : redColor.withValues(alpha: 0.3);
   }
 
 // CLICKDATA

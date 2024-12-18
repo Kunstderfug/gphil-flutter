@@ -199,6 +199,20 @@ class ModesAndPlayerControl extends StatelessWidget {
                                 child:
                                     SectionTempos(section: p.currentSection!),
                               ),
+                            if (p.currentSection != null &&
+                                p.currentSection!.tempoRangeLayers != null &&
+                                p.currentSection!.tempoRangeLayers!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 32.0, vertical: 16.0),
+                                child: Text(
+                                  'Layers available, tempos: ${p.currentSection!.tempoRangeLayers!.join(", ")}',
+                                  style: TextStyle(
+                                    fontSize: fontSizeMd,
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ),
                           ],
                         ),
                       ),

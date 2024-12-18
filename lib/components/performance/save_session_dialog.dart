@@ -467,7 +467,7 @@ class _SessionTypeButton extends StatelessWidget {
                 isSelected ? activeColor : const Color(0xFF27272A), // zinc-800
             border: Border.all(
               color: isSelected
-                  ? activeBorderColor.withOpacity(0.3)
+                  ? activeBorderColor.withValues(alpha: 0.3)
                   : const Color(0xFF3F3F46), // zinc-700
             ),
             borderRadius: BorderRadius.circular(32),

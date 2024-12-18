@@ -37,7 +37,7 @@ class PlayerHeader extends StatelessWidget {
               'Cancel',
               style: TextStyles()
                   .textMd
-                  .copyWith(color: Colors.white.withOpacity(0.5)),
+                  .copyWith(color: Colors.white.withValues(alpha: 0.5)),
             ),
             onPressed: () {
               Navigator.of(context).pop(); // Just close dialog

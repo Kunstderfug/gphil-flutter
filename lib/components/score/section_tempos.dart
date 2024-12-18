@@ -33,16 +33,17 @@ class SectionTempos extends StatelessWidget {
     }
 
     bool tempoExists(int tempo) {
-      if (!p.layersEnabled) return true;
-      if (section.tempoRangeLayers == null) return true;
-      return section.tempoRangeLayers?.contains(tempo) ?? false;
+      return !p.layersEnabled ||
+          (section.tempoRangeLayers?.contains(tempo) ?? false);
     }
 
     double setOpacity(int tempo) {
       if (!p.layersEnabled) return 1.0;
       if (p.layersEnabled &&
           section.tempoRangeLayers != null &&
-          !section.tempoRangeLayers!.contains(tempo)) return 0.5;
+          !section.tempoRangeLayers!.contains(tempo)) {
+        return 0.3;
+      }
       return 1.0;
     }
 
@@ -60,37 +61,55 @@ class SectionTempos extends StatelessWidget {
               for (int tempo in section.tempoRange)
                 Opacity(
                   opacity: setOpacity(tempo),
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      elevation: 0,
-                      animationDuration: const Duration(milliseconds: 200),
-                      backgroundColor: isSelected(tempo)
-                          ? t.themeData.highlightColor
-                          : t.themeData.colorScheme.primary,
-                      foregroundColor: t.themeData.colorScheme.inversePrimary,
-                      shape: CircleBorder(
-                        side: BorderSide(
-                          width: 2,
-                          color: isDefaultTempo(tempo)
-                              ? t.themeData.highlightColor
-                              : Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    onPressed: () => tempoExists(tempo)
-                        ? p.appState != AppState.loading
-                            ? setTempo(tempo)
-                            : null
-                        : null,
-                    child: Padding(
-                      padding: EdgeInsets.all(
-                          section.tempoRange.length > 6 ? 12 : 16),
-                      child: Text(
-                        tempo.toString(),
-                        style: TextStyle(
-                          fontSize: fontSizeSm,
-                          fontWeight:
-                              isSelected(tempo) ? FontWeight.bold : null,
+                  child: MouseRegion(
+                    cursor: tempoExists(tempo)
+                        ? SystemMouseCursors.click
+                        : SystemMouseCursors.forbidden,
+                    child: AbsorbPointer(
+                      absorbing:
+                          !tempoExists(tempo) || p.appState == AppState.loading,
+                      child: Tooltip(
+                        message: tempoExists(tempo)
+                            ? 'Set tempo to $tempo'
+                            : 'Tempo $tempo is not available for layers mode',
+                        waitDuration: const Duration(milliseconds: 500),
+                        showDuration: const Duration(seconds: 2),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            elevation: 0,
+                            animationDuration:
+                                const Duration(milliseconds: 200),
+                            backgroundColor: isSelected(tempo)
+                                ? t.themeData.highlightColor
+                                : t.themeData.colorScheme.primary,
+                            foregroundColor:
+                                t.themeData.colorScheme.inversePrimary,
+                            shape: CircleBorder(
+                              side: BorderSide(
+                                width: 2,
+                                color: isDefaultTempo(tempo)
+                                    ? t.themeData.highlightColor
+                                    : Colors.transparent,
+                              ),
+                            ),
+                          ),
+                          onPressed: () => tempoExists(tempo)
+                              ? p.appState != AppState.loading
+                                  ? setTempo(tempo)
+                                  : null
+                              : null,
+                          child: Padding(
+                            padding: EdgeInsets.all(
+                                section.tempoRange.length > 6 ? 12 : 16),
+                            child: Text(
+                              tempo.toString(),
+                              style: TextStyle(
+                                fontSize: fontSizeSm,
+                                fontWeight:
+                                    isSelected(tempo) ? FontWeight.bold : null,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -1,14 +1,10 @@
-// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/models/layer_player.dart';
-// import 'package:gphil/controllers/persistent_data_controller.dart';
-// import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
-// import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
 class StatusBar extends StatelessWidget {
@@ -16,7 +12,7 @@ class StatusBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dividerColor = Colors.white.withOpacity(0.3);
+    final dividerColor = Colors.white.withValues(alpha: 0.3);
     const alignment = MainAxisAlignment.spaceBetween;
 
     final n = Provider.of<NavigationProvider>(context);
@@ -49,15 +45,17 @@ class StatusBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 8.0),
+            padding: const EdgeInsets.only(left: 18.0),
             child: SizedBox(
-                width: 240,
+                width: 230,
                 child: Row(
                   mainAxisAlignment: alignment,
                   children: [
                     StatusBarItem(
-                        text: 'GPhil v.${au.localBuild} | App status',
-                        value: ac.appState.name),
+                      text: '',
+                      value: 'GPhil v.${au.localBuild}',
+                    ),
+                    StatusBarItem(text: 'App status', value: ac.appState.name),
                     VerticalDivider(
                       thickness: 1,
                       color: dividerColor,

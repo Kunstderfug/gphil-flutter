@@ -17,10 +17,38 @@ import 'package:provider/provider.dart';
 class PerformanceScreen extends StatelessWidget {
   const PerformanceScreen({super.key});
 
+  void _showLayersErrorDialog(BuildContext context, PlaylistProvider p) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: SizedBox(
+            width: 600,
+            // height: 400,
+            child: LayersError(p: p),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
     final n = Provider.of<NavigationProvider>(context);
+
+    // Show dialog when conditions are met
+    // Show dialog when conditions are met
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!p.isTempoInAllRanges &&
+          p.error.isNotEmpty &&
+          Navigator.canPop(context) == false) {
+        // Add this check
+        _showLayersErrorDialog(context, p);
+      }
+    });
 
     Widget layout = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
@@ -34,18 +62,6 @@ class PerformanceScreen extends StatelessWidget {
                     label: 'Mixer',
                     child: MixerInfo(p: p),
                   ),
-                if (p.layersEnabled &&
-                    !p.isTempoInAllRanges &&
-                    p.error.isNotEmpty)
-                  Positioned(
-                    bottom: 200,
-                    right: 50,
-                    child: SizedBox(
-                      width: MediaQuery.sizeOf(context).width / 2,
-                      // height: 300,
-                      child: const LayersError(),
-                    ),
-                  )
               ],
             ),
           );

@@ -95,8 +95,9 @@ class GlobalMixer extends StatelessWidget {
                                   WidgetStateProperty.resolveWith<Color?>(
                                 (Set<WidgetState> states) {
                                   if (states.contains(WidgetState.hovered)) {
-                                    return greenColor.withOpacity(
-                                        0.2); // Set the background color on hover
+                                    return greenColor.withValues(
+                                        alpha:
+                                            0.2); // Set the background color on hover
                                   }
                                   return null; // Use the default button background color
                                 },

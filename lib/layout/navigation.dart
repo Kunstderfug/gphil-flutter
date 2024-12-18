@@ -141,8 +141,9 @@ class AppUpdateCol1 extends StatelessWidget {
                                         (Set<WidgetState> states) {
                                           if (states
                                               .contains(WidgetState.hovered)) {
-                                            return greenColor.withOpacity(
-                                                0.2); // Set the background color on hover
+                                            return greenColor.withValues(
+                                                alpha:
+                                                    0.2); // Set the background color on hover
                                           }
                                           return null; // Use the default button background color
                                         },
@@ -189,6 +190,7 @@ class AppUpdateCol1 extends StatelessWidget {
 
 class Nav extends StatelessWidget {
   const Nav({super.key});
+  final double size = 120;
 
   @override
   Widget build(BuildContext context) {
@@ -198,17 +200,18 @@ class Nav extends StatelessWidget {
       //logo
       SizedBox(
         height: 182,
-        child: DrawerHeader(
-            child: Center(
+        child: Center(
           child: ClipOval(
             child: Image.asset(
               'assets/images/gphil_icon.png',
-              width: 100,
-              height: 100,
+              width: size,
+              height: size,
             ),
           ),
-        )),
+        ),
       ),
+
+      const SeparatorLine(height: 1),
 
       if (!isTablet(context))
         //NAVIGATION
@@ -227,7 +230,7 @@ class Nav extends StatelessWidget {
           index: 3,
           isSelected: n.currentIndex == 3,
         ),
-      if (!isTablet(context)) SeparatorLine(height: 18),
+      if (!isTablet(context)) SeparatorLine(height: 1),
     ]);
   }
 }

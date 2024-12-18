@@ -247,7 +247,7 @@ class SeparatorLine extends StatelessWidget {
         child: Container(
           height: separatorThickness,
           decoration: BoxDecoration(
-            color: color.withOpacity(opacity),
+            color: color.withValues(alpha: opacity),
           ),
         ),
       ),

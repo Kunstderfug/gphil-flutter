@@ -30,8 +30,8 @@ class StandartButton extends StatelessWidget {
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) {
             if (states.contains(WidgetState.hovered)) {
-              return borderColor
-                  .withOpacity(0.2); // Set the background color on hover
+              return borderColor.withValues(
+                  alpha: 0.2); // Set the background color on hover
             }
             return null; // Use the default button background color
           },

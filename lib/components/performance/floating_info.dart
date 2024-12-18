@@ -82,10 +82,11 @@ class FloatingWindowState extends State<FloatingWindow> {
           width: _width - 40,
           height: _isCollapsed ? 40 : _height,
           decoration: BoxDecoration(
-            color: AppColors().backroundColor(context).withOpacity(_opacity),
+            color:
+                AppColors().backroundColor(context).withValues(alpha: _opacity),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 spreadRadius: 5,
               ),
@@ -117,7 +118,7 @@ class FloatingWindowState extends State<FloatingWindow> {
         height: 40,
         padding: EdgeInsets.symmetric(horizontal: paddingMd),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.5),
+          color: Colors.black.withValues(alpha: 0.5),
           borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
         ),
         child: Row(
