@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
+import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/debug_info.dart';
 import 'package:gphil/components/performance/floating_info.dart';
 import 'package:gphil/components/performance/layers_error.dart';
@@ -39,13 +40,10 @@ class PerformanceScreen extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
     final n = Provider.of<NavigationProvider>(context);
 
-    // Show dialog when conditions are met
-    // Show dialog when conditions are met
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!p.isTempoInAllRanges &&
           p.error.isNotEmpty &&
           Navigator.canPop(context) == false) {
-        // Add this check
         _showLayersErrorDialog(context, p);
       }
     });
@@ -53,17 +51,17 @@ class PerformanceScreen extends StatelessWidget {
     Widget layout = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth >= 900) {
-          return SingleChildScrollView(
-            child: Stack(
-              children: [
-                MainArea(),
-                if (kDebugMode)
-                  FloatingWindow(
-                    label: 'Mixer',
-                    child: MixerInfo(p: p),
-                  ),
-              ],
-            ),
+          return Stack(
+            children: [
+              SingleChildScrollView(child: MainArea()),
+              // Sticky footer
+
+              if (kDebugMode)
+                FloatingWindow(
+                  label: 'Mixer',
+                  child: MixerInfo(p: p),
+                ),
+            ],
           );
         } else {
           return TabletBody();

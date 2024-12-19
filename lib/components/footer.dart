@@ -7,25 +7,27 @@ class Footer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Wrap(spacing: 8, children: [
-          SocialButton(
-              label: 'Support GPhil',
-              icon: Icons.paypal,
-              url: 'https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ',
-              iconColor: highlightColor,
-              borderColor: highlightColor),
-          SocialButton(
-              label: 'Report a bug',
-              icon: Icons.bug_report,
-              url: 'https://discord.gg/DMDvB6NFJu',
-              iconColor: redColor,
-              borderColor: redColor),
-        ]),
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      spacing: 16,
+      children: [
+        SocialButton(
+          label: 'Support GPhil',
+          icon: Icons.paypal,
+          url: 'https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ',
+          iconColor: highlightColor,
+          borderColor: highlightColor,
+        ),
+        const SizedBox(height: 8),
+        SocialButton(
+          label: 'Report a bug',
+          icon: Icons.bug_report,
+          url: 'https://discord.gg/DMDvB6NFJu',
+          iconColor: redColor,
+          borderColor: redColor,
+        ),
+      ],
     );
   }
 }

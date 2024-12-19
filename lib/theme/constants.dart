@@ -67,7 +67,7 @@ double appBarHeight(BuildContext context) {
 }
 
 bool isTablet(BuildContext context) {
-  return MediaQuery.sizeOf(context).width <= 900;
+  return MediaQuery.sizeOf(context).width <= 980;
 }
 
 bool isHiDPI(BuildContext context) {

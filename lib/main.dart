@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -15,13 +17,32 @@ import 'package:gphil/screens/score_screen.dart';
 import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
 import 'package:provider/provider.dart';
+import 'package:window_manager/window_manager.dart';
 
 // import 'package:gphil/src/rust/frb_generated.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // final prefs = await SharedPreferences.getInstance();
   final bool isDark = true;
+
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+
+    WindowOptions windowOptions = WindowOptions(
+      size: Size(1600, 1000),
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.normal,
+      minimumSize: Size(800, 600),
+      maximumSize: Size(2440, 1600),
+    );
+
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   runApp(
     MultiProvider(providers: [

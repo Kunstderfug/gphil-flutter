@@ -67,11 +67,6 @@ class MainArea extends StatelessWidget {
           const SizedBox(
             height: separatorMd,
           ),
-          Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Expanded(child: Center(child: Footer())),
-            SizedBox(width: separatorWidth),
-            Expanded(child: SizedBox(width: separatorWidth)),
-          ]),
         ]);
   }
 }
