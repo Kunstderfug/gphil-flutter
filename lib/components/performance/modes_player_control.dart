@@ -182,7 +182,8 @@ class ModesAndPlayerControl extends StatelessWidget {
                                     p.areAllTempoRangesEqual)
                                   AllSectionsTempoSwitch(p: p),
                                 IconButton(
-                                  tooltip: "Save/Load session",
+                                  tooltip:
+                                      "Save/Load session\nKeyboard shortcut [O]",
                                   icon: Icon(Icons.settings),
                                   onPressed: () =>
                                       _showSaveSessionDialog(context, p, s, l),

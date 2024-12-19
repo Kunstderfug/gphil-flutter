@@ -26,9 +26,7 @@ class ResponsiveLayout extends StatelessWidget {
           children: [tabletLayout, if (n.isPerformanceScreen) footer],
         );
       } else {
-        return Stack(
-          children: [desktopLayout, if (n.isPerformanceScreen) footer],
-        );
+        return desktopLayout;
       }
     });
   }

@@ -60,7 +60,7 @@ class GlobalMixer extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Container(
-                        constraints: const BoxConstraints(maxHeight: 240),
+                        constraints: const BoxConstraints(maxHeight: 220),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -93,11 +93,6 @@ class GlobalMixer extends StatelessWidget {
                                               .onSurface),
                                       iconColor:
                                           WidgetStatePropertyAll(p.setColor()),
-                                      // side: WidgetStatePropertyAll(
-                                      //   BorderSide(
-                                      //     color: p.setColor(),
-                                      //   ),
-                                      // ),
                                     ),
                                     onPressed: () =>
                                         p.layersEnabled ? p.resetMixer() : null,
@@ -109,7 +104,7 @@ class GlobalMixer extends StatelessWidget {
                             ),
                             if (p.sessionScore?.globalLayers != null)
                               Row(
-                                spacing: paddingXl,
+                                spacing: paddingMd,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [

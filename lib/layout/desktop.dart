@@ -15,9 +15,74 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
+
+  Widget _buildScoreLinks(ScoreProvider s) {
+    final double iconSize = 20;
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (s.currentScore?.pianoScoreUrl != null)
+            IconButton(
+              padding: const EdgeInsets.all(0),
+              icon: const Icon(
+                Icons.piano_outlined,
+              ),
+              iconSize: iconSize,
+              tooltip: 'Download Piano Score',
+              color: Colors.white,
+              onPressed: () =>
+                  launchUrl(Uri.parse(s.currentScore!.pianoScoreUrl!)),
+            ),
+          if (s.currentScore?.fullScoreUrl != null)
+            IconButton(
+              padding: const EdgeInsets.all(0),
+              icon: const Icon(
+                Icons.library_music_outlined,
+              ),
+              iconSize: iconSize,
+              tooltip: 'Download Full Score',
+              color: Colors.white,
+              onPressed: () =>
+                  launchUrl(Uri.parse(s.currentScore!.fullScoreUrl!)),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialIcons() {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          hoverColor: highlightColor,
+          icon: const Icon(
+            Icons.paypal,
+          ),
+          tooltip: 'Support GPhil',
+          // color: highlightColor,
+          onPressed: () => launchUrl(
+              Uri.parse('https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ')),
+        ),
+        IconButton(
+          hoverColor: redColor,
+          icon: const Icon(
+            Icons.bug_report,
+          ),
+          tooltip: 'Report a bug',
+          // color: redColor,
+          onPressed: () =>
+              launchUrl(Uri.parse('https://discord.gg/DMDvB6NFJu')),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +124,10 @@ class DesktopLayout extends StatelessWidget {
                         : p.performanceMode && p.playlist.isNotEmpty
                             ? p.setColor()
                             : AppColors().backroundColor(context),
+                    leading: n.isPerformanceScreen
+                        ? _buildScoreLinks(s)
+                        : null, // Add this
+                    leadingWidth: n.isPerformanceScreen ? 100 : 56, // Add this
                     title: Text(
                         n.isLibraryScreen
                             ? n.navigationScreens[n.currentIndex].title
@@ -67,6 +136,8 @@ class DesktopLayout extends StatelessWidget {
                                 : n.navigationScreens[n.currentIndex].title,
                         style: Theme.of(context).textTheme.titleMedium),
                     toolbarHeight: appBarSizeDesktop,
+                    actions:
+                        n.isPerformanceScreen ? [_buildSocialIcons()] : null,
                   )
                 : AppBar(
                     title: Padding(
@@ -105,6 +176,7 @@ class DesktopLayout extends StatelessWidget {
                         ],
                       ),
                     ),
+                    // actions: [_buildSocialIcons()],
                     toolbarHeight: appBarSizeDesktop,
                   ),
             body: Stack(children: [
@@ -134,11 +206,13 @@ class DesktopLayout extends StatelessWidget {
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width - 240,
                     height: MediaQuery.sizeOf(context).height,
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: paddingXl, vertical: paddingSm),
-                      child: n.navigationScreens[n.currentIndex].screen,
-                    ),
+                    child: n.isHelpScreen // Add this condition
+                        ? n.navigationScreens[n.currentIndex].screen
+                        : SingleChildScrollView(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingXl, vertical: paddingSm),
+                            child: n.navigationScreens[n.currentIndex].screen,
+                          ),
                   ),
                 ],
               ),

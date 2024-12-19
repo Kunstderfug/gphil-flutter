@@ -22,6 +22,7 @@ class NavigationProvider extends ChangeNotifier {
   bool get isPerformanceScreen => _currentIndex == 1 ? true : false;
   bool get isScoreScreen => _currentIndex == 2 ? true : false;
   bool get isLibraryScreen => _currentIndex == 0 ? true : false;
+  bool get isHelpScreen => _currentIndex == 3 ? true : false;
   List<NavigationScreen> get navigationScreens => _navigationScreens;
 
   final _navigationScreens = <NavigationScreen>[

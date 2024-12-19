@@ -15,12 +15,12 @@ class LayerChannelLevel extends StatelessWidget {
     final p = Provider.of<PlaylistProvider>(context);
 
     return SizedBox(
-      height: 200,
+      height: 180,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           SizedBox(
-            height: 180,
+            height: 160,
             child: SfSliderTheme(
               data: SfSliderThemeData(
                 thumbColor: highlightColor,

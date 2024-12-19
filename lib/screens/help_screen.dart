@@ -96,129 +96,127 @@ class _HelpScreenState extends State<HelpScreen> {
     // Create a unique key for the scroll view
     final scrollKey = ValueKey('scroll_$_activeSection');
 
-    // Calculate available height by subtracting AppBar height
-    final double availableHeight = MediaQuery.of(context).size.height -
-        (isTablet(context) ? appBarSizeDesktop : appBarSize) -
-        bottom;
+    // // Calculate available height by subtracting AppBar height
+    // final double availableHeight = MediaQuery.of(context).size.height -
+    //     (isTablet(context) ? appBarSizeDesktop : appBarSize) -
+    //     bottom;
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        minHeight: availableHeight,
-        maxHeight: availableHeight,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(
+    return Column(
+      // Changed to Column instead of ConstrainedBox
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(
             left: paddingXl,
             right: paddingXl,
             top: paddingXl,
-            bottom: paddingXs),
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 38,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: _sections.keys.map((section) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: ElevatedButton(
-                          onPressed: () => _changeSection(section),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _activeSection == section
-                                ? highlightColor
-                                : Colors.grey.withValues(alpha: 0.1),
-                            foregroundColor: Colors.white,
-                            textStyle: TextStyles().textMd,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 32, vertical: 16),
-                            // side: BorderSide(
-                            //     color: Colors.white.withValues(alpha: 0.2), width: 1),
-                          ),
-                          child: Text(
-                              section[0].toUpperCase() + section.substring(1)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 38,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: _sections.keys.map((section) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: ElevatedButton(
+                        onPressed: () => _changeSection(section),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _activeSection == section
+                              ? highlightColor
+                              : Colors.grey.withValues(alpha: 0.1),
+                          foregroundColor: Colors.white,
+                          textStyle: TextStyles().textMd,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 16),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const SeparatorLine(),
-                const SizedBox(height: 24),
-                Expanded(
-                  child: SingleChildScrollView(
-                    key: scrollKey,
-                    controller: _scrollController,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _sections[_activeSection] ?? const SizedBox.shrink(),
-                        Padding(
-                          padding: const EdgeInsets.all(paddingMd),
-                          child: Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (!isFirstSection) ...[
-                                  StandartButton(
-                                    label: 'Previous',
-                                    icon: Icons.arrow_back,
-                                    iconColor: greenColor,
-                                    iconAlignment: IconAlignment.start,
-                                    borderColor: greenColor,
-                                    callback: () => _changeSection(_sections
-                                        .keys
-                                        .elementAt(currentIndex - 1)),
-                                  ),
-                                  const SizedBox(width: paddingLg),
-                                ],
-                                if (!isLastSection)
-                                  StandartButton(
-                                    label: 'Next',
-                                    icon: Icons.arrow_forward,
-                                    iconColor: greenColor,
-                                    iconAlignment: IconAlignment.end,
-                                    borderColor: greenColor,
-                                    callback: () => _changeSection(_sections
-                                        .keys
-                                        .elementAt(currentIndex + 1)),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Only show the back to top button in tablet mode and when scrolled down
-            if (_showBackToTopButton)
-              Positioned(
-                right: 30,
-                bottom: 30,
-                child: AnimatedOpacity(
-                  opacity: _showBackToTopButton ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: FloatingActionButton(
-                    mini: true, // Makes the FAB smaller
-                    backgroundColor: highlightColor.withValues(alpha: 0.8),
-                    onPressed: _scrollToTop,
-                    tooltip: 'Scroll to top',
-                    child: const Icon(
-                      Icons.arrow_upward,
-                      color: Colors.white,
-                    ),
-                  ),
+                        child: Text(
+                            section[0].toUpperCase() + section.substring(1)),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
-          ],
+              const SizedBox(height: 24),
+              const SeparatorLine(),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
-      ),
+        Expanded(
+          // This will take remaining vertical space
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: paddingXl),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  key: scrollKey,
+                  controller: _scrollController,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _sections[_activeSection] ?? const SizedBox.shrink(),
+                      Padding(
+                        padding: const EdgeInsets.all(paddingMd),
+                        child: Center(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (!isFirstSection) ...[
+                                StandartButton(
+                                  label: 'Previous',
+                                  icon: Icons.arrow_back,
+                                  iconColor: greenColor,
+                                  iconAlignment: IconAlignment.start,
+                                  borderColor: greenColor,
+                                  callback: () => _changeSection(_sections.keys
+                                      .elementAt(currentIndex - 1)),
+                                ),
+                                const SizedBox(width: paddingLg),
+                              ],
+                              if (!isLastSection)
+                                StandartButton(
+                                  label: 'Next',
+                                  icon: Icons.arrow_forward,
+                                  iconColor: greenColor,
+                                  iconAlignment: IconAlignment.end,
+                                  borderColor: greenColor,
+                                  callback: () => _changeSection(_sections.keys
+                                      .elementAt(currentIndex + 1)),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (_showBackToTopButton)
+                  Positioned(
+                    right: 30,
+                    bottom: 30,
+                    child: AnimatedOpacity(
+                      opacity: _showBackToTopButton ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: FloatingActionButton(
+                        mini: true,
+                        backgroundColor: highlightColor.withValues(alpha: 0.8),
+                        onPressed: _scrollToTop,
+                        tooltip: 'Scroll to top',
+                        child: const Icon(
+                          Icons.arrow_upward,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

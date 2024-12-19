@@ -26,11 +26,11 @@ class _MetronomeState extends State<Metronome>
     // Create a curved animation that goes back and forth
     _opacityAnimation = TweenSequence<double>([
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.2, end: 0.6),
+        tween: Tween<double>(begin: 0.2, end: 0.5),
         weight: 1.0,
       ),
       TweenSequenceItem(
-        tween: Tween<double>(begin: 0.6, end: 0.2),
+        tween: Tween<double>(begin: 0.5, end: 0.2),
         weight: 1.0,
       ),
     ]).animate(CurvedAnimation(
@@ -54,9 +54,13 @@ class _MetronomeState extends State<Metronome>
     if (p.isPlaying) {
       _animationController.duration =
           Duration(milliseconds: p.beatLength != 0 ? p.beatLength : 3000);
-      _animationController.repeat();
+      if (!_animationController.isAnimating) {
+        _animationController.repeat();
+      }
     } else {
-      _animationController.repeat(reverse: true); // Make it continuous
+      if (_animationController.isAnimating) {
+        _animationController.stop();
+      }
     }
 
     Color setColor() => p.currentSection?.autoContinueMarker != null &&

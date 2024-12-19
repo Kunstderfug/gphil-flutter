@@ -668,9 +668,11 @@ class PlaylistProvider extends ChangeNotifier {
       //main player volume to mainPlayerVolume(1)
       player.setVolume(activeHandle!, playerVolume);
       //turn off layers, set layer players volume to 0
-      for (final SoundHandle handle
-          in currentLayerPlayerPool!.activeLayerHandles) {
-        player.setVolume(handle, 0);
+      if (currentLayerPlayerPool?.activeLayerHandles != null) {
+        for (final SoundHandle handle
+            in currentLayerPlayerPool!.activeLayerHandles) {
+          player.setVolume(handle, 0);
+        }
       }
     } else {
       //main player volume to 0
@@ -1163,7 +1165,7 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   void setMetronomeVolume(double value) async {
-    final double metronomeAttenuation = 0.25;
+    final double metronomeAttenuation = 1;
     metronomeVolume = value;
     value == 0 ? metronomeMuted = true : metronomeMuted = false;
     notifyListeners();

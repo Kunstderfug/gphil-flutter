@@ -16,18 +16,16 @@ class MainVolume extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         SizedBox(
-          height: 240,
+          height: 200,
           child: SfSliderTheme(
             data: SfSliderThemeData(
               thumbColor: highlightColor,
               activeTrackColor: p.setColor(),
               inactiveTrackColor: p.setInactiveColor(),
-              activeTrackHeight: sizeXs,
-              inactiveTrackHeight: sizeXs,
-              thumbRadius: sizeSm,
-              // thumbStrokeColor: p.layersEnabled ? greenColor : null,
+              // activeTrackHeight: sizeXs,
+              // inactiveTrackHeight: sizeXs,
+              // thumbRadius: sizeSm,
               thumbStrokeWidth: 1,
-              // tooltipBackgroundColor: highlightColor,
               tooltipTextStyle: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
               ),
