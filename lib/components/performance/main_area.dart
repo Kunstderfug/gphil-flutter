@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/modes_player_control.dart';
 import 'package:gphil/components/performance/section_management_mixer.dart';
 import 'package:gphil/components/performance/section_name_playlist_control.dart';

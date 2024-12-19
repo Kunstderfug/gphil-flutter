@@ -1908,6 +1908,13 @@ class PlaylistProvider extends ChangeNotifier {
       sessionMovements.clear();
     }
     sessionScore = score;
+
+    //check if layers enabled and a score doesn't have layers
+    if (score.globalLayers == null ||
+        score.globalLayers!.isEmpty && layersEnabled) {
+      layersEnabled = false;
+    }
+
     //setting up session movements
     for (Movement movement in movements) {
       addMovement(score, movement);
@@ -1929,7 +1936,6 @@ class PlaylistProvider extends ChangeNotifier {
       log('sectionIndex: ${section.sectionIndex.toString()}');
     }
 
-    // await loadClickFiles(playlist);
     await initSessionPlayers(playlist.first.key, isSessionLoading: true);
     //set mode to practice or performance
     if (sessionType == SessionType.performance) {

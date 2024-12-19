@@ -3,6 +3,7 @@ import 'package:gphil/providers/navigation_provider.dart';
 import 'package:provider/provider.dart';
 
 double scale(BuildContext context) => isHiDPI(context) ? 1.25 : 1.0;
+const double globalDisabledOpacity = 0.3;
 
 //sizes
 const sizeXxs = 4.0;

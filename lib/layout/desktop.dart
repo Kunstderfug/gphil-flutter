@@ -29,7 +29,7 @@ class DesktopLayout extends StatelessWidget {
 
     return Shortcuts(
       shortcuts: {
-        SingleActivator(LogicalKeyboardKey.keyJ): const SearchIntent(),
+        SingleActivator(LogicalKeyboardKey.keyF): const SearchIntent(),
       },
       child: Actions(
         actions: {

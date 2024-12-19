@@ -23,19 +23,19 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-			FXmgnMhc53UVffwHWkvLccrmaJY=
+			U87HV6/8OD7qDbywoJEhBep0DsM=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"1579a09cc85ce775157dfc075a4bcb71cae66896" or cdhash H"6c05203989f4557e9e8fe12d4d5faa816bad4083"</string>
+			<string>cdhash H"53cec757affc383eea0dbcb0a0912105ea740ec3" or cdhash H"88d8b82fc5853f581d140adcaf05596d8df95cbf"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			vhkFNHEPks4omy2K2NYGdOL9qrM=
+			t9GBlps6GLc2zVYJsE/f3u3+ZPY=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"be190534710f92ce289b2d8ad8d60674e2fdaab3" or cdhash H"0004731cb5ba5b9c07248edd2b8185f7569026c2"</string>
+			<string>cdhash H"b7d181969b3a18b736cd5609b04fdfdeedfe64f6" or cdhash H"dd3a53de5d66aefa3e1460e6184e14563a80c476"</string>
 		</dict>
 		<key>Frameworks/connectivity_plus.framework</key>
 		<dict>
@@ -82,6 +82,15 @@
 			<key>requirement</key>
 			<string>cdhash H"be7040a29da1f0543766bb235553b970b48a6445" or cdhash H"eb207555a84701122c3251af5250226fa0a212a7"</string>
 		</dict>
+		<key>Frameworks/screen_retriever_macos.framework</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			vyi6lVhl2a3XvCKndfWww0BMwnQ=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"bf28ba955865d9add7bc22a775f5b0c3404cc274" or cdhash H"aa048b836ae30e4fb65fd8af182b8c64c2ed994f"</string>
+		</dict>
 		<key>Frameworks/shared_preferences_foundation.framework</key>
 		<dict>
 			<key>cdhash</key>
@@ -117,6 +126,15 @@
 			</data>
 			<key>requirement</key>
 			<string>cdhash H"f465fae2a7fab08e828b50b1c2b76e8cf9d2729a" or cdhash H"63d33176c38c965d83bf079910346e9e243b8df0"</string>
+		</dict>
+		<key>Frameworks/window_manager.framework</key>
+		<dict>
+			<key>cdhash</key>
+			<data>
+			+tbPXkma/qwVDo+waW9AeKhQsxo=
+			</data>
+			<key>requirement</key>
+			<string>cdhash H"fad6cf5e499afeac150e8fb0696f4078a850b31a" or cdhash H"f84a53c4e8196fe1701353180df0a76f062be5e0"</string>
 		</dict>
 		<key>Resources/AppIcon.icns</key>
 		<dict>

@@ -107,121 +107,132 @@ class _LibrarySearchState extends State<LibrarySearch> {
       }
     }
 
-    final Widget searchBar = SearchAnchor.bar(
-      constraints: BoxConstraints(
-        minHeight: 40,
-        maxWidth: 500,
-        minWidth: 200,
-      ),
-      searchController: searchController,
-      barHintText: 'Search scores...',
-      viewHintText: 'Type to search scores...',
-      barLeading: const Icon(Icons.search),
-      viewLeading: const Icon(Icons.search),
-      viewHeaderTextStyle: const TextStyle(
-        color: Colors.grey,
-      ),
-      viewTrailing: [
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => closeSearchAndDialog(context),
+    final Widget searchBar = Theme(
+      data: Theme.of(context).copyWith(
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.white,
+          selectionColor: Colors.white24, // For text selection
+          selectionHandleColor: Colors.white, // For selection handles
         ),
-      ],
-      suggestionsBuilder: (BuildContext context, SearchController controller) {
-        final query = controller.text.toLowerCase();
-        if (query.isEmpty) {
-          return [
-            const Center(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('Type to search...'),
+      ),
+      child: SearchAnchor.bar(
+        constraints: BoxConstraints(
+          minHeight: 40,
+          maxWidth: 500,
+          minWidth: 200,
+        ),
+        searchController: searchController,
+        barHintText: 'Find score...',
+        viewHintText: 'Type to search a score...',
+        barLeading: const Icon(Icons.search),
+        viewLeading: const Icon(Icons.search),
+        viewHeaderTextStyle: const TextStyle(
+          color: Colors.grey,
+        ),
+        viewTrailing: [
+          IconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => closeSearchAndDialog(context),
+          ),
+        ],
+        suggestionsBuilder:
+            (BuildContext context, SearchController controller) {
+          final query = controller.text.toLowerCase();
+          if (query.isEmpty) {
+            return [
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text('Type to search...'),
+                ),
               ),
-            ),
-          ];
-        }
+            ];
+          }
 
-        final filteredScores = l.library.where((LibraryItem score) {
-          final title = score.shortTitle.toLowerCase();
-          final composer = score.composer.toLowerCase();
-          return title.contains(query) || composer.contains(query);
-        }).toList();
+          final filteredScores = l.library.where((LibraryItem score) {
+            final title = score.shortTitle.toLowerCase();
+            final composer = score.composer.toLowerCase();
+            return title.contains(query) || composer.contains(query);
+          }).toList();
 
-        if (filteredScores.isEmpty) {
-          return [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.search_off, size: 48, color: Colors.grey),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No results found for "$query"',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
+          if (filteredScores.isEmpty) {
+            return [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.search_off,
+                          size: 48, color: Colors.grey),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No scores found for "$query". Scores are updated regularly - please check back later.',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+              ),
+            ];
+          }
+
+          final groupedScores = <String, List<LibraryItem>>{};
+          for (var score in filteredScores) {
+            groupedScores.putIfAbsent(score.composer, () => []);
+            groupedScores[score.composer]!.add(score);
+          }
+
+          final sortedComposers = groupedScores.keys.toList()..sort();
+
+          return sortedComposers.expand((composer) {
+            final scores = groupedScores[composer]!;
+            return [
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                color: Colors.black87,
+                child: Text(
+                  composer,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              ...scores.map((score) {
+                final titleMatches =
+                    getMatchedRanges(score.shortTitle.toLowerCase(), query);
+                final composerMatches =
+                    getMatchedRanges(score.composer.toLowerCase(), query);
+
+                return ListTile(
+                  title: RichText(
+                    text: TextSpan(
+                      children:
+                          buildHighlightedSpans(score.shortTitle, titleMatches),
+                      style: const TextStyle(color: Colors.white),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ];
-        }
-
-        final groupedScores = <String, List<LibraryItem>>{};
-        for (var score in filteredScores) {
-          groupedScores.putIfAbsent(score.composer, () => []);
-          groupedScores[score.composer]!.add(score);
-        }
-
-        final sortedComposers = groupedScores.keys.toList()..sort();
-
-        return sortedComposers.expand((composer) {
-          final scores = groupedScores[composer]!;
-          return [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-              color: Colors.black87,
-              child: Text(
-                composer,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-            ...scores.map((score) {
-              final titleMatches =
-                  getMatchedRanges(score.shortTitle.toLowerCase(), query);
-              final composerMatches =
-                  getMatchedRanges(score.composer.toLowerCase(), query);
-
-              return ListTile(
-                title: RichText(
-                  text: TextSpan(
-                    children:
-                        buildHighlightedSpans(score.shortTitle, titleMatches),
-                    style: const TextStyle(color: Colors.white),
                   ),
-                ),
-                subtitle: RichText(
-                  text: TextSpan(
-                    children:
-                        buildHighlightedSpans(score.composer, composerMatches),
-                    style: const TextStyle(color: Colors.grey),
+                  subtitle: RichText(
+                    text: TextSpan(
+                      children: buildHighlightedSpans(
+                          score.composer, composerMatches),
+                      style: const TextStyle(color: Colors.grey),
+                    ),
                   ),
-                ),
-                onTap: () async {
-                  await setScore(score);
-                  closeSearchAndDialog(context);
-                },
-              );
-            }),
-          ];
-        }).toList();
-      },
+                  onTap: () async {
+                    await setScore(score);
+                    closeSearchAndDialog(context);
+                  },
+                );
+              }),
+            ];
+          }).toList();
+        },
+      ),
     );
 
     if (!widget.isGlobalSearch) {

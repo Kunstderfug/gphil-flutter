@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
-import 'package:gphil/components/footer.dart';
 import 'package:gphil/components/performance/debug_info.dart';
 import 'package:gphil/components/performance/floating_info.dart';
 import 'package:gphil/components/performance/layers_error.dart';

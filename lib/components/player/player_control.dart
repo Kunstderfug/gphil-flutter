@@ -130,7 +130,7 @@ class PlayerControl extends StatelessWidget {
         ),
         ShortcutAction(
           intent: const OpenGlobalSearchIntent(),
-          shortcuts: const [SingleActivator(LogicalKeyboardKey.keyJ)],
+          shortcuts: const [SingleActivator(LogicalKeyboardKey.keyF)],
           onInvoke: () {
             showDialog(
               context: context,

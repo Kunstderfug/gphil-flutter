@@ -95,8 +95,8 @@ class KeyboardShortcutsSection extends StatelessWidget {
         description: 'Toggle performance mode',
       ),
       _Shortcut(
-        keys: ['J'],
-        description: 'Open score search dialog',
+        keys: ['F'],
+        description: 'Open [Find score] dialog',
       ),
     ],
   );

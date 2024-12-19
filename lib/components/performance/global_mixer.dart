@@ -25,8 +25,27 @@ class GlobalMixer extends StatelessWidget {
                 fontSize: fontSizeLg,
               ),
             ),
-            const SizedBox(
-              height: separatorMd,
+            SizedBox(
+              height: 40,
+              child: p.appState == AppState.loading &&
+                      p.layerPlayersPool.globalPools.isNotEmpty
+                  ? Center(
+                      child: Align(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 300),
+                          child: LoadingFiles(
+                              filesLoaded:
+                                  p.layerPlayersPool.globalPools.length,
+                              filesLength: p.playlist
+                                  .where((s) => s.layers != null)
+                                  .length),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: const SizedBox(),
+                    ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -36,91 +55,85 @@ class GlobalMixer extends StatelessWidget {
                 const SizedBox(
                   width: separatorXl,
                 ),
-                SizedBox(
-                  height: 240,
+                Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      LayerToggleSwitch(p: p),
-                      if (p.sessionScore?.globalLayers != null)
-                        Wrap(
-                          spacing: paddingXl,
-                          runSpacing: 4,
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 240),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            for (Layer layer
-                                in (p.layerPlayersPool.globalLayers.isNotEmpty
-                                    ? p.layerPlayersPool.globalLayers
-                                    : defaultMixer))
-                              Opacity(
-                                opacity: p.layersEnabled &&
-                                        p.currentSection?.layers != null
-                                    ? 1
-                                    : 0.3,
-                                child: LayerChannelLevel(layer: layer),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Opacity(
+                                  opacity: p.layersEnabled
+                                      ? 1
+                                      : globalDisabledOpacity,
+                                  child: IconButton(
+                                    tooltip: 'Reset mixer',
+                                    style: ButtonStyle(
+                                      backgroundColor: WidgetStateProperty
+                                          .resolveWith<Color?>(
+                                        (Set<WidgetState> states) {
+                                          if (states.contains(
+                                                  WidgetState.hovered) &&
+                                              p.layersEnabled) {
+                                            return p
+                                                .setColor()
+                                                .withValues(alpha: 0.2);
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                      foregroundColor: WidgetStatePropertyAll(
+                                          Theme.of(context)
+                                              .colorScheme
+                                              .onSurface),
+                                      iconColor:
+                                          WidgetStatePropertyAll(p.setColor()),
+                                      // side: WidgetStatePropertyAll(
+                                      //   BorderSide(
+                                      //     color: p.setColor(),
+                                      //   ),
+                                      // ),
+                                    ),
+                                    onPressed: () =>
+                                        p.layersEnabled ? p.resetMixer() : null,
+                                    icon: const Icon(Icons.refresh),
+                                  ),
+                                ),
+                                LayerToggleSwitch(p: p),
+                              ],
+                            ),
+                            if (p.sessionScore?.globalLayers != null)
+                              Row(
+                                spacing: paddingXl,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  for (Layer layer in (p.layerPlayersPool
+                                          .globalLayers.isNotEmpty
+                                      ? p.layerPlayersPool.globalLayers
+                                      : defaultMixer))
+                                    Opacity(
+                                      opacity: p.layersEnabled &&
+                                              p.currentSection?.layers != null
+                                          ? 1
+                                          : 0.3,
+                                      child: LayerChannelLevel(layer: layer),
+                                    ),
+                                ],
                               ),
                           ],
                         ),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(
-              height: separatorSm,
-            ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  p.appState == AppState.loading &&
-                          p.layerPlayersPool.globalPools.isNotEmpty
-                      ? Align(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 300),
-                            child: LoadingFiles(
-                                filesLoaded:
-                                    p.layerPlayersPool.globalPools.length,
-                                filesLength: p.playlist
-                                    .where((s) => s.layers != null)
-                                    .length),
-                          ),
-                        )
-                      : Expanded(child: const SizedBox()),
-                  if (p.layersEnabled)
-                    Align(
-                        alignment: Alignment.topRight,
-                        child: TextButton.icon(
-                            style: ButtonStyle(
-                              backgroundColor:
-                                  WidgetStateProperty.resolveWith<Color?>(
-                                (Set<WidgetState> states) {
-                                  if (states.contains(WidgetState.hovered)) {
-                                    return greenColor.withValues(
-                                        alpha:
-                                            0.2); // Set the background color on hover
-                                  }
-                                  return null; // Use the default button background color
-                                },
-                              ),
-                              foregroundColor: WidgetStatePropertyAll(
-                                  Theme.of(context).colorScheme.onSurface),
-                              minimumSize:
-                                  const WidgetStatePropertyAll(Size(180, 40)),
-                              iconColor: WidgetStatePropertyAll(greenColor),
-                              side: WidgetStatePropertyAll(
-                                BorderSide(
-                                  color: greenColor,
-                                ),
-                              ),
-                            ),
-                            onPressed: p.resetMixer,
-                            icon: const Icon(Icons.refresh),
-                            label: const Text(
-                              'Reset Mixer',
-                              style: TextStyle(
-                                  fontSize: fontSizeMd, color: Colors.white),
-                            ))),
-                ]),
           ],
         ),
       ],
