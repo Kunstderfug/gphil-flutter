@@ -53,8 +53,6 @@ class PerformanceScreen extends StatelessWidget {
           return Stack(
             children: [
               SingleChildScrollView(child: MainArea()),
-              // Sticky footer
-
               if (kDebugMode)
                 FloatingWindow(
                   label: 'Mixer',
