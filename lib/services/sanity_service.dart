@@ -7,17 +7,6 @@ import 'package:gphil/models/score.dart';
 import 'package:http/http.dart';
 import 'package:sanity_client/sanity_client.dart';
 
-final SanityClient sanityClient = SanityClient(SanityConfig(
-  projectId: 'b8uar5wl',
-  dataset: 'your_dataset',
-  token:
-      'skH2b5XXYUO0lGjSeeGeVJt91QitMN8OIYEWK8AIMCajlwLVQFS6k2pSenDZ6sqeZo4QxR8T0Em8Y2QDdeNs1uLfEhTiI5YciLqjTYvZcoSsNdrJwiW0zguARBivl4QO4YzDT1GbpNZs659ASliD6Z771TFJBu9S2jHUvVgxrgTQLnuF93Cc',
-  perspective: Perspective.published,
-  explainQuery: true,
-  useCdn: true,
-  apiVersion: 'v2024-02-16',
-));
-
 final persistentController = PersistentDataController();
 
 class AppVersionInfo {
@@ -44,11 +33,23 @@ class AppVersionInfo {
 }
 
 class SanityService {
-  static const String sanityProjectId = 'b8uar5wl';
+  static const String projectId = 'b8uar5wl';
+  static const String apiVersion = 'v2024-12-20';
+  static const String dataset = 'production';
   static const String projectUrl =
-      'https://b8uar5wl.api.sanity.io/v2023-05-03/data/query/production?query=';
+      'https://b8uar5wl.api.sanity.io/$apiVersion/data/query/production?query=';
   static const String token =
       'skH2b5XXYUO0lGjSeeGeVJt91QitMN8OIYEWK8AIMCajlwLVQFS6k2pSenDZ6sqeZo4QxR8T0Em8Y2QDdeNs1uLfEhTiI5YciLqjTYvZcoSsNdrJwiW0zguARBivl4QO4YzDT1GbpNZs659ASliD6Z771TFJBu9S2jHUvVgxrgTQLnuF93Cc';
+
+  final SanityClient sanityClient = SanityClient(SanityConfig(
+    projectId: projectId,
+    dataset: dataset,
+    token: token,
+    perspective: Perspective.raw,
+    explainQuery: true,
+    // useCdn: true,
+    apiVersion: apiVersion,
+  ));
 
   String queryVersion() {
     const query =
@@ -167,15 +168,19 @@ class SanityService {
   Future<String?> createEmptyMovement(String scoreId, int movementIndex,
       {bool publishImmediately = false}) async {
     try {
+      // Generate a unique key for the movement
+      String movementKey = 'movement_${DateTime.now().millisecondsSinceEpoch}';
+
       final mutation = {
         'mutations': [
           {
             'patch': {
-              'id': scoreId,
+              'id': 'drafts.$scoreId',
               'insert': {
                 'after': 'movements[-1]',
                 'items': [
                   {
+                    '_key': movementKey,
                     '_type': 'movement',
                     'index': movementIndex,
                     'title': 'Movement $movementIndex',
@@ -189,8 +194,8 @@ class SanityService {
       };
 
       final url = Uri.parse(
-          'https://$sanityProjectId.api.sanity.io/v2021-06-07/data/mutate/production'
-          '${publishImmediately ? '?publish=true' : ''}');
+          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/$dataset?returnDocuments=true'
+          '${publishImmediately ? '&publish=true' : ''}');
 
       final response = await Client().post(
         url,
@@ -202,13 +207,10 @@ class SanityService {
       );
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        // Return the generated movement key from the response
-        if (responseData['results'] != null &&
-            responseData['results'].isNotEmpty &&
-            responseData['results'][0]['id'] != null) {
-          return responseData['results'][0]['id'];
-        }
+        // Instead of trying to get the key from the response,
+        // return the key we generated
+        log('Created Movement: ${response.body}');
+        return movementKey;
       }
 
       log('Sanity Error: ${response.statusCode} ${response.body}');
@@ -235,7 +237,7 @@ class SanityService {
       };
 
       final url = Uri.parse(
-          'https://$sanityProjectId.api.sanity.io/v2021-06-07/data/mutate/production'
+          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/production'
           '${publishImmediately ? '?publish=true' : ''}');
 
       final response = await Client().post(

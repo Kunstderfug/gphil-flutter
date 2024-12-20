@@ -76,6 +76,7 @@ class _AdminScreenState extends State<AdminScreen> {
                 .replaceAll('.png', '')
                 .toUpperCase(); // Convert to uppercase to match section names
             sectionImages[sectionName] = fileName;
+            imagesFound++;
           }
         }
       });
@@ -316,30 +317,35 @@ class _AdminScreenState extends State<AdminScreen> {
 
       if (movementKey == null) {
         throw Exception('Failed to create movement');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Movement created successfully'),
+          backgroundColor: Colors.green,
+        ));
       }
 
       // Then update with sections
       List<Map<String, dynamic>> sectionsJson = createSectionsStructure();
 
-      final success = await _sanityService.updateMovementSections(
-        selectedScoreId!,
-        movementKey,
-        sectionsJson,
-      );
+      // final success = await _sanityService.updateMovementSections(
+      //   selectedScoreId!,
+      //   movementKey,
+      //   sectionsJson,
+      // );
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Score updated successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      // if (success) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(
+      //       content: Text('Score updated successfully'),
+      //       backgroundColor: Colors.green,
+      //     ),
+      //   );
 
-        // Refresh the library
-        Provider.of<LibraryProvider>(context, listen: false).getLibrary();
-      } else {
-        throw Exception('Failed to update movement sections');
-      }
+      //   // Refresh the library
+      //   Provider.of<LibraryProvider>(context, listen: false).getLibrary();
+      // } else {
+      //   throw Exception('Failed to update movement sections');
+      // }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -460,7 +466,10 @@ class _AdminScreenState extends State<AdminScreen> {
               Text('Score Name: $scoreName'),
               Text('Movement Index: $movementIndex'),
               Text('Selected folder: $selectedFolderPath'),
-              Text('Images found: $imagesFound'),
+              Text(
+                  'Images found: $imagesFound, sections: ${sectionsInfo.length}'),
+              Text(
+                  'selected score ID:  ${selectedScoreId != null ? selectedScoreId! : ''}'),
               const SizedBox(height: 20),
               Expanded(
                 child: Container(
