@@ -23,17 +23,10 @@
 		<dict>
 			<key>cdhash</key>
 			<data>
-<<<<<<< HEAD
-			un+X3/AnsYK9WNGPdr2CG5cmALY=
+			nX5ZZOvHcqmTY2AKoTfhk9HnF5Q=
 			</data>
 			<key>requirement</key>
-			<string>cdhash H"ba7f97dff027b182bd58d18f76bd821b972600b6" or cdhash H"946260d683b796ab5aa01a9666a1f4ae4adfa371"</string>
-=======
-			qT1mHJr5Swo5gUpFhMeaF67E8qo=
-			</data>
-			<key>requirement</key>
-			<string>cdhash H"a93d661c9af94b0a39814a4584c79a17aec4f2aa" or cdhash H"29172bb4537628884da3925cb2c2cc3b1f9e9f0b"</string>
->>>>>>> 3c86194 (fixed layers error,social buttons are in the appbar, as well as score links, mixer is slim)
+			<string>cdhash H"9d7e5964ebc772a99363600aa137e193d1e71794" or cdhash H"05727e24cc8d1b56eaf88b0867a1648a1f3bda17"</string>
 		</dict>
 		<key>Frameworks/FlutterMacOS.framework</key>
 		<dict>

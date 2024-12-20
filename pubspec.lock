@@ -453,7 +453,7 @@ packages:
     source: hosted
     version: "2.3.2"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: b9c29a161230ee03d3ccf545097fccd9b87a5264228c5d348202e0f0c28f9010
@@ -674,7 +674,7 @@ packages:
     source: hosted
     version: "3.0.2"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"
@@ -817,6 +817,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  sanity_client:
+    dependency: "direct main"
+    description:
+      name: sanity_client
+      sha256: a84c4fe38ba32edcf6379c8c546c8b54c02a7df751a31396784e2413e13a645e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.2"
   screen_retriever:
     dependency: transitive
     description:

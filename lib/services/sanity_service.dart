@@ -5,6 +5,18 @@ import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
 import 'package:http/http.dart';
+import 'package:sanity_client/sanity_client.dart';
+
+final SanityClient sanityClient = SanityClient(SanityConfig(
+  projectId: 'b8uar5wl',
+  dataset: 'your_dataset',
+  token:
+      'skH2b5XXYUO0lGjSeeGeVJt91QitMN8OIYEWK8AIMCajlwLVQFS6k2pSenDZ6sqeZo4QxR8T0Em8Y2QDdeNs1uLfEhTiI5YciLqjTYvZcoSsNdrJwiW0zguARBivl4QO4YzDT1GbpNZs659ASliD6Z771TFJBu9S2jHUvVgxrgTQLnuF93Cc',
+  perspective: Perspective.published,
+  explainQuery: true,
+  useCdn: true,
+  apiVersion: 'v2024-02-16',
+));
 
 final persistentController = PersistentDataController();
 
@@ -35,6 +47,8 @@ class SanityService {
   static const String sanityProjectId = 'b8uar5wl';
   static const String projectUrl =
       'https://b8uar5wl.api.sanity.io/v2023-05-03/data/query/production?query=';
+  static const String token =
+      'skH2b5XXYUO0lGjSeeGeVJt91QitMN8OIYEWK8AIMCajlwLVQFS6k2pSenDZ6sqeZo4QxR8T0Em8Y2QDdeNs1uLfEhTiI5YciLqjTYvZcoSsNdrJwiW0zguARBivl4QO4YzDT1GbpNZs659ASliD6Z771TFJBu9S2jHUvVgxrgTQLnuF93Cc';
 
   String queryVersion() {
     const query =
@@ -148,5 +162,101 @@ class SanityService {
       log('Error: $e');
     }
     return null;
+  }
+
+  Future<String?> createEmptyMovement(String scoreId, int movementIndex,
+      {bool publishImmediately = false}) async {
+    try {
+      final mutation = {
+        'mutations': [
+          {
+            'patch': {
+              'id': scoreId,
+              'insert': {
+                'after': 'movements[-1]',
+                'items': [
+                  {
+                    '_type': 'movement',
+                    'index': movementIndex,
+                    'title': 'Movement $movementIndex',
+                    'sections': []
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      };
+
+      final url = Uri.parse(
+          'https://$sanityProjectId.api.sanity.io/v2021-06-07/data/mutate/production'
+          '${publishImmediately ? '?publish=true' : ''}');
+
+      final response = await Client().post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(mutation),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        // Return the generated movement key from the response
+        if (responseData['results'] != null &&
+            responseData['results'].isNotEmpty &&
+            responseData['results'][0]['id'] != null) {
+          return responseData['results'][0]['id'];
+        }
+      }
+
+      log('Sanity Error: ${response.statusCode} ${response.body}');
+      return null;
+    } catch (e) {
+      log('Error creating movement: $e');
+      return null;
+    }
+  }
+
+  Future<bool> updateMovementSections(
+      String scoreId, String movementKey, List<Map<String, dynamic>> sections,
+      {bool publishImmediately = false}) async {
+    try {
+      final mutation = {
+        'mutations': [
+          {
+            'patch': {
+              'id': scoreId,
+              'set': {'movements[_key == "$movementKey"].sections': sections}
+            }
+          }
+        ]
+      };
+
+      final url = Uri.parse(
+          'https://$sanityProjectId.api.sanity.io/v2021-06-07/data/mutate/production'
+          '${publishImmediately ? '?publish=true' : ''}');
+
+      final response = await Client().post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(mutation),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return responseData['results'] != null;
+      }
+
+      log('Sanity Error: ${response.statusCode} ${response.body}');
+      return false;
+    } catch (e) {
+      log('Error updating movement sections: $e');
+      return false;
+    }
   }
 }

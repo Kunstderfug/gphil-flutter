@@ -31,6 +31,9 @@ dependencies:
   logging: ^1.2.0
   flutter_svg: ^2.0.16
   window_manager: ^0.4.2
+  sanity_client: ^1.4.2
+  path: ^1.9.0
+  http: ^1.2.2
 
 dev_dependencies:
   flutter_lints: ^5.0.0

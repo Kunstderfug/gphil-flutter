@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gphil/screens/admin_screen.dart';
 import 'package:gphil/screens/help_screen.dart';
 import 'package:gphil/screens/library_screen.dart';
 import 'package:gphil/screens/score_screen.dart';
@@ -23,6 +24,7 @@ class NavigationProvider extends ChangeNotifier {
   bool get isScoreScreen => _currentIndex == 2 ? true : false;
   bool get isLibraryScreen => _currentIndex == 0 ? true : false;
   bool get isHelpScreen => _currentIndex == 3 ? true : false;
+  bool get isAdminScreen => _currentIndex == 4 ? true : false;
   List<NavigationScreen> get navigationScreens => _navigationScreens;
 
   final _navigationScreens = <NavigationScreen>[
@@ -40,6 +42,10 @@ class NavigationProvider extends ChangeNotifier {
         screen: const ScoreScreen()),
     NavigationScreen(
         title: 'H E L P', icon: Icons.help_sharp, screen: const HelpScreen()),
+    NavigationScreen(
+        title: 'A D M I N',
+        icon: Icons.settings_outlined,
+        screen: const AdminScreen()),
   ];
 
   void setNavigationIndex(int index) {

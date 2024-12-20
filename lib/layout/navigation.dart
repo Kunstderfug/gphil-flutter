@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/social_button.dart';
 import 'package:gphil/providers/navigation_provider.dart';
@@ -229,6 +230,13 @@ class Nav extends StatelessWidget {
           icon: Icons.help,
           index: 3,
           isSelected: n.currentIndex == 3,
+        ),
+      if (!isTablet(context) && kDebugMode)
+        NavigationItem(
+          title: screens.last.title,
+          icon: screens.last.icon,
+          index: screens.indexOf(screens.last),
+          isSelected: n.selectedIndex == screens.indexOf(screens.last),
         ),
       if (!isTablet(context)) SeparatorLine(height: 1),
     ]);
