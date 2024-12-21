@@ -45,10 +45,11 @@ class AppUpdateProgress extends StatelessWidget {
     final ac = Provider.of<AppConnection>(context);
     return Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
       AppUpdateCol1(au: au, ac: ac),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: AppCurrentVersion(),
-      ),
+      if (!au.updateAvailable)
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: AppCurrentVersion(),
+        ),
     ]);
   }
 }
@@ -80,8 +81,8 @@ class AppUpdateCol1 extends StatelessWidget {
                           Text('Version: ${au.onlineBuild}'),
                           const SizedBox(height: 16),
                           // Wrap the changes list in Expanded and SingleChildScrollView
-                          SizedBox(
-                            height: 300,
+                          Container(
+                            constraints: const BoxConstraints(maxHeight: 400),
                             child: SingleChildScrollView(
                               child: Align(
                                 alignment: Alignment.topLeft,

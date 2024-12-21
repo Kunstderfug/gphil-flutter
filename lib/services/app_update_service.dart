@@ -176,6 +176,16 @@ class AppUpdateService extends ChangeNotifier {
       updateDownloaded = true;
       appState = AppState.idle;
       notifyListeners();
+
+      // Open folder and select file
+      if (platform == 'macos') {
+        Process.run(
+            'open', ['-R', filePath]); // Opens Finder with file selected
+      } else {
+        Process.run('explorer.exe',
+            ['/select,', filePath]); // Opens Explorer with file selected
+      }
+
       return filePath;
     } catch (e) {
       log('Error downloading file: $e');
