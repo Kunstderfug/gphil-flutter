@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -28,12 +30,16 @@ class _AdminScreenState extends State<AdminScreen> {
   String? scoreName;
   String? movementIndex;
   String? selectedScoreId;
+  String movementTitle = 'Movement title';
   Map<String, List<String>> folderStructure = {};
   Map<String, SectionInfo> sectionsInfo = {};
   int imagesFound = 0;
   final SanityService _sanityService = SanityService();
   bool isUpdating = false;
   bool publishImmediately = false;
+  TextEditingController movementTitleController = TextEditingController();
+  final ValueNotifier<String> _progressMessage = ValueNotifier('');
+  final ValueNotifier<double?> _progressValue = ValueNotifier(null);
 
   Future<void> pickFolder() async {
     String? result = await FilePicker.platform.getDirectoryPath();
@@ -55,32 +61,40 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
-  void analyzeFolderStructure(String folderPath) {
+  void analyzeFolderStructure(String folderPath) async {
     Directory directory = Directory(folderPath);
     Map<String, List<String>> structure = {};
     Map<String, List<int>> temposBySection = {};
     Map<String, String> sectionImages = {};
 
-    // First, look for images in the PIC folder
-    Directory picDirectory = Directory('$folderPath/PIC');
-    if (picDirectory.existsSync()) {
-      picDirectory.listSync().forEach((FileSystemEntity entity) {
-        if (entity is File && path.extension(entity.path) == '.png') {
-          String fileName = path.basename(entity.path);
-          int firstUnderscoreIndex = fileName.indexOf('_');
+    Future<void> processImagesFolder(String folderPath) async {
+      try {
+        // First, look for images in the PIC folder
+        Directory picDirectory = Directory('$folderPath/PIC');
+        if (picDirectory.existsSync()) {
+          picDirectory.listSync().forEach((FileSystemEntity entity) {
+            if (entity is File && path.extension(entity.path) == '.png') {
+              String fileName = path.basename(entity.path);
+              int firstUnderscoreIndex = fileName.indexOf('_');
 
-          if (firstUnderscoreIndex != -1) {
-            // Take everything after first underscore, remove .png extension, and convert to uppercase
-            String sectionName = fileName
-                .substring(firstUnderscoreIndex + 1)
-                .replaceAll('.png', '')
-                .toUpperCase(); // Convert to uppercase to match section names
-            sectionImages[sectionName] = fileName;
-            imagesFound++;
-          }
+              if (firstUnderscoreIndex != -1) {
+                // Take everything after first underscore, remove .png extension, and convert to uppercase
+                String sectionName = fileName
+                    .substring(firstUnderscoreIndex + 1)
+                    .replaceAll('.png', '')
+                    .toUpperCase(); // Convert to uppercase to match section names
+                sectionImages[sectionName] = fileName;
+                imagesFound++;
+              }
+            }
+          });
         }
-      });
+      } catch (e) {
+        log('Error processing images folder: $e');
+      }
     }
+
+    await processImagesFolder(folderPath);
 
     // Traverse through all files in the directory and subdirectories
     directory.listSync(recursive: true).forEach((FileSystemEntity entity) {
@@ -119,7 +133,8 @@ class _AdminScreenState extends State<AdminScreen> {
         sectionName: sectionName,
         movementIndex: movementIndex!,
         tempos: tempos,
-        imagePath: sectionImages[sectionName.toUpperCase()],
+        imagePath:
+            '$selectedFolderPath/PIC/${sectionImages[sectionName.toUpperCase()]}',
       );
     });
 
@@ -181,10 +196,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
       // Add sectionImage if available
       if (info.imagePath != null) {
-        section["sectionImage"] = {
-          "_type": "image",
-          "asset": {"_type": "reference", "_ref": info.imagePath}
-        };
+        section["sectionImage"] = info.imagePath;
       }
 
       return section;
@@ -205,7 +217,7 @@ class _AdminScreenState extends State<AdminScreen> {
         context: context,
         builder: (context) => Dialog(
           child: Container(
-            width: 400,
+            width: 600,
             height: MediaQuery.of(context).size.height * 0.8,
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -269,6 +281,9 @@ class _AdminScreenState extends State<AdminScreen> {
       selectedFolderPath = null;
       scoreName = null;
       movementIndex = null;
+      imagesFound = 0;
+      movementTitleController.clear();
+      movementTitle = 'Movement title';
       folderStructure.clear();
       sectionsInfo.clear();
     });
@@ -311,9 +326,41 @@ class _AdminScreenState extends State<AdminScreen> {
     });
 
     try {
+      // Show progress dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            content: SizedBox(
+              width: 500,
+              height: 200,
+              child: Column(
+                // mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  ValueListenableBuilder<String>(
+                    valueListenable: _progressMessage,
+                    builder: (context, message, _) => Text(message),
+                  ),
+                  const SizedBox(height: 8),
+                  ValueListenableBuilder<double?>(
+                    valueListenable: _progressValue,
+                    builder: (context, progress, _) => progress != null
+                        ? LinearProgressIndicator(value: progress)
+                        : const SizedBox(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
       // First create empty movement
       final movementKey = await _sanityService.createEmptyMovement(
-          selectedScoreId!, int.parse(movementIndex!));
+          selectedScoreId!, int.parse(movementIndex!), movementTitle);
 
       if (movementKey == null) {
         throw Exception('Failed to create movement');
@@ -327,26 +374,34 @@ class _AdminScreenState extends State<AdminScreen> {
       // Then update with sections
       List<Map<String, dynamic>> sectionsJson = createSectionsStructure();
 
-      // final success = await _sanityService.updateMovementSections(
-      //   selectedScoreId!,
-      //   movementKey,
-      //   sectionsJson,
-      // );
+      final success = await _sanityService.updateMovementSections(
+        selectedScoreId!,
+        movementKey,
+        sectionsJson,
+        onProgress: (message, progress) {
+          _progressMessage.value = message;
+          _progressValue.value = progress;
+        },
+      );
 
-      // if (success) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(
-      //       content: Text('Score updated successfully'),
-      //       backgroundColor: Colors.green,
-      //     ),
-      //   );
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Score updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      //   // Refresh the library
-      //   Provider.of<LibraryProvider>(context, listen: false).getLibrary();
-      // } else {
-      //   throw Exception('Failed to update movement sections');
-      // }
+        // Refresh the library
+        Provider.of<LibraryProvider>(context, listen: false).getLibrary();
+      } else {
+        throw Exception('Failed to update movement sections');
+      }
     } catch (e) {
+      // Close progress dialog if still open
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating score: ${e.toString()}'),
@@ -429,11 +484,20 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
+  // Add dispose method to clean up the controller
+  @override
+  void dispose() {
+    movementTitleController.dispose();
+    _progressMessage.dispose();
+    _progressValue.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width - 240,
-      height: MediaQuery.sizeOf(context).height - 120,
+      height: MediaQuery.sizeOf(context).height - 80,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -470,6 +534,43 @@ class _AdminScreenState extends State<AdminScreen> {
                   'Images found: $imagesFound, sections: ${sectionsInfo.length}'),
               Text(
                   'selected score ID:  ${selectedScoreId != null ? selectedScoreId! : ''}'),
+              const SizedBox(height: 20),
+              Row(
+                spacing: 40,
+                children: [
+                  SizedBox(
+                    width: 400,
+                    child: TextField(
+                      controller: movementTitleController,
+                      cursorColor: Colors.white,
+                      decoration: InputDecoration(
+                        labelText: 'Movement Title',
+                        labelStyle: const TextStyle(
+                            color: Colors.white70), // Label color
+                        hintText: 'Enter movement title',
+                        hintStyle: const TextStyle(
+                            color: Colors.white30), // Hint color
+                        border: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white54),
+                        ),
+                        focusedBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[800],
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          movementTitle = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 20),
               Expanded(
                 child: Container(

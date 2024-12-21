@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/score.dart';
 import 'package:http/http.dart';
 import 'package:sanity_client/sanity_client.dart';
+import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 
 final persistentController = PersistentDataController();
 
@@ -165,7 +168,8 @@ class SanityService {
     return null;
   }
 
-  Future<String?> createEmptyMovement(String scoreId, int movementIndex,
+  Future<String?> createEmptyMovement(
+      String scoreId, int movementIndex, String title,
       {bool publishImmediately = false}) async {
     try {
       // Generate a unique key for the movement
@@ -183,7 +187,7 @@ class SanityService {
                     '_key': movementKey,
                     '_type': 'movement',
                     'index': movementIndex,
-                    'title': 'Movement $movementIndex',
+                    'title': title,
                     'sections': []
                   }
                 ]
@@ -223,22 +227,109 @@ class SanityService {
 
   Future<bool> updateMovementSections(
       String scoreId, String movementKey, List<Map<String, dynamic>> sections,
-      {bool publishImmediately = false}) async {
+      {bool publishImmediately = false,
+      void Function(String message, double? progress)? onProgress}) async {
     try {
+      //take two sections for thesting
+      sections = sections.sublist(0, 2);
+      // First, upload all images and update sections with image references
+      final uuid = Uuid();
+      final processedSections = <Map<String, dynamic>>[];
+      int totalImages = sections
+          .where((s) =>
+              s['sectionImage'] is String &&
+              File(s['sectionImage']).existsSync())
+          .length;
+      int uploadedImages = 0;
+
+      for (var section in sections) {
+        var processedSection = Map<String, dynamic>.from(section);
+        processedSection['_key'] ??= uuid.v4();
+
+        if (section.containsKey('sectionImage') &&
+            section['sectionImage'] is String &&
+            File(section['sectionImage']).existsSync()) {
+          String imagePath = section['sectionImage'];
+
+          try {
+            // Update progress
+            onProgress?.call('Uploading image for section: ${section['name']}',
+                uploadedImages / totalImages);
+            log('Debug image path: $imagePath');
+            final file = File(imagePath);
+            final bytes = await file.readAsBytes();
+            final extension = path.extension(imagePath).toLowerCase();
+
+            // Determine content type based on file extension
+            final contentType = switch (extension) {
+              '.jpg' || '.jpeg' => 'image/jpeg',
+              '.png' => 'image/png',
+              '.gif' => 'image/gif',
+              '.webp' => 'image/webp',
+              _ => 'image/jpeg'
+            };
+
+            final url = Uri.parse(
+                'https://$projectId.api.sanity.io/$apiVersion/assets/images/$dataset');
+
+            final response = await post(
+              url,
+              headers: {
+                'Authorization': 'Bearer $token',
+                'Content-Type': contentType,
+              },
+              body: bytes, // Send raw binary data
+            );
+
+            log('Response status: ${response.statusCode}');
+            log('Response body: ${response.body}');
+
+            if (response.statusCode == 200 || response.statusCode == 201) {
+              final jsonResponse = json.decode(response.body);
+              processedSection['sectionImage'] = {
+                '_type': 'image',
+                'asset': {
+                  '_type': 'reference',
+                  '_ref': jsonResponse['document']['_id'],
+                }
+              };
+              uploadedImages++;
+              onProgress?.call('Uploaded image for section: ${section['name']}',
+                  uploadedImages / totalImages);
+            }
+          } catch (e) {
+            log('Error processing image: $e');
+            // Continue with the section even if image upload fails
+            processedSection.remove('sectionImage');
+          }
+        }
+
+        processedSections.add(processedSection);
+      }
+
+      onProgress?.call('Updating movement with sections...', null);
+
+      // Create mutation with processed sections
       final mutation = {
         'mutations': [
           {
             'patch': {
-              'id': scoreId,
-              'set': {'movements[_key == "$movementKey"].sections': sections}
+              'id': 'drafts.$scoreId',
+              'set': {
+                'movements[_key == "$movementKey"].sections': processedSections
+              }
             }
           }
         ]
       };
 
+      log('Final mutation payload: ${jsonEncode(mutation)}');
+
+      log('First section example: ${jsonEncode(sections.first)}');
+
       final url = Uri.parse(
-          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/production'
-          '${publishImmediately ? '?publish=true' : ''}');
+          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/$dataset?returnDocuments=true'
+          '${publishImmediately ? '&publish=true' : ''}');
 
       final response = await Client().post(
         url,
@@ -251,6 +342,7 @@ class SanityService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        log(responseData);
         return responseData['results'] != null;
       }
 

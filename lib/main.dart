@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -25,23 +26,26 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final bool isDark = true;
 
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    await windowManager.ensureInitialized();
+  // Only run on desktop platforms
+  if (!kIsWeb) {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      await windowManager.ensureInitialized();
 
-    WindowOptions windowOptions = WindowOptions(
-      size: Size(1440, 900),
-      center: true,
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal,
-      minimumSize: Size(800, 600),
-      maximumSize: Size(2440, 1600),
-    );
+      WindowOptions windowOptions = WindowOptions(
+        size: Size(1440, 900),
+        center: true,
+        backgroundColor: Colors.transparent,
+        skipTaskbar: false,
+        titleBarStyle: TitleBarStyle.normal,
+        minimumSize: Size(800, 600),
+        maximumSize: Size(2440, 1600),
+      );
 
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-    });
+      await windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+      });
+    }
   }
 
   runApp(
