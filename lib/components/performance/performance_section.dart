@@ -21,9 +21,18 @@ class PerformanceSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = Provider.of<PlaylistProvider>(context);
     final o = Provider.of<OpacityProvider>(context);
+    final int movementsLength = p.sessionMovements.length;
 
+    int calculateGap() => switch (movementsLength) {
+          1 => 300,
+          2 => 340,
+          3 => 380,
+          4 => 420,
+          5 => 460,
+          _ => 500,
+        };
     double calculateHeight() =>
-        (MediaQuery.sizeOf(context).height - 300) /
+        (MediaQuery.sizeOf(context).height - calculateGap()) /
         p.currentMovementSections.length;
 
     Color setColor(Section section) =>

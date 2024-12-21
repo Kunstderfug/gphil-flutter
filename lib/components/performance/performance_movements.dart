@@ -19,6 +19,8 @@ class PerformanceMovements extends StatelessWidget {
             decoration:
                 BoxDecoration(border: Border.all(color: highlightColor)),
             child: ListTile(
+              dense: true,
+              visualDensity: VisualDensity.compact,
               selected: movement.movementKey == p.currentMovementKey,
               selectedTileColor: highlightColor,
               contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
