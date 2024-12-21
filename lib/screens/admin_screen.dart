@@ -9,6 +9,7 @@ import 'package:gphil/models/library.dart';
 import 'package:gphil/models/section_info.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/services/sanity_service.dart';
+// import 'package:gphil/theme/constants.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:gphil/models/score.dart';
@@ -338,7 +339,7 @@ class _AdminScreenState extends State<AdminScreen> {
               child: Column(
                 // mainAxisSize: MainAxisSize.min,
                 children: [
-                  const CircularProgressIndicator(),
+                  CircularProgressIndicator(),
                   const SizedBox(height: 16),
                   ValueListenableBuilder<String>(
                     valueListenable: _progressMessage,
@@ -348,7 +349,13 @@ class _AdminScreenState extends State<AdminScreen> {
                   ValueListenableBuilder<double?>(
                     valueListenable: _progressValue,
                     builder: (context, progress, _) => progress != null
-                        ? LinearProgressIndicator(value: progress)
+                        ? LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.2),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
                         : const SizedBox(),
                   ),
                 ],
@@ -402,13 +409,11 @@ class _AdminScreenState extends State<AdminScreen> {
       if (Navigator.of(context).canPop()) {
         Navigator.of(context).pop();
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error updating score: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      log(e.toString());
     } finally {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
       setState(() {
         isUpdating = false;
       });

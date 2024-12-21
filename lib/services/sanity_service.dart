@@ -231,7 +231,8 @@ class SanityService {
       void Function(String message, double? progress)? onProgress}) async {
     try {
       //take two sections for thesting
-      sections = sections.sublist(0, 2);
+      // sections = sections.sublist(0, 2);
+
       // First, upload all images and update sections with image references
       final uuid = Uuid();
       final processedSections = <Map<String, dynamic>>[];
@@ -255,7 +256,7 @@ class SanityService {
             // Update progress
             onProgress?.call('Uploading image for section: ${section['name']}',
                 uploadedImages / totalImages);
-            log('Debug image path: $imagePath');
+            // log('Debug image path: $imagePath');
             final file = File(imagePath);
             final bytes = await file.readAsBytes();
             final extension = path.extension(imagePath).toLowerCase();
@@ -281,8 +282,8 @@ class SanityService {
               body: bytes, // Send raw binary data
             );
 
-            log('Response status: ${response.statusCode}');
-            log('Response body: ${response.body}');
+            // log('Response status: ${response.statusCode}');
+            // log('Response body: ${response.body}');
 
             if (response.statusCode == 200 || response.statusCode == 201) {
               final jsonResponse = json.decode(response.body);
@@ -323,13 +324,13 @@ class SanityService {
         ]
       };
 
-      log('Final mutation payload: ${jsonEncode(mutation)}');
+      // log('Final mutation payload: ${jsonEncode(mutation)}');
 
-      log('First section example: ${jsonEncode(sections.first)}');
+      // log('First section example: ${jsonEncode(sections.first)}');
 
       final url = Uri.parse(
-          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/$dataset?returnDocuments=true'
-          '${publishImmediately ? '&publish=true' : ''}');
+          'https://$projectId.api.sanity.io/$apiVersion/data/mutate/$dataset'
+          '${publishImmediately ? '?publish=true' : ''}');
 
       final response = await Client().post(
         url,
@@ -342,7 +343,7 @@ class SanityService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        log(responseData);
+        // log(responseData);
         return responseData['results'] != null;
       }
 
