@@ -6,12 +6,14 @@ class StandartButton extends StatelessWidget {
       {super.key,
       required this.label,
       this.icon,
+      this.iconWidget,
       this.iconColor,
       this.borderColor = highlightColor,
       this.iconAlignment = IconAlignment.start,
       required this.callback});
   final String label;
   final IconData? icon;
+  final Widget? iconWidget;
   final Color? iconColor;
   final Color borderColor;
   final Function() callback;
@@ -19,21 +21,21 @@ class StandartButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextButton.icon(
-      iconAlignment: iconAlignment,
-      icon: icon != null
-          ? Icon(
-              icon,
-            )
-          : null,
+    Widget? iconDisplay;
+    if (icon != null) {
+      iconDisplay = Icon(icon);
+    } else if (iconWidget != null) {
+      iconDisplay = iconWidget;
+    }
+
+    return TextButton(
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith<Color?>(
           (Set<WidgetState> states) {
             if (states.contains(WidgetState.hovered)) {
-              return borderColor.withValues(
-                  alpha: 0.2); // Set the background color on hover
+              return borderColor.withValues(alpha: 0.2);
             }
-            return null; // Use the default button background color
+            return null;
           },
         ),
         foregroundColor:
@@ -47,11 +49,36 @@ class StandartButton extends StatelessWidget {
         ),
       ),
       onPressed: callback,
-      label: Text(
-        label,
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: iconAlignment == IconAlignment.start
+            ? [
+                if (iconDisplay != null)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: iconDisplay,
+                  ),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ]
+            : [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                if (iconDisplay != null)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: iconDisplay,
+                  ),
+              ],
       ),
     );
   }

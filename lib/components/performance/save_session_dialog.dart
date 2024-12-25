@@ -7,6 +7,9 @@ import 'package:gphil/theme/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:iconify_flutter_plus/iconify_flutter_plus.dart';
+import 'package:iconify_flutter_plus/icons/mdi_light.dart';
+import 'package:iconify_flutter_plus/icons/system_uicons.dart';
 
 class SaveSessionIntent extends Intent {
   const SaveSessionIntent();
@@ -234,8 +237,9 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
               IconButton(
                 iconSize: sizeLg,
                 tooltip: 'Load Session',
-                icon: const Icon(
-                  Icons.play_arrow_outlined,
+                icon: Iconify(
+                  MdiLight.arrow_right_circle,
+                  color: greenColor,
                 ),
                 color: greenColor,
                 onPressed: () {
@@ -247,8 +251,9 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
               ),
               IconButton(
                 tooltip: 'Delete Session',
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
+                icon: Iconify(
+                  MdiLight.delete,
+                  color: redColor,
                 ),
                 color: redColor,
                 onPressed: () async {
@@ -397,7 +402,11 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             StandartButton(
-                              icon: Icons.close,
+                              // icon: Icons.close,
+                              iconWidget: Iconify(
+                                SystemUicons.cross,
+                                color: redColor,
+                              ),
                               iconColor: redColor,
                               label: 'Cancel',
                               borderColor: redColor, // red-400
@@ -406,7 +415,11 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                             const SizedBox(width: paddingMd),
                             StandartButton(
                               label: 'Save New',
-                              icon: Icons.save,
+                              // icon: Icons.save,
+                              iconWidget: Iconify(
+                                MdiLight.content_save,
+                                color: redColor,
+                              ),
                               iconColor: greenColor,
                               borderColor: greenColor,
                               callback: _validateAndSave,

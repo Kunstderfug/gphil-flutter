@@ -17,6 +17,8 @@ import 'package:gphil/services/session_service.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:iconify_flutter_plus/iconify_flutter_plus.dart';
+import 'package:iconify_flutter_plus/icons/heroicons.dart';
 
 final pc = PersistentDataController();
 
@@ -184,7 +186,10 @@ class ModesAndPlayerControl extends StatelessWidget {
                                 IconButton(
                                   tooltip:
                                       "Save/Load session\nKeyboard shortcut [O]",
-                                  icon: Icon(Icons.settings),
+                                  icon: Iconify(
+                                    Heroicons.cog_20_solid,
+                                    color: Colors.white,
+                                  ),
                                   onPressed: () =>
                                       _showSaveSessionDialog(context, p, s, l),
                                 ),

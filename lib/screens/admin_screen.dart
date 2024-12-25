@@ -41,6 +41,10 @@ class _AdminScreenState extends State<AdminScreen> {
   TextEditingController movementTitleController = TextEditingController();
   final ValueNotifier<String> _progressMessage = ValueNotifier('');
   final ValueNotifier<double?> _progressValue = ValueNotifier(null);
+  int globalBeatsPerBar = 4;
+  int globalBeatLength = 4;
+  int defaultTempo = 120;
+  bool isDraft = false;
 
   Future<void> pickFolder() async {
     String? result = await FilePicker.platform.getDirectoryPath();
@@ -143,6 +147,15 @@ class _AdminScreenState extends State<AdminScreen> {
       folderStructure = structure;
       sectionsInfo = sectionInfoMap;
     });
+
+    // Set defaultTempo to the closest available tempo
+    if (sectionsInfo.isNotEmpty) {
+      SectionInfo firstSection = sectionsInfo.values.first;
+      // Set default tempo to the minimum tempo of the first section
+      setState(() {
+        defaultTempo = firstSection.minTempo;
+      });
+    }
   }
 
   void exportJson() {
@@ -172,6 +185,13 @@ class _AdminScreenState extends State<AdminScreen> {
     }
   }
 
+  String getFormattedScoreId(String scoreId) {
+    if (isDraft) {
+      return 'drafts.$scoreId';
+    }
+    return scoreId;
+  }
+
   List<Map<String, dynamic>> createSectionsStructure() {
     if (selectedFolderPath == null || movementIndex == null) {
       throw Exception('Required data is missing');
@@ -181,17 +201,13 @@ class _AdminScreenState extends State<AdminScreen> {
       Map<String, dynamic> section = {
         "name": info.sectionName,
         "movementIndex": int.parse(movementIndex!),
-        // "_key": info.sectionName,
         "tempoRangeFull": [info.minTempo, info.maxTempo],
         "step": info.step,
         "defaultTempo": info.minTempo,
         "metronomeAvailable": true,
         "autoContinue": false,
-        "beatsPerBar": 4,
-        // "defaultSectionLength": 30.0,
-        "beatLength": 4,
-        // "layerStep": info.step,
-        // "tempoRangeLayers": [info.minTempo, info.maxTempo],
+        "beatsPerBar": globalBeatsPerBar,
+        "beatLength": globalBeatLength,
         "updateRequired": false,
       };
 
@@ -205,6 +221,149 @@ class _AdminScreenState extends State<AdminScreen> {
 
     sections.sort((a, b) => a["name"].compareTo(b["name"]));
     return sections;
+  }
+
+  Widget buildTempoControls() {
+    // Get the first section's tempos if available
+    List<int> availableTempos = [];
+    if (sectionsInfo.isNotEmpty) {
+      SectionInfo firstSection = sectionsInfo.values.first;
+      int minTempo = firstSection.minTempo;
+      int maxTempo = firstSection.maxTempo;
+      int step = firstSection.step;
+
+      // Generate tempo list
+      for (int tempo = minTempo; tempo <= maxTempo; tempo += step) {
+        availableTempos.add(tempo);
+      }
+
+      if (!availableTempos.contains(defaultTempo)) {
+        // Set to the closest available tempo
+        defaultTempo = availableTempos.reduce((a, b) =>
+            (a - defaultTempo).abs() < (b - defaultTempo).abs() ? a : b);
+      }
+    }
+
+    return Row(
+      children: [
+        SizedBox(
+          width: 200,
+          child: availableTempos.isEmpty
+              ? TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Default Tempo',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFF808080),
+                  ),
+                  keyboardType: TextInputType.number,
+                  controller:
+                      TextEditingController(text: defaultTempo.toString()),
+                  onChanged: (value) {
+                    setState(() {
+                      defaultTempo = int.tryParse(value) ?? 120;
+                    });
+                  },
+                )
+              : DropdownButtonFormField<int>(
+                  value: defaultTempo,
+                  decoration: const InputDecoration(
+                    labelText: 'Default Tempo',
+                    labelStyle: TextStyle(color: Colors.white70),
+                    border: OutlineInputBorder(),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white54),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    filled: true,
+                    fillColor: Color(0xFF808080),
+                  ),
+                  items: availableTempos.map((tempo) {
+                    return DropdownMenuItem<int>(
+                      value: tempo,
+                      child: Text(tempo.toString()),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        defaultTempo = value;
+                      });
+                    }
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildGlobalControls() {
+    return Row(
+      children: [
+        SizedBox(
+          width: 100,
+          child: TextField(
+            decoration: const InputDecoration(
+              labelText: 'Beats Per Bar',
+              labelStyle: TextStyle(color: Colors.white70),
+              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white54),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              filled: true,
+              fillColor: Color(0xFF808080),
+            ),
+            keyboardType: TextInputType.number,
+            controller:
+                TextEditingController(text: globalBeatsPerBar.toString()),
+            onChanged: (value) {
+              setState(() {
+                globalBeatsPerBar = int.tryParse(value) ?? 4;
+              });
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        SizedBox(
+          width: 100,
+          child: TextField(
+            decoration: const InputDecoration(
+              labelText: 'Beat Length',
+              labelStyle: TextStyle(color: Colors.white70),
+              border: OutlineInputBorder(),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white54),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              filled: true,
+              fillColor: Color(0xFF808080),
+            ),
+            keyboardType: TextInputType.number,
+            controller:
+                TextEditingController(text: globalBeatLength.toString()),
+            onChanged: (value) {
+              setState(() {
+                globalBeatLength = int.tryParse(value) ?? 4;
+              });
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   void _showJsonPreview() {
@@ -299,21 +458,72 @@ class _AdminScreenState extends State<AdminScreen> {
 
         List<LibraryItem> allScores = libraryProvider.library;
 
-        return DropdownButton<String>(
-          value: selectedScoreId,
-          hint: const Text('Select score from library'),
-          isExpanded: true,
-          items: allScores.map((LibraryItem score) {
-            return DropdownMenuItem<String>(
-              value: score.id,
-              child: Text('${score.composer} - ${score.shortTitle}'),
-            );
-          }).toList(),
-          onChanged: (String? newValue) {
-            setState(() {
-              selectedScoreId = newValue;
-            });
-          },
+        return Row(
+          children: [
+            Expanded(
+              child: DropdownButton<String>(
+                value: selectedScoreId,
+                hint: const Text('Select score from library'),
+                isExpanded: true,
+                items: allScores.map((LibraryItem score) {
+                  bool isScoreDraft = score.id.startsWith('drafts.');
+
+                  return DropdownMenuItem<String>(
+                    value: score.id,
+                    child: Row(
+                      children: [
+                        Text('${score.composer} - ${score.shortTitle}'),
+                        if (isScoreDraft)
+                          Container(
+                            margin: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'DRAFT',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedScoreId = newValue;
+                    // Update isDraft based on selected score
+                    isDraft = selectedScoreId?.startsWith('drafts.') ?? false;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 16),
+            // Add draft toggle switch
+            Row(
+              children: [
+                Transform.scale(
+                  scale: 0.7,
+                  child: CupertinoSwitch(
+                    value: isDraft,
+                    onChanged: (value) {
+                      setState(() {
+                        isDraft = value;
+                      });
+                    },
+                  ),
+                ),
+                const Text('Draft'),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -321,6 +531,8 @@ class _AdminScreenState extends State<AdminScreen> {
 
   Future<void> updateScore() async {
     if (selectedScoreId == null) return;
+
+    final String formattedScoreId = getFormattedScoreId(selectedScoreId!);
 
     setState(() {
       isUpdating = true;
@@ -367,7 +579,7 @@ class _AdminScreenState extends State<AdminScreen> {
 
       // First create empty movement
       final movementKey = await _sanityService.createEmptyMovement(
-          selectedScoreId!, int.parse(movementIndex!), movementTitle);
+          formattedScoreId, int.parse(movementIndex!), movementTitle);
 
       if (movementKey == null) {
         throw Exception('Failed to create movement');
@@ -382,7 +594,7 @@ class _AdminScreenState extends State<AdminScreen> {
       List<Map<String, dynamic>> sectionsJson = createSectionsStructure();
 
       final success = await _sanityService.updateMovementSections(
-        selectedScoreId!,
+        formattedScoreId,
         movementKey,
         sectionsJson,
         onProgress: (message, progress) {
@@ -425,7 +637,7 @@ class _AdminScreenState extends State<AdminScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SizedBox(
-          width: 400,
+          width: 500,
           child: buildScoreSelector(),
         ),
         const SizedBox(width: 16),
@@ -484,7 +696,7 @@ class _AdminScreenState extends State<AdminScreen> {
             },
           ),
         ),
-        const Text('Publish immediately'),
+        const Text('Publish'),
       ],
     );
   }
@@ -574,6 +786,10 @@ class _AdminScreenState extends State<AdminScreen> {
                       },
                     ),
                   ),
+                  const SizedBox(width: 40),
+                  buildGlobalControls(),
+                  const SizedBox(width: 16),
+                  buildTempoControls(),
                 ],
               ),
               const SizedBox(height: 20),
@@ -620,7 +836,6 @@ class _AdminScreenState extends State<AdminScreen> {
     );
   }
 
-  // Update createScoreStructure() to use the new sectionsInfo
   InitScore createScoreStructure() {
     if (selectedFolderPath == null) {
       return InitScore(

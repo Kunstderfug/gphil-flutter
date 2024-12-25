@@ -17,11 +17,14 @@ import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final iconColor = Colors.white.withValues(alpha: 0.7);
+
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
 
   Widget _buildScoreLinks(ScoreProvider s) {
     final double iconSize = 20;
+
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Row(
@@ -29,25 +32,27 @@ class DesktopLayout extends StatelessWidget {
         children: [
           if (s.currentScore?.pianoScoreUrl != null)
             IconButton(
+              hoverColor: greenColor,
               padding: const EdgeInsets.all(0),
               icon: const Icon(
                 Icons.piano_outlined,
               ),
               iconSize: iconSize,
               tooltip: 'Download Piano Score',
-              color: Colors.white,
+              color: iconColor,
               onPressed: () =>
                   launchUrl(Uri.parse(s.currentScore!.pianoScoreUrl!)),
             ),
           if (s.currentScore?.fullScoreUrl != null)
             IconButton(
+              hoverColor: greenColor,
               padding: const EdgeInsets.all(0),
               icon: const Icon(
                 Icons.library_music_outlined,
               ),
               iconSize: iconSize,
               tooltip: 'Download Full Score',
-              color: Colors.white,
+              color: iconColor,
               onPressed: () =>
                   launchUrl(Uri.parse(s.currentScore!.fullScoreUrl!)),
             ),
@@ -66,7 +71,7 @@ class DesktopLayout extends StatelessWidget {
             Icons.paypal,
           ),
           tooltip: 'Support GPhil',
-          // color: highlightColor,
+          color: iconColor,
           onPressed: () => launchUrl(
               Uri.parse('https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ')),
         ),
@@ -76,7 +81,7 @@ class DesktopLayout extends StatelessWidget {
             Icons.bug_report,
           ),
           tooltip: 'Report a bug',
-          // color: redColor,
+          color: iconColor,
           onPressed: () =>
               launchUrl(Uri.parse('https://discord.gg/DMDvB6NFJu')),
         ),

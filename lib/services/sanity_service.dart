@@ -62,8 +62,10 @@ class SanityService {
 
   //set query for library
   static String queryLibrary() {
+    const String isAdmin = kDebugMode ? '' : '&& complete>0';
+
     const query =
-        '*[_type == "score" && private != true && complete>0] | order(title asc)';
+        '*[_type == "score" && private != true $isAdmin] | order(title asc)';
 
     const params =
         "{_id,_updatedAt,_rev,composer,instrument,key,pathName,private,ready,complete,shortTitle,'slug': slug.current, layers}";
@@ -179,7 +181,7 @@ class SanityService {
         'mutations': [
           {
             'patch': {
-              'id': 'drafts.$scoreId',
+              'id': scoreId,
               'insert': {
                 'after': 'movements[-1]',
                 'items': [
@@ -315,7 +317,7 @@ class SanityService {
         'mutations': [
           {
             'patch': {
-              'id': 'drafts.$scoreId',
+              'id': scoreId,
               'set': {
                 'movements[_key == "$movementKey"].sections': processedSections
               }

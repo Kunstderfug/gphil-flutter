@@ -3,6 +3,8 @@ class SectionInfo {
   final String movementIndex;
   final List<int> tempos;
   final String? imagePath;
+  int beatsPerBar = 4;
+  int beatLength = 4;
 
   late final int minTempo;
   late final int maxTempo;
