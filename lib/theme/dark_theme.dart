@@ -14,8 +14,9 @@ ThemeData darkMode = ThemeData(
       iconColor: Colors.grey.shade300,
       // selectedTileColor: Colors.purple.shade800,
       selectedColor: Colors.grey.shade200,
+      dense: true,
     ),
-    hoverColor: highlightColor.withValues(alpha: 0.2),
+    hoverColor: greenColor.withValues(alpha: 0.5),
     highlightColor: highlightColor,
     fontFamily: 'Roboto',
     textTheme: TextTheme(

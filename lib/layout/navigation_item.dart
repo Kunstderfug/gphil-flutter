@@ -29,6 +29,8 @@ class NavigationItem extends StatelessWidget {
       // visualDensity: VisualDensity(vertical: -4),
       selected: isSelected,
       selectedTileColor: isSelected ? highlightColor : Colors.transparent,
+      hoverColor:
+          isSelected ? highlightColor : greenColor.withValues(alpha: 0.5),
       onTap: () {
         n.setNavigationIndex(index);
       },
