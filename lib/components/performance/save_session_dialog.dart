@@ -313,9 +313,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                       Expanded(
                         child: _buildSessionList(),
                       ),
-                      if (widget.scoreName != null)
-                        const Divider(height: paddingLg),
-                      if (widget.scoreName != null)
+                      if (widget.scoreName != null) ...[
                         Container(
                           decoration: BoxDecoration(
                             border: Border.all(
@@ -355,9 +353,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                             ],
                           ),
                         ),
-                      if (widget.scoreName != null)
                         const SizedBox(height: paddingLg),
-                      if (widget.scoreName != null)
                         Row(
                           children: [
                             const Text(
@@ -396,8 +392,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                             ),
                           ],
                         ),
-                      const SizedBox(height: paddingLg),
-                      if (widget.scoreName != null)
+                        const SizedBox(height: paddingLg),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -418,7 +413,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                               // icon: Icons.save,
                               iconWidget: Iconify(
                                 MdiLight.content_save,
-                                color: redColor,
+                                color: greenColor,
                               ),
                               iconColor: greenColor,
                               borderColor: greenColor,
@@ -426,6 +421,7 @@ class _SaveLoadSessionDialogState extends State<SaveLoadSessionDialog> {
                             ),
                           ],
                         ),
+                      ]
                     ],
                   ),
                 ),
