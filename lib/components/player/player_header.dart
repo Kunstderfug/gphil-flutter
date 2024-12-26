@@ -114,6 +114,8 @@ class PlayerHeader extends StatelessWidget {
       l.setScoreId(p.sessionScore!.id);
       await s.getScore(p.sessionScore!.id);
     }
+    //set plyalist section image to null to avoid showing the same image again in score view
+    // p.currentSectionImage = null;
     s.setSections(p.currentMovementKey!, p.currentSection!.key);
     s.setCurrentSectionByKey(p.currentMovementKey!, p.currentSection!.key);
     n.setScoreScreen();

@@ -47,7 +47,8 @@ class _ImageProgressState extends State<ImageProgress>
           aspectRatio: 16 / 9, // Match your image aspect ratio
           child: Stack(
             children: [
-              SectionImage(imageFile: p.currentSectionImage),
+              SectionImage(
+                  imageFile: p.currentSectionImage, section: p.currentSection!),
               Positioned(
                 top: sizeXs,
                 left: 0,

@@ -12,9 +12,6 @@ import 'package:gphil/services/sanity_service.dart';
 // import 'package:gphil/theme/constants.dart';
 import 'dart:io';
 import 'package:path/path.dart' as path;
-import 'package:gphil/models/score.dart';
-import 'package:gphil/models/movement.dart';
-import 'package:gphil/models/section.dart';
 import 'dart:convert';
 
 import 'package:provider/provider.dart';
@@ -203,7 +200,7 @@ class _AdminScreenState extends State<AdminScreen> {
         "movementIndex": int.parse(movementIndex!),
         "tempoRangeFull": [info.minTempo, info.maxTempo],
         "step": info.step,
-        "defaultTempo": info.minTempo,
+        "defaultTempo": defaultTempo,
         "metronomeAvailable": true,
         "autoContinue": false,
         "beatsPerBar": globalBeatsPerBar,
@@ -833,53 +830,6 @@ class _AdminScreenState extends State<AdminScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  InitScore createScoreStructure() {
-    if (selectedFolderPath == null) {
-      return InitScore(
-        pathName: '',
-        slug: '',
-        movements: [],
-        updatedAt: DateTime.now(),
-        rev: '',
-        id: '',
-        shortTitle: '',
-        composer: '',
-      );
-    }
-
-    List<InitSection> sections = sectionsInfo.values
-        .map((info) => InitSection(
-              name: info.sectionName,
-              movementIndex: int.parse(info.movementIndex),
-              key: info.sectionName,
-              tempoRangeFull: [info.minTempo, info.maxTempo],
-              step: info.step,
-              defaultTempo: info.minTempo,
-            ))
-        .toList();
-
-    List<InitMovement> movements = [
-      InitMovement(
-        score: ScoreRef(ref: scoreName!),
-        index: int.parse(movementIndex!),
-        key: 'movement_$movementIndex',
-        title: 'Movement $movementIndex',
-        sections: sections,
-      )
-    ];
-
-    return InitScore(
-      pathName: path.basename(selectedFolderPath!),
-      slug: scoreName!.toLowerCase(),
-      movements: movements,
-      updatedAt: DateTime.now(),
-      rev: '1',
-      id: scoreName!,
-      shortTitle: scoreName!.split('_')[0],
-      composer: scoreName!.split('_')[0],
     );
   }
 }

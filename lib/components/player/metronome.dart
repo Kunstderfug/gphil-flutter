@@ -139,10 +139,12 @@ class _MetronomeState extends State<Metronome>
       animation: _opacityAnimation,
       builder: (context, child) => Opacity(
         opacity: _opacityAnimation.value,
-        child: Text(
-          'No \nmetronome \ndata yet',
-          textAlign: TextAlign.center,
-          style: TextStyles().textLg,
+        child: Center(
+          child: Text(
+            'No \nmetronome \ndata yet',
+            textAlign: TextAlign.center,
+            style: TextStyles().textLg,
+          ),
         ),
       ),
     );

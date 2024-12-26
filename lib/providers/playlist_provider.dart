@@ -238,12 +238,16 @@ class PlaylistProvider extends ChangeNotifier {
       ? currentClickData!.clickData[currentBeatIndex]
       : null;
   ClickData? get nextBeatData => currentClickData?.clickData[currentBeatIndex];
-  SectionClickData? get currentClickData => playlistClickData.isNotEmpty
+  SectionClickData? get currentClickData => playlistClickData.isNotEmpty &&
+          playlist[currentSectionIndex].metronomeAvailable != null &&
+          playlist[_currentSectionIndex].metronomeAvailable!
       ? playlistClickData.firstWhere(
           (click) => click.sectionKey == playlist[_currentSectionIndex].key)
       : null;
   PlaylistDuration? get currentPlaylistDuration => currentPlaylistDurations
-          .isNotEmpty
+              .isNotEmpty &&
+          playlist[currentSectionIndex].metronomeAvailable != null &&
+          playlist[currentSectionIndex].metronomeAvailable!
       ? currentPlaylistDurations.firstWhere(
           (element) => element.sectionKey == playlist[currentSectionIndex].key)
       : null;
@@ -2060,13 +2064,14 @@ class PlaylistProvider extends ChangeNotifier {
 
 // IMAGES
   Future<void> setCurrentSectionImage() async {
-    // currentSectionImage = null;
     if (sessionScore?.id != null && currentSection?.sectionImage != null) {
       log('currentSectionImage: ${currentSection!.sectionImage!.asset.ref}');
       currentSectionImage = await pc.readImageFile(
           sessionScore!.id, currentSection!.sectionImage!.asset.ref);
       notifyListeners();
+      return;
     }
+    currentSectionImage = null;
   }
 
   Future<void> setNextSectionImage() async {

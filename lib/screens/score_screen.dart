@@ -159,7 +159,11 @@ class MvtSections extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 60, vertical: 20),
-                    child: SectionImage(imageFile: s.sectionImageFile),
+                    child: SectionImage(
+                        imageFile: s.currentSection.sectionImage != null
+                            ? s.sectionImageFile
+                            : null,
+                        section: s.currentSection),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -223,7 +227,11 @@ class MvtSections extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 60, vertical: 20),
-                          child: SectionImage(imageFile: s.sectionImageFile),
+                          child: SectionImage(
+                              imageFile: s.currentSection.sectionImage != null
+                                  ? s.sectionImageFile
+                                  : null,
+                              section: s.currentSection),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,

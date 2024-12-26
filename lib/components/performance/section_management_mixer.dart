@@ -25,11 +25,11 @@ class SectionManagementMixer extends StatelessWidget {
               children: [
                 SectionManagement(p: p),
                 //SECTION IMAGE
-                if (p.currentSection?.sectionImage != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: paddingXl),
-                    child: ImageProgress(),
-                  ),
+                // if (p.currentSection?.sectionImage != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: paddingXl),
+                  child: ImageProgress(),
+                ),
               ],
             ),
           ),
