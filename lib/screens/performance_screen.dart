@@ -14,25 +14,25 @@ import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
+void _showLayersErrorDialog(BuildContext context, PlaylistProvider p) {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext dialogContext) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        child: SizedBox(
+          width: 600,
+          // height: 400,
+          child: LayersError(p: p),
+        ),
+      );
+    },
+  );
+}
+
 class PerformanceScreen extends StatelessWidget {
   const PerformanceScreen({super.key});
-
-  void _showLayersErrorDialog(BuildContext context, PlaylistProvider p) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: SizedBox(
-            width: 600,
-            // height: 400,
-            child: LayersError(p: p),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

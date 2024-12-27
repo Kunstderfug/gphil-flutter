@@ -189,6 +189,7 @@ class SanityService {
                     '_key': movementKey,
                     '_type': 'movement',
                     'index': movementIndex,
+                    'score': {'_ref': scoreId, '_type': 'reference'},
                     'title': title,
                     'sections': []
                   }

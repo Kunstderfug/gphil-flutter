@@ -22,9 +22,13 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final pc = PersistentDataController();
+typedef SectionKeyCallback = void Function(String newKey);
 
 class PlaylistProvider extends ChangeNotifier {
   final Logger _log = Logger('PlaylistProvider');
+
+  // Create the callback variable
+  SectionKeyCallback? onSectionKeyChanged;
 
 // PLAYLIST
   List<Section> playlist = [];
@@ -120,8 +124,6 @@ class PlaylistProvider extends ChangeNotifier {
 // DURATIONS
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
-  // Stream<int> position = Stream<int>.value(0);
-  // StreamSubscription? positionSub;
 
 // METRONOME
   List<SectionClickData> playlistClickData = [];
@@ -213,7 +215,7 @@ class PlaylistProvider extends ChangeNotifier {
   Duration get autoContinueAt => _autoContinueAt;
   bool get autoContinueEnabled => currentSection?.autoContinue ?? false;
   bool get filesAreLoaded => filesLoaded == playerPool.length;
-  int get continueGuardTimer => duration.inMilliseconds - autoContinueOffset;
+  int get continueGuardTimer => _duration.inMilliseconds - autoContinueOffset;
   Duration? get defaultAutoContinueMarker => currentSection?.autoContinueMarker;
   double? get defaultSectionLength => currentSection?.defaultSectionLength;
   bool get isDefaultTempo => currentSection?.defaultTempo == currentTempo;
@@ -813,6 +815,18 @@ class PlaylistProvider extends ChangeNotifier {
     return section.fileList[getTempoIndex(section)];
   }
 
+  void addWebAudioUrl(WebAudioUrl url) {
+    webAudioUrls.add(url);
+    filesDownloaded++;
+    notifyListeners();
+  }
+
+  void addAudioUrl(AudioUrl url) {
+    audioFilesUrls.add(url);
+    filesDownloaded++;
+    notifyListeners();
+  }
+
   Future<void> setPlayerPool(bool isSessionLoading) async {
     await _initializePlayerAndPrefs(isSessionLoading);
     final audioUrls = _getAudioUrls();
@@ -820,7 +834,7 @@ class PlaylistProvider extends ChangeNotifier {
     await _createPlayerPool();
   }
 
-  Future<void> _initializePlayerAndPrefs(bool isSessionLoading) async {
+  void initSession() {
     currentlyLoadedFiles.clear();
     webAudioUrls.clear();
     audioFilesUrls.clear();
@@ -829,6 +843,10 @@ class PlaylistProvider extends ChangeNotifier {
     filesDownloaded = 0;
     filesDownloading = true;
     sessionChanged = false;
+  }
+
+  Future<void> _initializePlayerAndPrefs(bool isSessionLoading) async {
+    initSession();
 
     try {
       await initPlayer();
@@ -942,7 +960,6 @@ class PlaylistProvider extends ChangeNotifier {
     playerVolume = 1;
     _currentSectionIndex = 0;
     _isPlaying = false;
-    // _autoStart = false;
     _autoContinueAt = Duration.zero;
     autoContinueMarker = null;
     autoContinueTimer?.cancel();
@@ -1399,10 +1416,16 @@ class PlaylistProvider extends ChangeNotifier {
   void getCurrentPosition() {
     if (activeHandle != null) {
       currentPosition = player.getPosition(activeHandle!);
-      doublePressGuard = currentPosition.inMilliseconds > 0 &&
-          currentPosition.inMilliseconds < continueGuardTimer;
+      setDoublePressGuard();
       notifyListeners();
     }
+  }
+
+  //listen to the player position and update the current position
+  void setDoublePressGuard() {
+    doublePressGuard = currentPosition.inMilliseconds > 0 &&
+        currentPosition.inMilliseconds < continueGuardTimer;
+    notifyListeners();
   }
 
   void handlePlaybackAndMetronome() {
@@ -1953,6 +1976,25 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setCurrentSectionIndex(String sectionKey) {
+    int index = playlist.indexWhere((element) => element.key == sectionKey);
+    if (index != -1) {
+      currentSectionIndex = index;
+      setCurrentSectionAndMovementKey();
+    }
+    notifyListeners();
+  }
+
+  void incSectionIndex() {
+    currentSectionIndex++;
+    setCurrentSectionAndMovementKey();
+  }
+
+  void decSectionIndex() {
+    currentSectionIndex = (currentSectionIndex - 1) % playlist.length;
+    setCurrentSectionAndMovementKey();
+  }
+
   void setCurrentSectionByKey(String sectionKey) {
     _currentSectionIndex = playlist.indexWhere(
       (s) => s.key == sectionKey,
@@ -1960,9 +2002,6 @@ class PlaylistProvider extends ChangeNotifier {
 
     setCurrentSectionAndMovementKey();
     log('currentMovementKey: $currentMovementKey');
-    // currentMovement = sessionMovements.firstWhere(
-    //   (element) => element.movementKey == currentMovementKey,
-    // );
 
     if (!kIsWeb) {
       setCurrentSectionImage();
@@ -1972,7 +2011,11 @@ class PlaylistProvider extends ChangeNotifier {
   void setCurrentSectionAndMovementKey() {
     currentSectionKey = playlist[_currentSectionIndex].key;
     currentMovementKey = playlist[_currentSectionIndex].movementKey;
+
+    //testing calls for AudioProvider notifier
+    onSectionKeyChanged?.call(currentSectionKey!);
     setCurrentPlaylistTempo();
+    notifyListeners();
   }
 
   void setCurrentPlaylistTempo() {
