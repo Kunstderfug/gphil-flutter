@@ -15,18 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AudioProvider extends ChangeNotifier {
   final PlaylistProvider p;
 
-  String? currentSectionKey;
-  List<Section> playlist;
-  AudioProvider(this.p, this.playlist) {
-    currentSectionKey = p.currentSectionKey;
+  AudioProvider(this.p) {
     p.addListener(() {
-      p.onSectionKeyChanged = (String newKey) {
-        log('newKey: $newKey');
-        currentSectionKey = newKey;
-        notifyListeners();
-      };
-    });
-    addListener(() {
       notifyListeners();
     });
   }
@@ -407,7 +397,7 @@ class AudioProvider extends ChangeNotifier {
   }
 
   Future<void> skipToNextSection() async {
-    if (p.currentSectionIndex < playlist.length - 1) {
+    if (p.currentSectionIndex < p.playlist.length - 1) {
       if (isPlaying) {
         await skip();
         await playNextSection();
@@ -518,7 +508,7 @@ class AudioProvider extends ChangeNotifier {
   }
 
   void handleStop() {
-    if (p.currentSectionIndex == playlist.length - 1 &&
+    if (p.currentSectionIndex == p.playlist.length - 1 &&
         _currentPosition.inMilliseconds >= (duration.inMilliseconds - 100) &&
         isPlaying) {
       log('handleStop: ${_currentPosition.inMilliseconds.toString()}');
