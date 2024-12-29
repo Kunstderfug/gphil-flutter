@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:gphil/models/section.dart';
+import 'package:gphil/providers/liading_state_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
+import 'package:provider/provider.dart';
 
 class LayersError extends StatelessWidget {
   const LayersError({
     super.key,
-    required this.p,
+    // required this.p,
   });
 
-  final PlaylistProvider p;
+  // final PlaylistProvider p;
 
   @override
   Widget build(BuildContext context) {
+    final l = context.watch<LoadingStateProvider>();
+    final p = context.read<PlaylistProvider>(); // For non-loading related data
     return Container(
       padding: const EdgeInsets.all(paddingXl),
       decoration: BoxDecoration(
@@ -31,7 +35,7 @@ class LayersError extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            p.error,
+            l.error,
             style: TextStyle(
               fontSize: 20,
               // fontWeight: FontWeight.bold,

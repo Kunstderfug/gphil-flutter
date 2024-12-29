@@ -866,7 +866,7 @@ class PlaylistProvider extends ChangeNotifier {
       }
     }
 
-    getMetronomeData();
+    getMetronomeSettings();
   }
 
   List<AudioUrl> _getAudioUrls() {
@@ -914,7 +914,7 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _createPlayerPool() async {
+  Future<List<PlayerPool>> _createPlayerPool() async {
     final audioSources = kIsWeb ? webAudioUrls : audioFilesUrls;
 
     audioSources.sort((a, b) {
@@ -950,6 +950,7 @@ class PlaylistProvider extends ChangeNotifier {
         setError('Error loading audio source: $e');
       }
     }
+    return playerPool;
   }
 
   void resetPlayers() async {
@@ -1218,7 +1219,7 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void getMetronomeData() {
+  void getMetronomeSettings() {
     getMetronomeMuted();
     getMetronomeVolume();
     getMetronomeBellEnabled();

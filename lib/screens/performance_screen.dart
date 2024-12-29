@@ -2,19 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/file_loading.dart';
 import 'package:gphil/components/performance/debug_info.dart';
-import 'package:gphil/components/performance/floating_info.dart';
+// import 'package:gphil/components/performance/floating_info.dart';
 import 'package:gphil/components/performance/layers_error.dart';
 import 'package:gphil/components/performance/main_area.dart';
-import 'package:gphil/components/performance/mixer_info.dart';
+// import 'package:gphil/components/performance/mixer_info.dart';
 import 'package:gphil/components/performance/playlist_empty.dart';
 import 'package:gphil/components/standart_button.dart';
 import 'package:gphil/components/tablet_body.dart';
+import 'package:gphil/providers/liading_state_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-void _showLayersErrorDialog(BuildContext context, PlaylistProvider p) {
+void _showLayersErrorDialog(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -24,7 +25,7 @@ void _showLayersErrorDialog(BuildContext context, PlaylistProvider p) {
         child: SizedBox(
           width: 600,
           // height: 400,
-          child: LayersError(p: p),
+          child: LayersError(),
         ),
       );
     },
@@ -36,14 +37,15 @@ class PerformanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
+    final l = context.watch<LoadingStateProvider>();
+    final p = context.read<PlaylistProvider>();
     final n = Provider.of<NavigationProvider>(context);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!p.isTempoInAllRanges &&
-          p.error.isNotEmpty &&
+      if (!l.isTempoInAllRanges &&
+          l.error.isNotEmpty &&
           Navigator.canPop(context) == false) {
-        _showLayersErrorDialog(context, p);
+        _showLayersErrorDialog(context);
       }
     });
 
@@ -53,11 +55,11 @@ class PerformanceScreen extends StatelessWidget {
           return Stack(
             children: [
               SingleChildScrollView(child: MainArea()),
-              if (kDebugMode)
-                FloatingWindow(
-                  label: 'Mixer',
-                  child: MixerInfo(p: p),
-                ),
+              // if (kDebugMode)
+              //   FloatingWindow(
+              //     label: 'Mixer',
+              //     child: MixerInfo(p: p),
+              //   ),
             ],
           );
         } else {
@@ -66,15 +68,15 @@ class PerformanceScreen extends StatelessWidget {
       },
     );
 
-    if (p.playlist.isEmpty && !p.isLoading) {
+    if (p.playlist.isEmpty && !l.isLoading) {
       return const PlaylistIsEmpty();
     } else {
       Widget firstChild() {
-        if (p.filesDownloading) {
+        if (l.isDownloading) {
           return Column(
             children: [
               LoadingFiles(
-                filesLoaded: p.filesDownloaded,
+                filesLoaded: l.filesDownloaded,
                 filesLength: p.playlist.length,
               ),
               SizedBox(height: separatorXs),
@@ -91,11 +93,11 @@ class PerformanceScreen extends StatelessWidget {
             ],
           );
         }
-        if (p.isLoading) {
+        if (l.isLoading) {
           return Column(
             children: [
               LoadingFiles(
-                filesLoaded: p.filesLoaded,
+                filesLoaded: l.filesLoaded,
                 filesLength: p.playlist.length,
               ),
               SizedBox(height: separatorXs),
@@ -124,9 +126,9 @@ class PerformanceScreen extends StatelessWidget {
             child: child,
           );
         },
-        child: p.playlist.isEmpty && !p.isLoading
+        child: p.playlist.isEmpty && !l.isLoading
             ? const PlaylistIsEmpty()
-            : p.filesDownloading || p.isLoading
+            : l.isDownloading || l.isLoading
                 ? firstChild()
                 : layout,
       );

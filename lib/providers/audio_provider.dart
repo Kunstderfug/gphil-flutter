@@ -21,7 +21,7 @@ class AudioProvider extends ChangeNotifier {
     });
   }
 
-  // AUDIO PLAYERS
+// AUDIO PLAYERS
   List<PlayerAudioSource> playerAudioSources = [];
   final player = AudioManager().soloud;
   SoundHandle? activeHandle;
@@ -39,17 +39,17 @@ class AudioProvider extends ChangeNotifier {
   bool layersEnabled = false;
   bool _isPlaying = false;
 
-  //AUDIOHANDLES
+//AUDIOHANDLES
   SoundHandle? metronomeHandle;
   AudioSource? metronomeClick;
   AudioSource? metronomeBell;
   SoundHandle? metronomeBellHandle;
 
-  // Durations
+// Durations
   Duration _currentPosition = Duration.zero;
   Duration _duration = Duration.zero;
 
-  //AUTO CONTINUE
+//AUTO CONTINUE
   int autoContinueOffset = 5000;
   bool doublePressGuard =
       true; // avoid pressing pedal twice by mistake and earlier than needed
@@ -60,11 +60,11 @@ class AudioProvider extends ChangeNotifier {
   final int autoContinueExecutionOffset =
       0; // ms earlier than actuall auto continue marker
 
-  // LOOPING
+// LOOPING
   bool loopStropped = false;
   Timer? loopingTimer; // timer for looping function
 
-  //METRONOME
+//METRONOME
   ClickData currentBeat = ClickData(time: 0, beat: 0);
   int currentBeatIndex = 0;
   int? _previousBeatIndex;
@@ -78,7 +78,7 @@ class AudioProvider extends ChangeNotifier {
   bool metronomeBellEnabled = true;
   final int _metronomeOffesetDelay = 40; //milliseconds
 
-  // GETTERS
+// GETTERS
   Duration get currentPosition => _currentPosition;
   Duration get duration => _duration;
   int get continueGuardTimer => _duration.inMilliseconds - autoContinueOffset;
@@ -140,17 +140,6 @@ class AudioProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // METHODS
-  void resetPlayers() async {
-    if (player.isInitialized) await player.disposeAllSources();
-    playerPool.clear();
-    layerPlayersPool.resetAll();
-    activeHandle = null;
-    playerVolume = 1;
-    _isPlaying = false;
-    notifyListeners();
-  }
-
 // INIT METHODS
   Future<void> initPlayer() async {
     if (!player.isInitialized) {
@@ -192,6 +181,18 @@ class AudioProvider extends ChangeNotifier {
       layerPlayersPool.setIndividualLayerVolume(
           currentLayerPlayerPool!, layer, value);
     }
+    notifyListeners();
+  }
+
+  void resetPlayers() async {
+    if (player.isInitialized) await player.disposeAllSources();
+    playerPool.clear();
+    layerPlayersPool.resetAll();
+    activeHandle = null;
+    playerVolume = 1;
+    _isPlaying = false;
+    autoContinueMarker = null;
+    autoContinueTimer?.cancel();
     notifyListeners();
   }
 
@@ -516,7 +517,7 @@ class AudioProvider extends ChangeNotifier {
     }
   }
 
-  //LAYERS
+//LAYERS
   Future<void> playLayers() async {
     log('play layers, ');
 
@@ -583,7 +584,7 @@ class AudioProvider extends ChangeNotifier {
     }
   }
 
-  //METRONOME
+//METRONOME
   void setCurrentBeat() {
     if (currentBeatIndex < currentPlaylistDurationBeats.length - 1) {
       final index = currentClickData!.clickData.indexWhere((click) =>

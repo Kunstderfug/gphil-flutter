@@ -7,7 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';
-import 'package:gphil/providers/audio_provider.dart';
+// import 'package:gphil/providers/audio_provider.dart';
+import 'package:gphil/providers/liading_state_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
@@ -58,9 +59,12 @@ void main() async {
       ChangeNotifierProvider(create: (_) => LibraryProvider()),
       ChangeNotifierProvider(create: (_) => ScoreProvider()),
       ChangeNotifierProvider(create: (_) => PlaylistProvider()),
-      ProxyProvider<PlaylistProvider, AudioProvider>(
-          update: (context, playlistProvider, previous) =>
-              AudioProvider(playlistProvider)),
+      ChangeNotifierProxyProvider<PlaylistProvider, LoadingStateProvider>(
+        create: (context) =>
+            LoadingStateProvider(context.read<PlaylistProvider>()),
+        update: (context, playlistProvider, previous) =>
+            previous ?? LoadingStateProvider(playlistProvider),
+      ),
     ], child: const MyApp()),
   );
 }
