@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:gphil/models/library.dart';
 import 'package:gphil/models/movement.dart';
@@ -543,8 +544,63 @@ class PersistentDataController with ChangeNotifier {
       log('Error reading directory: $e');
     }
   }
-}
 
-String getAudioFileNAme(String audioUrl) {
-  return audioUrl.split('/').last;
+  Future<List<String>> getOfflineAudioFiles(
+      String scoreId, String sectionName) async {
+    final List<String> availableFiles = [];
+    final String path = await audioDirectory(scoreId);
+    Directory directory = Directory(path);
+
+    try {
+      if (await directory.exists()) {
+        List<FileSystemEntity> entities = await directory.list().toList();
+
+        for (final entity in entities) {
+          if (entity is File && entity.path.contains(sectionName)) {
+            // Check if file exists and has content
+            if (await entity.exists() && await entity.length() > 0) {
+              availableFiles.add(entity.path);
+              log('Found offline file: ${entity.path}');
+            }
+          }
+        }
+      }
+    } catch (e) {
+      log('Error checking offline files: $e');
+    }
+
+    return availableFiles;
+  }
+
+  Future<List<int>> getAvailableTempos(
+      String scoreId, String sectionName) async {
+    final List<int> availableTempos = [];
+    final List<String> files = await getOfflineAudioFiles(scoreId, sectionName);
+
+    for (String filePath in files) {
+      try {
+        // Extract filename from path
+        String fileName = filePath.split('/').last;
+
+        // Extract tempo number using RegExp
+        RegExp regExp = RegExp(r'_(\d+)\.mp3$');
+        Match? match = regExp.firstMatch(fileName);
+
+        if (match != null && match.group(1) != null) {
+          int tempo = int.parse(match.group(1)!);
+          availableTempos.add(tempo);
+        }
+      } catch (e) {
+        log('Error parsing tempo from filename: $e');
+      }
+    }
+
+    // Sort tempos numerically
+    availableTempos.sort();
+    return availableTempos;
+  }
+
+  String getAudioFileNAme(String audioUrl) {
+    return audioUrl.split('/').last;
+  }
 }

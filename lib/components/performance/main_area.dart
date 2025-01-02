@@ -22,7 +22,8 @@ class MainArea extends StatelessWidget {
           Selector<PlaylistProvider, String?>(
             selector: (_, p) => p.currentSection?.name,
             builder: (context, sectionName, _) {
-              return PlayerHeader(sectionName: sectionName ?? '');
+              return RepaintBoundary(
+                  child: PlayerHeader(sectionName: sectionName ?? ''));
             },
           ),
 
@@ -79,16 +80,18 @@ class SkippableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<PlaylistProvider, bool>(
-      selector: (_, p) => p.isSkippingActive,
-      builder: (context, isSkippingActive, child) {
-        return AnimatedOpacity(
-          opacity: isSkippingActive ? globalDisabledOpacity : 1,
-          duration: Duration(milliseconds: duration),
-          child: child,
-        );
-      },
-      child: child,
+    return RepaintBoundary(
+      child: Selector<PlaylistProvider, bool>(
+        selector: (_, p) => p.isSkippingActive,
+        builder: (context, isSkippingActive, child) {
+          return AnimatedOpacity(
+            opacity: isSkippingActive ? globalDisabledOpacity : 1,
+            duration: Duration(milliseconds: duration),
+            child: child,
+          );
+        },
+        child: child,
+      ),
     );
   }
 }

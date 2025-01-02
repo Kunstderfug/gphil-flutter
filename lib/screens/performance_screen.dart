@@ -37,8 +37,6 @@ class PerformanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('PerformanceScreen rebuild');
-
     return Selector3<LoadingStateProvider, PlaylistProvider, NavigationProvider,
         PerformanceState>(
       selector: (_, loadingState, playlistProvider, navigationProvider) =>

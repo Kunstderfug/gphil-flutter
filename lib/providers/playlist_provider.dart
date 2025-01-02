@@ -104,7 +104,7 @@ class PlaylistProvider extends ChangeNotifier {
   Timer? autoContinueTimer; // timer for auto continue in play function
 
 // LOOPING
-  bool loopStropped = false;
+  bool loopStopped = false;
   Timer? loopingTimer; // timer for looping function
 
 // AUDIO PLAYERS
@@ -282,7 +282,7 @@ class PlaylistProvider extends ChangeNotifier {
 
   set setPerformanceMode(bool value) {
     _performanceMode = value;
-    loopStropped = value;
+    loopStopped = value;
     notifyListeners();
   }
 
@@ -1310,7 +1310,7 @@ class PlaylistProvider extends ChangeNotifier {
     initImagesOrder();
     imageProgress = false;
     isPlaying = false;
-    loopStropped = true;
+    loopStopped = true;
     notifyListeners();
   }
 
@@ -1346,33 +1346,51 @@ class PlaylistProvider extends ChangeNotifier {
   }
 
   Future<void> playCurrentSection() async {
-    //if section is looped and loop was stopped
-
-    //if the next section is set to skip
+    // Early return if section should be skipped
     if (currentSection?.muted == true && !performanceMode) {
-      playNextSection();
       _log.warning('skipping muted section');
+      playNextSection();
       return;
     }
-    activeHandle = await player.play(currentAudioSource()!);
 
-    if (isLoopingActive && loopStropped) {
-      loopStropped = false;
+    // Play audio
+    final audioSource = currentAudioSource();
+    if (audioSource == null) return;
+    activeHandle = await player.play(audioSource);
+
+    // Handle looping logic
+    if (isLoopingActive && loopStopped) {
+      loopStopped = false;
     }
-    //if section is looped, play it again
-    if (!loopStropped && currentSection?.looped == true) {
-      loopingTimer = Timer(
-          Duration(milliseconds: duration.inMilliseconds),
-          () => !performanceMode && currentSection!.looped
-              ? isPlaying
-                  ? play()
-                  : null
-              : null);
+
+    // Setup loop timer if needed
+    if (_shouldSetupLoopTimer) {
+      _setupLoopTimer();
     }
+
     log('player volume: ${player.getVolume(activeHandle!)}');
 
-    isPlaying = true;
-    notifyListeners();
+    // Update playing state once
+    _updatePlayingState(true);
+  }
+
+  // Private helper methods
+  bool get _shouldSetupLoopTimer =>
+      !loopStopped && currentSection?.looped == true;
+
+  void _setupLoopTimer() {
+    loopingTimer = Timer(Duration(milliseconds: duration.inMilliseconds), () {
+      if (!performanceMode && currentSection?.looped == true && isPlaying) {
+        play();
+      }
+    });
+  }
+
+  void _updatePlayingState(bool playing) {
+    if (isPlaying != playing) {
+      isPlaying = playing;
+      notifyListeners();
+    }
   }
 
   Future<void> playPreviousSection() async {
@@ -1425,9 +1443,13 @@ class PlaylistProvider extends ChangeNotifier {
 
   //listen to the player position and update the current position
   void setDoublePressGuard() {
-    doublePressGuard = currentPosition.inMilliseconds > 0 &&
+    bool newValue = currentPosition.inMilliseconds > 0 &&
         currentPosition.inMilliseconds < continueGuardTimer;
-    notifyListeners();
+
+    if (doublePressGuard != newValue) {
+      doublePressGuard = newValue;
+      notifyListeners();
+    }
   }
 
   void handlePlaybackAndMetronome() {

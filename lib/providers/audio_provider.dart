@@ -327,7 +327,7 @@ class AudioProvider extends ChangeNotifier {
     p.initImagesOrder();
     p.imageProgress = false;
     isPlaying = false;
-    p.loopStropped = true;
+    p.loopStopped = true;
     notifyListeners();
   }
 
@@ -367,11 +367,11 @@ class AudioProvider extends ChangeNotifier {
     }
     activeHandle = await player.play(currentAudioSource!);
 
-    if (p.isLoopingActive && p.loopStropped) {
+    if (p.isLoopingActive && p.loopStopped) {
       loopStropped = false;
     }
     //if section is looped, play it again
-    if (!p.loopStropped && p.currentSection?.looped == true) {
+    if (!p.loopStopped && p.currentSection?.looped == true) {
       loopingTimer = Timer(
           Duration(milliseconds: duration.inMilliseconds),
           () => !p.performanceMode && p.currentSection!.looped

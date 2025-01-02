@@ -65,7 +65,7 @@ class MixerInfo extends StatelessWidget {
                   'Layers volume: ${p.currentLayerPlayerPool!.layerChannels[0].player!.playerVolume}'),
             Text('is Playing: ${p.isPlaying}'),
             Text('isSection looped: ${p.currentSection?.muted} '),
-            Text('Loop Stropped: ${p.loopStropped}'),
+            Text('Loop Stropped: ${p.loopStopped}'),
             Text(
                 'Current Section: ${p.currentSection?.name ?? ''}, ${p.currentSectionKey}'),
             Text('autoContinueMarker: ${p.autoContinueMarker}'),
