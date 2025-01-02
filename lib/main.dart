@@ -7,8 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gphil/layout/desktop.dart';
 import 'package:gphil/layout/responsive.dart';
 import 'package:gphil/layout/tablet.dart';
-// import 'package:gphil/providers/audio_provider.dart';
-import 'package:gphil/providers/liading_state_provider.dart';
+import 'package:gphil/providers/loading_state_provider.dart';
 import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
@@ -21,8 +20,6 @@ import 'package:gphil/services/app_state.dart';
 import 'package:gphil/services/app_update_service.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
-
-// import 'package:gphil/src/rust/frb_generated.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

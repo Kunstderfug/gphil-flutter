@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gphil/components/library/library_search.dart';
 import 'package:gphil/components/performance/sidebar.dart';
-import 'package:gphil/components/score/score_links.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
+import 'package:gphil/layout/appbar_factory.dart';
 import 'package:gphil/layout/drawer.dart';
 import 'package:gphil/layout/navigation.dart';
 import 'package:gphil/layout/status_bar.dart';
+import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/library_provider.dart';
 import 'package:gphil/providers/navigation_provider.dart';
 import 'package:gphil/providers/opacity_provider.dart';
@@ -15,84 +16,15 @@ import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/providers/theme_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 final iconColor = Colors.white.withValues(alpha: 0.7);
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});
 
-  Widget _buildScoreLinks(ScoreProvider s) {
-    final double iconSize = 20;
-
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (s.currentScore?.pianoScoreUrl != null)
-            IconButton(
-              hoverColor: greenColor,
-              padding: const EdgeInsets.all(0),
-              icon: const Icon(
-                Icons.piano_outlined,
-              ),
-              iconSize: iconSize,
-              tooltip: 'Download Piano Score',
-              color: iconColor,
-              onPressed: () =>
-                  launchUrl(Uri.parse(s.currentScore!.pianoScoreUrl!)),
-            ),
-          if (s.currentScore?.fullScoreUrl != null)
-            IconButton(
-              hoverColor: greenColor,
-              padding: const EdgeInsets.all(0),
-              icon: const Icon(
-                Icons.library_music_outlined,
-              ),
-              iconSize: iconSize,
-              tooltip: 'Download Full Score',
-              color: iconColor,
-              onPressed: () =>
-                  launchUrl(Uri.parse(s.currentScore!.fullScoreUrl!)),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialIcons() {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          hoverColor: highlightColor,
-          icon: const Icon(
-            Icons.paypal,
-          ),
-          tooltip: 'Support GPhil',
-          color: iconColor,
-          onPressed: () => launchUrl(
-              Uri.parse('https://www.paypal.com/ncp/payment/3KH4DFTTQMXYJ')),
-        ),
-        IconButton(
-          hoverColor: redColor,
-          icon: const Icon(
-            Icons.bug_report,
-          ),
-          tooltip: 'Report a bug',
-          color: iconColor,
-          onPressed: () =>
-              launchUrl(Uri.parse('https://discord.gg/DMDvB6NFJu')),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final n = Provider.of<NavigationProvider>(context);
-    final p = Provider.of<PlaylistProvider>(context);
     final s = Provider.of<ScoreProvider>(context);
     final l = Provider.of<LibraryProvider>(context);
     final t = Provider.of<ThemeProvider>(context);
@@ -122,68 +54,10 @@ class DesktopLayout extends StatelessWidget {
           // autofocus: true,
           child: Scaffold(
             backgroundColor: Colors.transparent,
-            appBar: !n.isScoreScreen
-                ? AppBar(
-                    backgroundColor: n.isLibraryScreen
-                        ? AppColors().backroundColor(context)
-                        : p.performanceMode && p.playlist.isNotEmpty
-                            ? p.setColor()
-                            : AppColors().backroundColor(context),
-                    leading: n.isPerformanceScreen
-                        ? _buildScoreLinks(s)
-                        : null, // Add this
-                    leadingWidth: n.isPerformanceScreen ? 100 : 56, // Add this
-                    title: Text(
-                        n.isLibraryScreen
-                            ? n.navigationScreens[n.currentIndex].title
-                            : p.performanceMode && p.playlist.isNotEmpty
-                                ? 'P E R F O R M A N C E  M O D E'
-                                : n.navigationScreens[n.currentIndex].title,
-                        style: Theme.of(context).textTheme.titleMedium),
-                    toolbarHeight: appBarSizeDesktop,
-                    actions:
-                        n.isPerformanceScreen ? [_buildSocialIcons()] : null,
-                  )
-                : AppBar(
-                    title: Padding(
-                      padding: const EdgeInsets.only(
-                          left: paddingMd, right: paddingMd),
-                      child: Stack(
-                        fit: StackFit.passthrough,
-                        alignment: Alignment.center,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(s.currentScore?.composer.toUpperCase() ?? '',
-                                  style: const TextStyle(
-                                    fontSize: fontSizeMd,
-                                    letterSpacing: 2,
-                                    wordSpacing: 4,
-                                  )),
-                              Text(
-                                  '${s.currentScore?.shortTitle.toUpperCase()}',
-                                  style: const TextStyle(
-                                    fontSize: fontSizeMd,
-                                    letterSpacing: 2,
-                                    wordSpacing: 4,
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ScoreLinks(
-                                  pianoScoreUrl: s.currentScore?.pianoScoreUrl,
-                                  fullScoreUrl: s.currentScore?.fullScoreUrl),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // actions: [_buildSocialIcons()],
-                    toolbarHeight: appBarSizeDesktop,
-                  ),
+            appBar: AppBarFactory.create(
+              navigationProvider: n,
+              scoreProvider: s,
+            ),
             body: Stack(children: [
               t.isDarkMode
                   ? Image.asset('assets/images/bg-dark-desktop.png',
@@ -201,17 +75,21 @@ class DesktopLayout extends StatelessWidget {
                       ? const MyDrawer(child: Navigation())
                       : MyDrawer(
                           child: ChangeNotifierProvider(
-                            create: (_) => OpacityProvider(),
-                            lazy: false,
-                            child: p.playlist.isNotEmpty
-                                ? PerformanceSidebar()
-                                : const MyDrawer(child: Navigation()),
+                          create: (_) => OpacityProvider(),
+                          lazy: false,
+                          child: Selector<PlaylistProvider, List<Section>>(
+                            selector: (_, provider) => provider.playlist,
+                            builder: (context, playlist, _) {
+                              return playlist.isNotEmpty
+                                  ? PerformanceSidebar()
+                                  : const MyDrawer(child: Navigation());
+                            },
                           ),
-                        ),
+                        )),
                   SizedBox(
                     width: MediaQuery.sizeOf(context).width - 240,
                     height: MediaQuery.sizeOf(context).height,
-                    child: n.isHelpScreen // Add this condition
+                    child: n.isHelpScreen
                         ? n.navigationScreens[n.currentIndex].screen
                         : SingleChildScrollView(
                             padding: EdgeInsets.symmetric(

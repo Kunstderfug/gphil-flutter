@@ -19,21 +19,8 @@ class PerformanceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
     final o = Provider.of<OpacityProvider>(context);
-    final int movementsLength = p.sessionMovements.length;
-
-    int calculateGap() => switch (movementsLength) {
-          1 => 300,
-          2 => 340,
-          3 => 380,
-          4 => 420,
-          5 => 460,
-          _ => 500,
-        };
-    double calculateHeight() =>
-        (MediaQuery.sizeOf(context).height - calculateGap()) /
-        p.currentMovementSections.length;
+    // debugPrint('rebuilding PerformanceSection');
 
     Color setColor(Section section) =>
         section.autoContinueMarker != null && section.autoContinue != false
@@ -51,94 +38,125 @@ class PerformanceSection extends StatelessWidget {
       return {'name': flexName, 'icons': flexIcons};
     }
 
-    return Container(
-      // margin: EdgeInsets.only(bottom: 1),
-      height: calculateHeight() < 40 ? calculateHeight() : 40,
-      decoration: BoxDecoration(
-          color: section.key == p.currentSectionKey
-              ? setColor(section).withValues(alpha: 1)
-              : setColor(section)
-                  .withValues(alpha: isSelected ? 1 : o.userOpacity),
-          border: isSelected
-              ? Border.all(
-                  color: Colors.white,
-                )
-              : Border.all(
-                  color: section.autoContinue == true ? greenColor : redColor,
-                  width: 0.5,
-                )),
-      child: TextButton(
-        style: ButtonStyle(
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-          minimumSize:
-              WidgetStateProperty.all(Size.fromHeight(double.infinity)),
-          padding: WidgetStateProperty.all(EdgeInsets.only(left: 12)),
-        ),
-        onPressed: onTap,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            //Section name
-            Expanded(
-              flex: flex()['name']!,
-              child: AnimatedOpacity(
-                opacity: section.muted && !p.performanceMode ? 0.3 : 1,
-                duration: Duration(milliseconds: 300),
-                child: Text(
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                  isTablet(context)
-                      ? section.name.toLowerCase().replaceAll('_', ' ')
-                      : section.name.replaceAll('_', ' '),
-                  style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontSize: fontSizeSm),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: flex()['icons']!,
-              child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                //Icon for skip
-                if (section.muted)
-                  Expanded(
-                      flex: 1,
-                      child: section.muted
-                          ? Icon(
-                              Icons.play_disabled,
-                              color: !p.performanceMode
-                                  ? Colors.white
-                                  : Colors.grey.shade700,
-                              size: iconSizeXs,
-                            )
-                          : SizedBox.shrink()),
-                //Icon for loop
-                Expanded(
-                    flex: 1,
-                    child: section.looped
-                        ? Icon(
-                            Icons.loop_sharp,
-                            color: !p.performanceMode
-                                ? Colors.white
-                                : Colors.grey.shade700,
-                            size: iconSizeXs,
-                          )
-                        : SizedBox.shrink()),
-                //Autocontinue icon
-                Expanded(
-                    flex: 1,
-                    child: section.autoContinue == true
-                        ? Icon(
-                            Icons.navigate_next,
-                            color: Colors.white,
-                            size: iconSizeXs,
-                          )
-                        : SizedBox.shrink()),
-              ]),
-            ),
-          ],
-        ),
+    return Selector<PlaylistProvider, (int, List<Section>, String?, bool)>(
+      selector: (_, provider) => (
+        provider.sessionMovements.length,
+        provider.currentMovementSections,
+        provider.currentSectionKey,
+        provider.performanceMode,
       ),
+      builder: (context, data, _) {
+        final (
+          movementsLength,
+          currentMovementSections,
+          currentSectionKey,
+          performanceMode
+        ) = data;
+
+        int calculateGap() => switch (movementsLength) {
+              1 => 300,
+              2 => 340,
+              3 => 380,
+              4 => 420,
+              5 => 460,
+              _ => 500,
+            };
+
+        double calculateHeight() =>
+            (MediaQuery.sizeOf(context).height - calculateGap()) /
+            currentMovementSections.length;
+
+        return Container(
+          height: calculateHeight() < 40 ? calculateHeight() : 40,
+          decoration: BoxDecoration(
+              color: section.key == currentSectionKey
+                  ? setColor(section).withValues(alpha: 1)
+                  : setColor(section)
+                      .withValues(alpha: isSelected ? 1 : o.userOpacity),
+              border: isSelected
+                  ? Border.all(
+                      color: Colors.white,
+                    )
+                  : Border.all(
+                      color:
+                          section.autoContinue == true ? greenColor : redColor,
+                      width: 0.5,
+                    )),
+          child: TextButton(
+            style: ButtonStyle(
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+              minimumSize:
+                  WidgetStateProperty.all(Size.fromHeight(double.infinity)),
+              padding: WidgetStateProperty.all(EdgeInsets.only(left: 12)),
+            ),
+            onPressed: onTap,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //Section name
+                Expanded(
+                  flex: flex()['name']!,
+                  child: AnimatedOpacity(
+                    opacity: section.muted && !performanceMode ? 0.3 : 1,
+                    duration: Duration(milliseconds: 300),
+                    child: Text(
+                      softWrap: false,
+                      overflow: TextOverflow.fade,
+                      isTablet(context)
+                          ? section.name.toLowerCase().replaceAll('_', ' ')
+                          : section.name.replaceAll('_', ' '),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          fontSize: fontSizeSm),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: flex()['icons']!,
+                  child:
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    //Icon for skip
+                    if (section.muted)
+                      Expanded(
+                          flex: 1,
+                          child: section.muted
+                              ? Icon(
+                                  Icons.play_disabled,
+                                  color: !performanceMode
+                                      ? Colors.white
+                                      : Colors.grey.shade700,
+                                  size: iconSizeXs,
+                                )
+                              : SizedBox.shrink()),
+                    //Icon for loop
+                    Expanded(
+                        flex: 1,
+                        child: section.looped
+                            ? Icon(
+                                Icons.loop_sharp,
+                                color: !performanceMode
+                                    ? Colors.white
+                                    : Colors.grey.shade700,
+                                size: iconSizeXs,
+                              )
+                            : SizedBox.shrink()),
+                    //Autocontinue icon
+                    Expanded(
+                        flex: 1,
+                        child: section.autoContinue == true
+                            ? Icon(
+                                Icons.navigate_next,
+                                color: Colors.white,
+                                size: iconSizeXs,
+                              )
+                            : SizedBox.shrink()),
+                  ]),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

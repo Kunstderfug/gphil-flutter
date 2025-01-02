@@ -1,6 +1,10 @@
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gphil/components/score/section_image.dart';
+// import 'package:gphil/models/section.dart';
 import 'package:gphil/providers/playlist_provider.dart';
+// import 'package:gphil/services/app_state.dart';
+// import 'package:gphil/services/sanity_service.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -47,7 +51,7 @@ class _ImageProgressState extends State<ImageProgress>
           aspectRatio: 16 / 9, // Match your image aspect ratio
           child: Stack(
             children: [
-              SectionImage(
+              SectionImageFrame(
                   imageFile: p.currentSectionImage, section: p.currentSection!),
               Positioned(
                 top: sizeXs,

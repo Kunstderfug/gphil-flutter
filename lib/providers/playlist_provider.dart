@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -47,7 +48,7 @@ class PlaylistProvider extends ChangeNotifier {
     OrchestraLayer.strings
   ];
   int layersEnabledOnce = 0;
-  AppState? appState;
+  AppState appState = AppState.idle;
 
   PlaylistProvider() {
     appState = AppState.idle;
@@ -1328,7 +1329,7 @@ class PlaylistProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> playSelectedSection(String sectionKey) async {
+  Future<void> setOrPlaySelectedSection(String sectionKey) async {
     if (isPlaying) {
       await skip();
     }

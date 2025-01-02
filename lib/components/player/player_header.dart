@@ -138,7 +138,7 @@ class PlayerHeader extends StatelessWidget {
           onPressed: () => _handleBackNavigation(context, p, s, n, l),
           icon: const Icon(Icons.arrow_back),
         ),
-        PerformanceMode(p: p),
+        const PerformanceMode(),
       ],
     );
   }

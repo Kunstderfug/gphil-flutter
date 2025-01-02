@@ -178,11 +178,11 @@ class ModesAndPlayerControl extends StatelessWidget {
                                 Padding(
                                   padding:
                                       const EdgeInsets.only(left: paddingMd),
-                                  child: OnePedalMode(p: p),
+                                  child: OnePedalMode(),
                                 ),
                                 if (n.isPerformanceScreen &&
                                     p.areAllTempoRangesEqual)
-                                  AllSectionsTempoSwitch(p: p),
+                                  AllSectionsTempoSwitch(),
                                 IconButton(
                                   tooltip:
                                       "Save/Load session\nKeyboard shortcut [O]",

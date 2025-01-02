@@ -10,26 +10,31 @@ class PerformanceMovements extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
-
     return Column(
       children: [
         for (SessionMovement movement in movements)
-          Container(
-            decoration:
-                BoxDecoration(border: Border.all(color: highlightColor)),
-            child: ListTile(
-              dense: true,
-              visualDensity: VisualDensity.compact,
-              selected: movement.movementKey == p.currentMovementKey,
-              selectedTileColor: highlightColor,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-              title:
-                  Text(movement.title, style: TextStyle(color: Colors.white)),
-              onTap: () {
-                p.setMovementIndexByKey(movement.movementKey);
-              },
-            ),
+          Selector<PlaylistProvider, String?>(
+            selector: (_, provider) => provider.currentMovementKey,
+            builder: (context, currentMovementKey, _) {
+              return Container(
+                decoration:
+                    BoxDecoration(border: Border.all(color: highlightColor)),
+                child: ListTile(
+                  dense: true,
+                  visualDensity: VisualDensity.compact,
+                  selected: movement.movementKey == currentMovementKey,
+                  selectedTileColor: highlightColor,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                  title: Text(movement.title,
+                      style: const TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Provider.of<PlaylistProvider>(context, listen: false)
+                        .setMovementIndexByKey(movement.movementKey);
+                  },
+                ),
+              );
+            },
           ),
       ],
     );

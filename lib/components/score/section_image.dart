@@ -10,10 +10,10 @@ import 'package:gphil/services/sanity_service.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-class SectionImage extends StatelessWidget {
+class SectionImageFrame extends StatelessWidget {
   final File? imageFile;
   final Section section;
-  const SectionImage({super.key, this.imageFile, required this.section});
+  const SectionImageFrame({super.key, this.imageFile, required this.section});
 
   Widget _noImage(BuildContext context) => AspectRatio(
         aspectRatio: 16 / 9,
@@ -68,7 +68,7 @@ class SectionImage extends StatelessWidget {
                   borderRadius: BorderRad().bRadiusMd,
                 ),
                 child: Center(
-                    child: a.appState == AppState.offline
+                    child: a.appState == AppState.offline && imageFile == null
                         ? const Text(
                             'Image is not available, app is offline',
                             style: TextStyle(color: Colors.black54),

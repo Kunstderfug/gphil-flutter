@@ -15,41 +15,38 @@ class MainArea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
-
-    double opacity = 0.3;
-    int duration = 300;
-
     return Column(
         //Header
         children: [
-          PlayerHeader(sectionName: p.currentSection?.name ?? ''),
+          // Listen only to current section name
+          Selector<PlaylistProvider, String?>(
+            selector: (_, p) => p.currentSection?.name,
+            builder: (context, sectionName, _) {
+              return PlayerHeader(sectionName: sectionName ?? '');
+            },
+          ),
 
           const SizedBox(
             height: separatorMd,
           ),
 
           //Section name and playlist control
-          AnimatedOpacity(
-              opacity: p.isSkippingActive ? opacity : 1,
-              duration: Duration(milliseconds: duration),
-              child:
-                  SectionNamePlaylistControl(separatorWidth: separatorWidth)),
-
+          SkippableWidget(
+            child: SectionNamePlaylistControl(separatorWidth: separatorWidth),
+          ),
           //Separator line and player progress bar
-          AnimatedOpacity(
-              opacity: p.isSkippingActive ? opacity : 1,
-              duration: Duration(milliseconds: duration),
-              child: SeparatorAndProgressBar(
-                  separatorWidth: separatorWidth, height: 40)),
+          SkippableWidget(
+            child: SeparatorAndProgressBar(
+                separatorWidth: separatorWidth, height: 40),
+          ),
 
           //Modes and player control
-          AnimatedOpacity(
-              opacity: p.isSkippingActive ? opacity : 1,
-              duration: Duration(milliseconds: duration),
-              child: ModesAndPlayerControl(
-                  separatorWidth: separatorWidth, height: 184)),
-          SizedBox(height: 8),
+          SkippableWidget(
+            child: ModesAndPlayerControl(
+                separatorWidth: separatorWidth, height: 184),
+          ),
+
+          const SizedBox(height: 8),
 
           Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             Expanded(child: SeparatorLine(height: separatorSm)),
@@ -67,5 +64,31 @@ class MainArea extends StatelessWidget {
             height: separatorMd,
           ),
         ]);
+  }
+}
+
+class SkippableWidget extends StatelessWidget {
+  const SkippableWidget({
+    super.key,
+    required this.child,
+    this.duration = 300,
+  });
+
+  final Widget child;
+  final int duration;
+
+  @override
+  Widget build(BuildContext context) {
+    return Selector<PlaylistProvider, bool>(
+      selector: (_, p) => p.isSkippingActive,
+      builder: (context, isSkippingActive, child) {
+        return AnimatedOpacity(
+          opacity: isSkippingActive ? globalDisabledOpacity : 1,
+          duration: Duration(milliseconds: duration),
+          child: child,
+        );
+      },
+      child: child,
+    );
   }
 }

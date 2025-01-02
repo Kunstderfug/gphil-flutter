@@ -1,10 +1,12 @@
+// ignore_for_file: unnecessary_const
+
 import 'package:flutter/material.dart';
 import 'package:gphil/components/performance/global_mixer.dart';
 import 'package:gphil/components/performance/image_progress.dart';
 import 'package:gphil/components/performance/section_management.dart';
-import 'package:gphil/providers/playlist_provider.dart';
+// import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/theme/constants.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 class SectionManagementMixer extends StatelessWidget {
   final double separatorWidth;
@@ -13,7 +15,7 @@ class SectionManagementMixer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = Provider.of<PlaylistProvider>(context);
+    // final p = Provider.of<PlaylistProvider>(context);
 
     return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -21,13 +23,11 @@ class SectionManagementMixer extends StatelessWidget {
         children: [
           //RIGHT SIDE, SECTION MANAGEMENT
           Expanded(
-            child: Column(
+            child: const Column(
               children: [
-                SectionManagement(p: p),
-                //SECTION IMAGE
-                // if (p.currentSection?.sectionImage != null)
+                SectionManagement(),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: paddingXl),
+                  padding: EdgeInsets.symmetric(horizontal: paddingXl),
                   child: ImageProgress(),
                 ),
               ],
@@ -40,11 +40,11 @@ class SectionManagementMixer extends StatelessWidget {
           ),
 
           //RIGHT SIDE, MIXER
-          Expanded(
+          const Expanded(
             child: Column(
               children: [
                 SizedBox(height: sizeXs),
-                GlobalMixer(p: p),
+                const GlobalMixer(),
               ],
             ),
           )
