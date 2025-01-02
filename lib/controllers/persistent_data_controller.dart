@@ -331,10 +331,14 @@ class PersistentDataController with ChangeNotifier {
             () async => await json.decode(await localScoreJson.readAsString()));
         scoreJson = await Isolate.run(() => InitScore.fromJson(scoreData));
       } else {
-        log('downloading score data');
-        scoreJson = await SanityService().fetchScore(scoreId);
-        if (scoreJson != null) {
-          await writeScoreData(scoreId, scoreJson);
+        if (await isOnline()) {
+          log('downloading score data');
+          scoreJson = await SanityService().fetchScore(scoreId);
+          if (scoreJson != null) {
+            await writeScoreData(scoreId, scoreJson);
+          }
+        } else {
+          scoreJson = null;
         }
       }
     } else {

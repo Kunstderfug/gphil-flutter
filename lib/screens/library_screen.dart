@@ -8,13 +8,28 @@ import 'package:gphil/services/app_state.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
 
-class LibraryScreen extends StatelessWidget {
+class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
+
+  @override
+  State<LibraryScreen> createState() => _LibraryScreenState();
+}
+
+class _LibraryScreenState extends State<LibraryScreen> {
+  AppState? _lastAppState;
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<LibraryProvider, AppConnection>(
         builder: (context, l, ac, child) {
+      // Only refresh when transitioning from offline to online
+      if (ac.appState == AppState.online && _lastAppState == AppState.offline) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          l.getLibrary();
+        });
+      }
+      _lastAppState = ac.appState;
+
       //LOADING STATE
       Widget loading = Center(
         child: ac.appState == AppState.offline
