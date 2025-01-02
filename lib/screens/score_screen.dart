@@ -1,18 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gphil/components/library/library_search.dart';
 import 'package:gphil/components/library/score_navigation.dart';
-import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/score_movements.dart';
 import 'package:gphil/components/score/score_sections.dart';
+import 'package:gphil/components/score/section_image.dart';
 import 'package:gphil/components/score/show_prompt.dart';
 import 'package:gphil/controllers/persistent_data_controller.dart';
 import 'package:gphil/models/playlist_classes.dart';
-import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/library_provider.dart';
+import 'package:gphil/providers/playlist_provider.dart';
 import 'package:gphil/providers/score_provider.dart';
 import 'package:gphil/theme/constants.dart';
 import 'package:provider/provider.dart';
-// import 'package:gphil/providers/global_providers.dart';
 
 final pc = PersistentDataController();
 
@@ -37,6 +38,19 @@ class _ScoreScreenState extends State<ScoreScreen> {
     super.dispose();
   }
 
+  void _showSearch(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return LibrarySearch(
+          l: Provider.of<LibraryProvider>(context, listen: false),
+          closeParentDialog: true,
+          isGlobalSearch: true,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = Provider.of<ScoreProvider>(context);
@@ -46,30 +60,41 @@ class _ScoreScreenState extends State<ScoreScreen> {
     final double availableHeight = MediaQuery.of(context).size.height -
         (isTablet(context) ? appBarSizeDesktop : appBarSize);
 
-    return s.currentScore == null
-        ? const Center(child: Text('There was a problem loading the score'))
-        : SizedBox(
-            height:
-                availableHeight - (isTablet(context) ? appBarSizeDesktop : 0),
-            child: SingleChildScrollView(
-              child: Stack(
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return CallbackShortcuts(
+      bindings: {
+        // const SingleActivator(LogicalKeyboardKey.f3): () => _showSearch(context),
+        // You can also add Ctrl+F or other shortcuts
+        const SingleActivator(LogicalKeyboardKey.keyF): () =>
+            _showSearch(context),
+      },
+      child: Focus(
+        autofocus: true,
+        child: s.currentScore == null
+            ? const Center(child: Text('There was a problem loading the score'))
+            : SizedBox(
+                height: availableHeight -
+                    (isTablet(context) ? appBarSizeDesktop : 0),
+                child: SingleChildScrollView(
+                  child: Stack(
                     children: [
-                      RepaintBoundary(child: ScoreNavigation()),
-                      SizedBox(height: separatorXs),
-                      MvtSectionsHead(),
-                      MvtSections(),
-                      // SizedBox(height: separatorXl),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RepaintBoundary(child: ScoreNavigation()),
+                          SizedBox(height: separatorXs),
+                          MvtSectionsHead(),
+                          MvtSections(),
+                          // SizedBox(height: separatorXl),
+                        ],
+                      ),
+                      if (p.showPrompt) const ShowPrompt(),
                     ],
                   ),
-                  if (p.showPrompt) const ShowPrompt(),
-                ],
+                ),
               ),
-            ),
-          );
+      ),
+    );
   }
 }
 
